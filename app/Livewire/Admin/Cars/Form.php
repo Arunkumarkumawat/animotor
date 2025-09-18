@@ -20,8 +20,12 @@ class Form extends Component
 {
     use WithFileUploads;
 
-
-
+    protected $listeners = [
+        'deleteAvailability' => 'deleteAvailability',
+        'deleteBlackout' => 'deleteBlackout',
+        'removeExtra' => 'removeExtra',
+        'removeDynamicPricing' => 'removeDynamicPricing',
+    ];
 
     public Car $car;
     public  $pcns;
@@ -68,11 +72,19 @@ class Form extends Component
     public array $extras = ['title' => '', 'price' => '', 'description' => '', 'interval' => ''];
     public ?array $insurance_coverage = ['title' => '', 'value' => ''];
 
+    public ?string $mileage_policy = '';
+    public ?string $mileage_limit;
+    public ?string $excess_mileage_rate;
+    public ?string $cancellation_policy;
+
 //    TAX
     public ?string $is_taxed = "1";
     public ?string $tax_amount = null;
     public ?string $tax_type = "monthly";
     public ?string $tax_expiry_date = null;
+
+    public ?array $photos_input = [];
+    public ?array $vehicle_photos = [];
 
     public array $service = [
         'last_service_date' => '',
@@ -155,6 +167,8 @@ class Form extends Component
         'Subscriptions',
         'Insurance Coverage',
         'Calendar',
+        'Mileage Policy',
+        'Vehicle Photos',
     ];
 
     public $availabilities = [];
@@ -165,7 +179,97 @@ class Form extends Component
     {
         $this->calendarTab = $tab;
     }
+
+    public bool $private_hire = false;
+    public $licensing_authority = "";
+    public $phv_plate_number = "";
+    public $phv_expiry_date = "";
+    public $hr_insurance_expiry = "";
+    public $plate_certificate_input = "";
+    public $hr_insurance_proof_input = "";
+
+    public bool $short_term = false;
+    public bool $long_term = false;
+    public bool $rent_to_buy = false;
+
+    public $short_term_minimum_term = "";
+    public $short_term_maximum_term = "";
+    public $short_term_pricing_cadence = "";
+    public $short_term_weekly_price_wo_ins = "";
+    public $short_term_weekly_price_w_ins = "";
+    public $short_term_maintenance_included = "";
+    public $short_term_deposit = "";
+    public $short_term_excess_liability = "";
+    public $short_term_early_return_fee = "";
+    public $short_term_notice_period_to_return = "";
+
+    public $long_term_billing_cycle = "";
+    public $long_term_default_deposit = "";
+    public ?array $long_term_term_options = [];
+    public ?array $long_term_prices = [];
+    public $long_term_excess_liability = "";
+    public $long_term_vehicle_swap_allowed = "";
+    public $long_term_early_termination_rules = "";
+
+    public $rent_to_buy_term = "";
+    public $rent_to_buy_billing_cycle = "";
+    public $rent_to_buy_price_per_cycle = "";
+    public $rent_to_buy_deposit_amount = "";
+    public $rent_to_buy_balloon_payment = "";
+    public $rent_to_buy_payment_break_weeks_year = "";
+    public $rent_to_buy_mileage_allowance_per_cycle = "";
+    public $rent_to_buy_excess_mileage_rate = "";
+    public $rent_to_buy_insurance_included = "";
+    public $rent_to_buy_maintenance_included = "";
+    public $rent_to_buy_ev_incentive_included = "";
+    public $rent_to_buy_ownership_transfer_notes = "";
     
+    public function updatePrivateHire($value)
+    {
+        $this->private_hire = $value === "1";
+    }
+
+    public function updateData($key, $value)
+    {
+        $this->{$key} = $value === "1";
+    }
+
+    public function updateLttOptions($value, $checked)
+    {
+        if ($checked) {
+            if(in_array($value, $this->long_term_term_options)){
+                return;
+            }
+            $this->long_term_term_options[] = $value;
+            unset($this->long_term_prices[$value]);
+        } else {
+            $this->long_term_term_options = array_filter($this->long_term_term_options, function ($item) use ($value) {
+                return $item !== $value;
+            });
+
+            $this->long_term_prices = [
+                $value => [
+                    'price_wo_ins' => '',
+                    'price_w_ins' => '',
+                    'maintenance_included' => 1,
+                    'maintenance_type' => '',
+                    'maintenance_price' => '',
+                    'mileage' => '',
+                    'excess_rate' => '',
+                ]
+            ];
+        }
+    }
+
+    public function updateMaintenanceField($term, $checked)
+    {
+        if ($checked) {
+            $this->long_term_prices[$term]['maintenance_included'] = 1;
+        } else {
+            $this->long_term_prices[$term]['maintenance_included'] = 0;
+        }
+    }
+
     /**
      * Initialize steps array if it's missing
      */
@@ -192,6 +296,8 @@ class Form extends Component
                 'Subscriptions',
                 'Insurance Coverage',
                 'Calendar',
+                'Mileage Policy',
+                'Vehicle Photos'
             ];
         }
     }
@@ -312,7 +418,6 @@ class Form extends Component
         }
     }
 
-
     public function updatedMake()
     {
         $make = VehicleMake::select('name', 'id')->where('name', $this->make)->first();
@@ -400,27 +505,20 @@ class Form extends Component
 
     public function saveUpdate()
     {
-
-        // Check if this is the final step (step 18)
-        if ($this->step == 19) {
-            // Save the final step data and redirect to car index
-            $this->successMsg();
-            session()->flash('success', 'Car updated successfully!');
-            $this->redirect(route('admin.cars.index'));
-            return;
+        if($this->step == 1){
+            $this->storePrivateHire();
         }
 
-        if ($this->step == 19) {
+        if($this->step == 2){
+            $this->updatePricing();
             $this->step++;
             $this->successMsg();
             return;
         }
 
-        if ($this->step == 7) {
-            // Service step - just move to next step without validation
-            $this->step++;
-            $this->successMsg();
-            return;
+        if ($this->step == 4) {
+            $this->saveSpec();
+            return $this->step++;
         }
 
         if ($this->step == 5) {
@@ -434,27 +532,16 @@ class Form extends Component
             $this->saveTax();
             return $this->step++;
         }
+
+        if ($this->step == 7) {
+            // Service step - just move to next step without validation
+            $this->step++;
+            $this->successMsg();
+            return;
+        }
+
         if ($this->step == 8) {
             $this->saveDriver();
-            return $this->step++;
-        }
-
-        if ($this->step == 17) {
-           // Subscriptions step - just move to next step without validation
-           $this->step++;
-           $this->successMsg();
-           return;
-        }
-
-
-        if ($this->step == 12) {
-            $this->updateFinance();
-            return $this->step++;
-        }
-
-
-        if ($this->step == 4) {
-            $this->saveSpec();
             return $this->step++;
         }
 
@@ -474,6 +561,11 @@ class Form extends Component
             $this->step++;
             $this->successMsg();
             return;
+        }
+
+        if ($this->step == 12) {
+            $this->updateFinance();
+            return $this->step++;
         }
 
         if ($this->step == 13) {
@@ -504,10 +596,66 @@ class Form extends Component
             return;
         }
 
-        if($this->step == 2){
-            $this->updatePricing();
+        if ($this->step == 17) {
+            // Subscriptions step - just move to next step without validation
             $this->step++;
             $this->successMsg();
+            return;
+        }
+
+        if ($this->step == 18) {
+            $this->step++;
+            $this->successMsg();
+            return;
+        }
+
+        if ($this->step == 19) {
+            $this->step++;
+            $this->successMsg();
+            return;
+        }
+
+        if ($this->step == 20) {
+            $this->validate([
+                'mileage_policy' => ['required', 'string'],
+                'mileage_limit' => ['required', 'numeric'],
+                'excess_mileage_rate' => ['required', 'numeric'],
+                'cancellation_policy' => ['required', 'string'],
+            ]);
+
+            $this->car->update([
+                'mileage_policy' => $this->mileage_policy,
+                'mileage_limit' => $this->mileage_limit,
+                'excess_mileage_rate' => $this->excess_mileage_rate,
+                'cancellation_policy' => $this->cancellation_policy,
+            ]);
+
+            $this->successMsg();
+            return;
+        }
+
+        if ($this->step == 21) {
+            $this->validate([
+                'photos_input' => ['nullable', 'array'],
+                'photos_input.*' => ['required', 'image', 'max:2048'],
+            ]);
+
+            if($this->photos_input){
+                $photos = [];
+                $uploadService = new FileUploadService();
+
+                foreach($this->photos_input as $photo){
+                    $photos[] = $uploadService->userFileUpload($photo);
+                }
+
+                $this->car->update([
+                    'vehicle_photos' => $photos,
+                ]);
+            }
+
+            $this->successMsg();
+            session()->flash('success', 'Car updated successfully!');
+            $this->redirect(route('admin.cars.index'));
             return;
         }
 
@@ -557,6 +705,105 @@ class Form extends Component
 
         $this->successMsg();
 
+    }
+
+    public function storePrivateHire(){
+        $validated = $this->validate([
+            'private_hire' => ['required', 'boolean'],
+            'licensing_authority' => ['required', 'string'],
+            'phv_plate_number' => ['required', 'string'],
+            'phv_expiry_date' => ['required', 'string'],
+            'hr_insurance_expiry' => ['required', 'string'],
+            'plate_certificate_input' => ['required', 'file'],
+            'hr_insurance_proof_input' => ['required', 'file'],
+
+            'short_term' => 'nullable|boolean',
+            'long_term' => 'nullable|boolean',
+            'rent_to_buy' => 'nullable|boolean',
+
+            'short_term_minimum_term' => 'nullable|string',
+            'short_term_maximum_term' => 'nullable|string',
+            'short_term_pricing_cadence' => 'nullable|string',
+            'short_term_weekly_price_wo_ins' => 'nullable|numeric',
+            'short_term_weekly_price_w_ins' => 'nullable|numeric',
+            'short_term_maintenance_included' => 'nullable|boolean',
+            'short_term_deposit' => 'nullable|numeric',
+            'short_term_excess_liability' => 'nullable|numeric',
+            'short_term_early_return_fee' => 'nullable|numeric',
+            'short_term_notice_period_to_return' => 'nullable|string',
+
+            'long_term_billing_cycle' => 'nullable|string',
+            'long_term_default_deposit' => 'nullable|numeric',
+            'long_term_term_options' => 'nullable|array',
+            'long_term_prices.3m.price_wo_ins' => 'nullable|numeric',
+            'long_term_prices.3m.price_w_ins' => 'nullable|numeric',
+            'long_term_prices.3m.maintenance_included' => 'nullable|boolean',
+            'long_term_prices.3m.maintenance_type' => 'nullable|string',
+            'long_term_prices.3m.maintenance_price' => 'nullable|numeric',
+            'long_term_prices.3m.mileage' => 'nullable|numeric',
+            'long_term_prices.3m.excess_rate' => 'nullable|numeric',
+            'long_term_prices.6m.price_wo_ins' => 'nullable|numeric',
+            'long_term_prices.6m.price_w_ins' => 'nullable|numeric',
+            'long_term_prices.6m.maintenance_included' => 'nullable|boolean',
+            'long_term_prices.6m.maintenance_type' => 'nullable|string',
+            'long_term_prices.6m.maintenance_price' => 'nullable|numeric',
+            'long_term_prices.6m.mileage' => 'nullable|numeric',
+            'long_term_prices.6m.excess_rate' => 'nullable|numeric',
+            'long_term_prices.9m.price_wo_ins' => 'nullable|numeric',
+            'long_term_prices.9m.price_w_ins' => 'nullable|numeric',
+            'long_term_prices.9m.maintenance_included' => 'nullable|boolean',
+            'long_term_prices.9m.maintenance_type' => 'nullable|string',
+            'long_term_prices.9m.maintenance_price' => 'nullable|numeric',
+            'long_term_prices.9m.mileage' => 'nullable|numeric',
+            'long_term_prices.9m.excess_rate' => 'nullable|numeric',
+            'long_term_prices.12m.price_wo_ins' => 'nullable|numeric',
+            'long_term_prices.12m.price_w_ins' => 'nullable|numeric',
+            'long_term_prices.12m.maintenance_included' => 'nullable|boolean',
+            'long_term_prices.12m.maintenance_type' => 'nullable|string',
+            'long_term_prices.12m.maintenance_price' => 'nullable|numeric',
+            'long_term_prices.12m.mileage' => 'nullable|numeric',
+            'long_term_prices.12m.excess_rate' => 'nullable|numeric',
+            'long_term_prices.18m.price_wo_ins' => 'nullable|numeric',
+            'long_term_prices.18m.price_w_ins' => 'nullable|numeric',
+            'long_term_prices.18m.maintenance_included' => 'nullable|boolean',
+            'long_term_prices.18m.maintenance_type' => 'nullable|string',
+            'long_term_prices.18m.maintenance_price' => 'nullable|numeric',
+            'long_term_prices.18m.mileage' => 'nullable|numeric',
+            'long_term_prices.18m.excess_rate' => 'nullable|numeric',
+            'long_term_excess_liability' => 'nullable|numeric',
+            'long_term_vehicle_swap_allowed' => 'nullable|boolean',
+            'long_term_early_termination_rules' => 'nullable|string',
+
+            'rent_to_buy_term' => 'nullable|numeric',
+            'rent_to_buy_billing_cycle' => 'nullable|string',
+            'rent_to_buy_price_per_cycle' => 'nullable|numeric',
+            'rent_to_buy_deposit_amount' => 'nullable|numeric',
+            'rent_to_buy_balloon_payment' => 'nullable|numeric',
+            'rent_to_buy_payment_break_weeks_year' => 'nullable|string',
+            'rent_to_buy_mileage_allowance_per_cycle' => 'nullable|numeric',
+            'rent_to_buy_excess_mileage_rate' => 'nullable|numeric',
+            'rent_to_buy_insurance_included' => 'nullable|boolean',
+            'rent_to_buy_maintenance_included' => 'nullable|boolean',
+            'rent_to_buy_ev_incentive_included' => 'nullable|boolean',
+            'rent_to_buy_ownership_transfer_notes' => 'nullable|string',
+        ]);
+
+        $uploadService = new FileUploadService();
+        if($this->plate_certificate_input){
+            $file = $uploadService->userFileUpload($this->plate_certificate_input);
+            $validated['plate_certificate'] = $file;
+        }
+
+        if($this->hr_insurance_proof_input){
+            $file = $uploadService->userFileUpload($this->hr_insurance_proof_input);
+            $validated['hr_insurance_proof'] = $file;
+        }
+
+        
+
+        $this->car->update($validated);
+
+        $this->successMsg();
     }
 
     public function updatePricing(){

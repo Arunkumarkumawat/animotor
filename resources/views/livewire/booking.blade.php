@@ -19,9 +19,9 @@
 
 
                         <button wire:click="toggleSearch" type="submit" class="cmn__btn">
-                        <span>
-                           Edit search
-                        </span>
+                            <span>
+                            Edit search
+                            </span>
                         </button>
 
 

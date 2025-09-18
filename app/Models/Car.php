@@ -33,6 +33,9 @@ class Car extends Model
         'insurance_coverage' => 'array',
         'dynamic_pricings' => 'array',
         'is_approved' => 'boolean',
+        'vehicle_photos' => 'array',
+        'long_term_term_options' => 'array',
+        'long_term_prices' => 'array',
     ];
 
     public function region(): BelongsTo

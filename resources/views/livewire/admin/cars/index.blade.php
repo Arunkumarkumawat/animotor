@@ -78,6 +78,7 @@
                         <tr>
                             <th><input type="checkbox" wire:model.live="selectAll"></th>
                             <th>{{ __('admin.sn') }}</th>
+                            @if(isAdmin())<th>Company Name</th>@endif
                             <th>{{ __('admin.service_area') }}</th>
                             <th>{{ __('admin.vrm') }}</th>
                             <th>{{ __('admin.make') }}</th>
@@ -94,6 +95,7 @@
                             <tr>
                                 <td><input type="checkbox" wire:model.live="selected_items" value="{{ $item->id }}"></td>
                                 <td>{{ $loop->index+1 }}</td>
+                                @if(isAdmin())<td>{{ $item->company->name ?? ''}}<br>{{ $item->company->contact_email ?? '' }}</td>@endif
                                 <td>{{ $item->region->name ?? ''}}</td>
                                 <td><a href="{{ route('admin.cars.edit',$item->id) }}" class="btn btn-warning"> {{ $item->registration_number }}</a></td>
                                 <td>{{ $item->make }}</td>
@@ -117,7 +119,7 @@
                             </tr>
                             @if(!$item->is_approved)
                             <tr data-id="{{ $item->id }}" class="{{ $opened == $item->id ? '' : 'd-none' }}">
-                                <td colspan="10">
+                                <td colspan="11">
                                     <div class="row mt-2">
                                         <div class="col-md-4">
                                             <h5>Pricing &amp; Commission</h5>

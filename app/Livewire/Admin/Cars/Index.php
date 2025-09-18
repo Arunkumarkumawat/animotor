@@ -78,7 +78,7 @@ class Index extends Component
 
     protected function getPaginate(): \Illuminate\Contracts\Pagination\LengthAwarePaginator|array
     {
-        $query = Car::with('availabilities','blackouts')->latest();
+        $query = Car::with('availabilities','blackouts','company')->latest();
 
         if (!isOwner() && !isAdmin()) {
             return [];
@@ -109,10 +109,15 @@ class Index extends Component
 
     public function applyApproval($itemId, $status)
     {
+        if(!isset($this->commission_rate[$itemId])) {
+            return;
+        }
+
         $item = Car::findOrFail($itemId);
 
         $item->update([
             'is_approved' => $status,
+            'commission_fee' => $this->commission_rate[$itemId],
         ]);
 
         $this->js("NioApp.Toast('Status updated successfully', 'success', {

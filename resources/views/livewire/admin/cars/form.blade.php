@@ -8,11 +8,6 @@
                     {{ $this->currentStepName }}
                 </h4>
             @endif
-
-
-            <div class="mt-2">
-                {{--                <p><span class="btn btn-warning me-5">{{ $car->registration_number }}</span> Make : {{ $car->make }}</p>--}}
-            </div>
         </div>
 
         <div class="nk-block-head-content">
@@ -23,7 +18,6 @@
                wire:navigate class="btn btn-icon btn-outline-light bg-white d-inline-flex d-sm-none"><em
                     class="icon ni ni-arrow-left"></em></a>
         </div>
-
     </div>
     <div class="row g-gs">
 
@@ -144,7 +138,6 @@
                                     @endif
 
                                     <div class="col-md-4 mt-3">
-
                                         <div class="form-group">
                                             <label class="form-label-outlined-" for="type">Vehicle Type</label>
 
@@ -158,9 +151,20 @@
 
                                             </div>
                                         </div>
-
                                     </div>
 
+                                    <div class="col-md-4 mt-3">
+                                        <div class="form-group">
+                                            <label class="form-label-outlined-" for="private_hire">Private Hire</label>
+                                            <div class="form-control-wrap">
+                                                <select wire:model="private_hire" class="form-select form-control-lg" wire:change="updatePrivateHire($event.target.value)">
+                                                    <option value="">Select</option>
+                                                    <option value="1">Yes</option>
+                                                    <option value="0">No</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
 
                                     <div class="col-md-4 mt-3">
                                         <div class="form-group">
@@ -219,6 +223,7 @@
                                             </div>
                                         </div>
                                     </div>
+                                    @if(\Auth::user()->hasRole("admin"))
                                     <div class="col-md-4 mt-3">
                                         <div class="form-group">
                                             <label class="form-label" for="commission_fee">Commission Fee (%)</label>
@@ -231,6 +236,7 @@
                                             </div>
                                         </div>
                                     </div>
+                                    @endif
                                     <div class="col-md-4 mt-3">
                                         <div class="form-group">
                                             <label class="form-label" for="insurance_fee">Insurance Fee (For Full Protection)</label>
@@ -325,7 +331,560 @@
                                         </div>
                                     </div>
 
+                                    @if($private_hire)
+                                    <div class="row">
+                                        <div class="col-md-4 mt-2">
+                                            <div class="form-group">
+                                                <label class="form-label" for="private_hire">Licensing Authority</label>
+                                                <select class="form-control" name="licensing_authority" wire:model="licensing_authority">
+                                                    <option value="">Select Licensing Authority</option>
+                                                    <option value="Transport for London">Transport for London</option>
+                                                    <option value="Manchester City Council">Manchester City Council</option>
+                                                    <option value="Birmingham City Council">Birmingham City Council</option>
+                                                    <option value="Leeds City Council">Leeds City Council</option>
+                                                    <option value="Liverpool City Council">Liverpool City Council</option>
+                                                    <option value="Newcastle City Council">Newcastle City Council</option>
+                                                    <option value="Nottingham City Council">Nottingham City Council</option>
+                                                    <option value="Salford City Council">Salford City Council</option>
+                                                    <option value="Sheffield City Council">Sheffield City Council</option>
+                                                    <option value="West Midlands City Council">West Midlands City Council</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mt-2">
+                                            <div class="form-group">
+                                                <label>PHV Plate Number</label>
+                                                <input type="text" wire:model="phv_plate_number" class="form-control" placeholder="PHV Plate Number">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mt-2">
+                                            <div class="form-group">
+                                                <label>PHV Expiry Date</label>
+                                                <input type="date" wire:model="phv_expiry_date" class="form-control" placeholder="PHV Expiry Date">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mt-2">
+                                            <div class="form-group">
+                                                <label>H&R Insurance Expiry</label>
+                                                <input type="date" wire:model="hr_insurance_expiry" class="form-control" placeholder="H&R Insurance Expiry">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mt-2">
+                                            <div class="form-group">
+                                                <label>Plate Certificate</label>
+                                                <input type="file" wire:model="plate_certificate_input" class="form-control" placeholder="Plate Certificate">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mt-2">
+                                            <div class="form-group">
+                                                <label>H&R Insurance Proof</label>
+                                                <input type="file" wire:model="hr_insurance_proof_input" class="form-control" placeholder="H&R Insurance Proof">
+                                            </div>
+                                        </div>                                                
+                                    </div>
 
+                                    <div class="row">
+                                        <div class="col-md-12 mt-2">
+                                            <h6>Hire Types Enabled</h6>
+                                        </div>
+                                        <div class="col-md-4 mt-2">
+                                            <div class="form-group">
+                                                <label>
+                                                    <input type="checkbox" wire:model="short_term" value="1" wire:change="updateData('short_term', $event.target.value)">
+                                                    Short Term Flexible
+                                                </label>
+                                                <p>1 week - 3 months</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mt-2">
+                                            <div class="form-group">
+                                                <label>
+                                                    <input type="checkbox" wire:model="long_term" value="1" wire:change="updateData('long_term', $event.target.value)">
+                                                    Long Term
+                                                </label>
+                                                <p>3 months+</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mt-2">
+                                            <div class="form-group">
+                                                <label>
+                                                    <input type="checkbox" wire:model="rent_to_buy" value="1" wire:change="updateData('rent_to_buy', $event.target.value)">
+                                                    Rent-to-Buy
+                                                </label>
+                                                <p>R2B Option</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @endif
+
+                                    @if($short_term)
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-12 mt-2">
+                                                    <h6>Short Term Flexible Configuration</h6>
+                                                    <p>Weekly Pricing with flexible terms upto 12 weeks.</p>
+                                                </div>
+                                                <div class="col-md-4 mt-3 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="form-label" for="minimum_term">Minimum Term</label>
+                                                        <select wire:model="short_term_minimum_term" class="form-control">
+                                                            <option value="">Select</option>
+                                                            <option value="1">1</option>
+                                                            <option value="2">2</option>
+                                                            <option value="4">4</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 mt-3 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="form-label" for="maximum_term">Maximum Term</label>
+                                                        <select wire:model="short_term_maximum_term" class="form-control" readonly>
+                                                            <option value="12">Up to 12 weeks</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 mt-3 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="form-label" for="pricing_cadence">Pricing Cadence</label>
+                                                        <select wire:model="short_term_pricing_cadence" class="form-control" readonly>
+                                                            <option value="weekly">Weekly</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mt-3 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="form-label" for="weekly_price_wo_ins">Weekly Price (Without Insurance)</label>
+                                                        <input wire:model="short_term_weekly_price_wo_ins" type="number" min="0" class="form-control">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mt-3 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="form-label" for="weekly_price_w_ins">Weekly Price (With Insurance)</label>
+                                                        <input wire:model="short_term_weekly_price_w_ins" type="number" min="0" class="form-control">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="form-label" for="maintenance_included">
+                                                            <input wire:model="short_term_maintenance_included" type="checkbox">
+                                                            Maintenance Included
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="form-label" for="deposit">Deposit</label>
+                                                        <input wire:model="short_term_deposit" type="number" min="0" class="form-control">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="form-label" for="excess_liability">Excess/Liability</label>
+                                                        <input wire:model="short_term_excess_liability" type="number" min="0" class="form-control">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="form-label" for="early_return_fee">Early Return Fee</label>
+                                                        <input wire:model="short_term_early_return_fee" type="number" min="0" class="form-control">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="form-label" for="notice_period_to_return">Notice Period to Return</label>
+                                                        <input wire:model="short_term_notice_period_to_return" type="number" min="0" class="form-control">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="alert alert-info">
+                                                        <p>Extensions are automatically allowed week-by-week up to 12 weeks total.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @endif
+
+                                    @if($long_term)
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-12 mt-2">
+                                                    <h6>Long Term Configuration</h6>
+                                                    <p>3+ months with flexible pricing matrix</p>
+                                                </div>
+                                                <div class="col-md-6 mt-3">
+                                                    <div class="form-group">
+                                                        <label class="form-label" for="billing_cycle">Billing Cycle</label>
+                                                        <select wire:model="long_term_billing_cycle" class="form-control">
+                                                            <option value="">Select</option>
+                                                            <option value="weekly">Weekly</option>
+                                                            <option value="monthly">Monthly</option>
+                                                            <option value="quarterly">Quarterly</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mt-3">
+                                                    <div class="form-group">
+                                                        <label class="form-label" for="default_deposit">Default Deposit</label>
+                                                        <input wire:model="long_term_default_deposit" type="number" min="0" class="form-control">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mt-3">
+                                                    <h5>Term Options</h5>
+                                                </div>
+                                                <div class="col-md-2 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="form-label" for="long_term_term_options">
+                                                            <input wire:model="long_term_term_options" type="checkbox" value="3m" wire:change="updateLttOptions($event.target.value, $event.target.checked  )">
+                                                            3 Months
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="form-label" for="long_term_term_options">
+                                                            <input wire:model="long_term_term_options" type="checkbox" value="6m" wire:change="updateLttOptions($event.target.value, $event.target.checked)">
+                                                            6 Months
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="form-label" for="long_term_term_options">
+                                                            <input wire:model="long_term_term_options" type="checkbox" value="9m" wire:change="updateLttOptions($event.target.value, $event.target.checked)">
+                                                            9 Months
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="form-label" for="long_term_term_options">
+                                                            <input wire:model="long_term_term_options" type="checkbox" value="12m" wire:change="updateLttOptions($event.target.value, $event.target.checked)">
+                                                            12 Months
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="form-label" for="long_term_term_options">
+                                                            <input wire:model="long_term_term_options" type="checkbox" value="18m">
+                                                            18 Months
+                                                        </label>
+                                                    </div>
+                                                </div>
+
+                                                <table class="table mt-2">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Term</th>
+                                                            <th>Price w/o Insurance</th>
+                                                            <th>Price w/ Insurance</th>
+                                                            <th>Maintenance Included?</th>
+                                                            <th>Maintenance Type</th>
+                                                            <th>Maintenance Price</th>
+                                                            <th>Mileage</th>
+                                                            <th>Excess Rate</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @if(in_array('3m', $long_term_term_options))
+                                                        <tr>
+                                                            <td>3 Months</td>
+                                                            <td>
+                                                                <input type="number" min="0" wire:model="long_term_prices.3m.price_wo_ins" class="form-control">
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" min="0" wire:model="long_term_prices.3m.price_w_ins" class="form-control">
+                                                            </td>
+                                                            <td>
+                                                                <input type="checkbox" wire:model="long_term_prices.3m.maintenance_included" wire:change="updateMaintenanceField('3m', $event.target.checked)">
+                                                            </td>
+                                                            <td>
+                                                                @if(isset($long_term_prices['3m']) && !$long_term_prices['3m']['maintenance_included'])
+                                                                    <select class="form-control" wire:model="long_term_prices.3m.maintenance_type">
+                                                                        <option value="">Select</option>
+                                                                        <option value="basic">Basic</option>
+                                                                        <option value="full">Full</option>
+                                                                    </select>
+                                                                @endif
+                                                            </td>
+                                                            <td>
+                                                                @if(isset($long_term_prices['3m']) && !$long_term_prices['3m']['maintenance_included'])
+                                                                    <input type="number" min="0" wire:model="long_term_prices.3m.maintenance_price" class="form-control">
+                                                                @endif
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" min="0" wire:model="long_term_prices.3m.mileage" class="form-control">
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" min="0" wire:model="long_term_prices.3m.excess_rate" class="form-control">
+                                                            </td>
+                                                        </tr>
+                                                        @endif
+
+                                                        @if(in_array('6m', $long_term_term_options))
+                                                        <tr>
+                                                            <td>6 Months</td>
+                                                            <td>
+                                                                <input type="number" min="0" wire:model="long_term_prices.6m.price_wo_ins" class="form-control">
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" min="0" wire:model="long_term_prices.6m.price_w_ins" class="form-control">
+                                                            </td>
+                                                            <td>
+                                                                <input type="checkbox" wire:model="long_term_prices.6m.maintenance_included" wire:change="updateMaintenanceField('6m', $event.target.checked)">
+                                                            </td>
+                                                            <td>
+                                                                @if(isset($long_term_prices['6m']) && !$long_term_prices['6m']['maintenance_included'])
+                                                                    <select class="form-control" wire:model="long_term_prices.6m.maintenance_type">
+                                                                        <option value="">Select</option>
+                                                                        <option value="basic">Basic</option>
+                                                                        <option value="full">Full</option>
+                                                                    </select>
+                                                                @endif
+                                                            </td>
+                                                            <td>
+                                                                @if(isset($long_term_prices['6m']) && !$long_term_prices['6m']['maintenance_included'])
+                                                                    <input type="number" min="0" wire:model="long_term_prices.6m.maintenance_price" class="form-control">
+                                                                @endif
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" min="0" wire:model="long_term_prices.6m.mileage" class="form-control">
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" min="0" wire:model="long_term_prices.6m.excess_rate" class="form-control">
+                                                            </td>
+                                                        </tr>
+                                                        @endif
+
+                                                        @if(in_array('9m', $long_term_term_options))
+                                                        <tr>
+                                                            <td>9 Months</td>
+                                                            <td>
+                                                                <input type="number" min="0" wire:model="long_term_prices.9m.price_wo_ins" class="form-control">
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" min="0" wire:model="long_term_prices.9m.price_w_ins" class="form-control">
+                                                            </td>
+                                                            <td>
+                                                                <input type="checkbox" wire:model="long_term_prices.9m.maintenance_included" wire:change="updateMaintenanceField('9m', $event.target.checked)">
+                                                            </td>
+                                                            <td>
+                                                                @if(isset($long_term_prices['9m']) && !$long_term_prices['9m']['maintenance_included'])
+                                                                    <select class="form-control" wire:model="long_term_prices.9m.maintenance_type">
+                                                                        <option value="">Select</option>
+                                                                        <option value="basic">Basic</option>
+                                                                        <option value="full">Full</option>
+                                                                    </select>
+                                                                @endif
+                                                            </td>
+                                                            <td>
+                                                                @if(isset($long_term_prices['9m']) && !$long_term_prices['9m']['maintenance_included'])
+                                                                    <input type="number" min="0" wire:model="long_term_prices.9m.maintenance_price" class="form-control">
+                                                                @endif
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" min="0" wire:model="long_term_prices.9m.mileage" class="form-control">
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" min="0" wire:model="long_term_prices.9m.excess_rate" class="form-control">
+                                                            </td>
+                                                        </tr>
+                                                        @endif
+
+                                                        @if(in_array('12m', $long_term_term_options))
+                                                        <tr>
+                                                            <td>12 Months</td>
+                                                            <td>
+                                                                <input type="number" min="0" wire:model="long_term_prices.12m.price_wo_ins" class="form-control">
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" min="0" wire:model="long_term_prices.12m.price_w_ins" class="form-control">
+                                                            </td>
+                                                            <td>
+                                                                <input type="checkbox" wire:model="long_term_prices.12m.maintenance_included" wire:change="updateMaintenanceField('12m', $event.target.checked)">
+                                                            </td>
+                                                            <td>
+                                                                @if(isset($long_term_prices['12m']) && !$long_term_prices['12m']['maintenance_included'])
+                                                                    <select class="form-control" wire:model="long_term_prices.12m.maintenance_type">
+                                                                        <option value="">Select</option>
+                                                                        <option value="basic">Basic</option>
+                                                                        <option value="full">Full</option>
+                                                                    </select>
+                                                                @endif
+                                                            </td>
+                                                            <td>
+                                                                @if(!$long_term_prices['12m']['maintenance_included'])
+                                                                    <input type="number" min="0" wire:model="long_term_prices.12m.maintenance_price" class="form-control">
+                                                                @endif
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" min="0" wire:model="long_term_prices.12m.mileage" class="form-control">
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" min="0" wire:model="long_term_prices.12m.excess_rate" class="form-control">
+                                                            </td>
+                                                        </tr>
+                                                        @endif
+
+                                                        @if(in_array('18m', $long_term_term_options))
+                                                        <tr>
+                                                            <td>18 Months</td>
+                                                            <td>
+                                                                <input type="number" min="0" wire:model="long_term_prices.18m.price_wo_ins" class="form-control">
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" min="0" wire:model="long_term_prices.18m.price_w_ins" class="form-control">
+                                                            </td>
+                                                            <td>
+                                                                <input type="checkbox" wire:model="long_term_prices.18m.maintenance_included" wire:change="updateMaintenanceField('18m', $event.target.checked)">
+                                                            </td>
+                                                            <td>
+                                                                @if(isset($long_term_prices['18m']) && !$long_term_prices['18m']['maintenance_included'])
+                                                                    <select class="form-control" wire:model="long_term_prices.18m.maintenance_type">
+                                                                        <option value="">Select</option>
+                                                                        <option value="basic">Basic</option>
+                                                                        <option value="full">Full</option>
+                                                                    </select>
+                                                                @endif
+                                                            </td>
+                                                            <td>
+                                                                @if(isset($long_term_prices['18m']) && !$long_term_prices['18m']['maintenance_included'])
+                                                                    <input type="number" min="0" wire:model="long_term_prices.18m.maintenance_price" class="form-control">
+                                                                @endif
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" min="0" wire:model="long_term_prices.18m.mileage" class="form-control">
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" min="0" wire:model="long_term_prices.18m.excess_rate" class="form-control">
+                                                            </td>
+                                                        </tr>
+                                                        @endif
+                                                    </tbody>
+                                                </table>
+
+                                                <div class="col-md-6 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="form-label">Excess/Liability</label>
+                                                        <input wire:model="long_term_excess_liability" type="number" min="0" class="form-control">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6 mt-2">
+                                                    <div class="form-group">
+                                                        <label>
+                                                            <input wire:model="long_term_vehicle_swap_allowed" type="checkbox">
+                                                            Vehicle Swap Allowed
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="form-label">Early Termination Rules</label>
+                                                        <textarea wire:model="long_term_early_termination_rules" class="form-control"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @endif
+
+                                    @if($rent_to_buy)
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5>Rent To Buy</h5>
+                                            <div class="row">
+                                                <div class="col-md-4 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="form-label">Term (Months)</label>
+                                                        <input wire:model="rent_to_buy_term" type="number" min="0" class="form-control">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="form-label">Billing Cycle</label>
+                                                        <select wire:model="rent_to_buy_billing_cycle" class="form-control">
+                                                            <option value="">Select</option>
+                                                            <option value="weekly">Weekly</option>
+                                                            <option value="monthly">Monthly</option>
+                                                            <option value="quarterly">Quarterly</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="form-label">Price Per Cycle</label>
+                                                        <input wire:model="rent_to_buy_price_per_cycle" type="number" min="0" class="form-control">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="form-label">Deposit Amount</label>
+                                                        <input wire:model="rent_to_buy_deposit_amount" type="number" min="0" class="form-control">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="form-label">Balloon Payment</label>
+                                                        <input wire:model="rent_to_buy_balloon_payment" type="number" min="0" class="form-control">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="form-label">Payment Break Weeks/Year</label>
+                                                        <input wire:model="rent_to_buy_payment_break_weeks_year" type="number" min="0" class="form-control">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="form-label">Mileage Allowance (Per Cycle)</label>
+                                                        <input wire:model="rent_to_buy_mileage_allowance_per_cycle" type="number" min="0" class="form-control">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="form-label">Excess Mileage Rate</label>
+                                                        <input wire:model="rent_to_buy_excess_mileage_rate" type="number" min="0" class="form-control">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="form-label">
+                                                            <input wire:model="rent_to_buy_insurance_included" type="checkbox">
+                                                            Insurance Included
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="form-label">
+                                                            <input wire:model="rent_to_buy_maintenance_included" type="checkbox">
+                                                            Maintenance Included
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="form-label">
+                                                            <input wire:model="rent_to_buy_ev_incentive_included" type="checkbox">
+                                                            EV Incentive Included
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label>Ownership Transfer Notes</label>
+                                                        <textarea wire:model="rent_to_buy_ownership_transfer_notes" class="form-control"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @endif
                                 </div>
                             @endif
 
@@ -375,7 +934,7 @@
                                                     <td>{{ $pricing['start_date'] }}</td>
                                                     <td>{{ $pricing['end_date'] }}</td>
                                                     <td>
-                                                        <button type="button" wire:click="removeDynamicPricing({{ $loop->index }})" class="btn btn-danger">Remove</button>
+                                                        <button type="button" onclick="confirm('Are you sure?') ? Livewire.dispatch('removeDynamicPricing', { index: {{ $loop->index }} }) : null" class="btn btn-danger">Remove</button>
                                                     </td>
                                                 </tr>
                                                 @endforeach
@@ -1028,7 +1587,7 @@
                                                     <td>{{ $extra['interval'] ?? 'daily' }}</td>
                                                     <td>{{ $extra['price'] }}</td>
                                                     <td>
-                                                        <button type="button" wire:key="remove-{{ $index }}" class="btn btn-warning" wire:click="removeExtra({{ $index }})">Remove</button>
+                                                        <button type="button" wire:key="remove-{{ $index }}" class="btn btn-warning" onclick="confirm('Are you sure?') ? Livewire.dispatch('removeExtra', { index: {{ $index }} }) : null">Remove</button>
                                                     </td>
                                                 </tr>
                                                 @endforeach
@@ -1112,7 +1671,6 @@
                                             </div>
                                         </div>
                                     </div>
-
                                 </div>
                             @endif
                             @if($step == 11)
@@ -2077,7 +2635,7 @@
                                                             </select>
                                                         </td>
                                                         <td>
-                                                            <button type="button" wire:click.prevent="deleteAvailability({{ $item['id'] }})" class="btn btn-danger btn-sm">
+                                                            <button type="button" onclick="confirm('Are you sure?') ? Livewire.dispatch('deleteAvailability', { id: {{ $item['id'] }} }) : null" class="btn btn-danger btn-sm">
                                                                 Remove
                                                             </button>
                                                         </td>
@@ -2147,7 +2705,7 @@
                                                         <td>{{ $item['hard_block'] ? 'Yes' : 'No' }}</td>
                                                         <td>{{ $item['notes'] }}</td>
                                                         <td>
-                                                            <button type="button" wire:click.prevent="deleteBlackout({{ $item['id'] }})" class="btn btn-danger btn-sm">
+                                                            <button type="button" onclick="confirm('Are you sure?') ? Livewire.dispatch('deleteBlackout', { id: {{ $item['id'] }} }) : null" class="btn btn-danger btn-sm">
                                                                 Remove
                                                             </button>
                                                         </td>
@@ -2160,6 +2718,93 @@
                             </div>
                             @endif
 
+                            @if($step == 20)
+                                <div class="row">
+                                    <div class="col-12 mb-2 mt-2">
+                                        <h6>Mileage and Cancellation Policies</h6>
+                                    </div>
+
+                                    <div class="col-4">
+                                        <div class="form-group mb-2">
+                                            <label>Mileage Policy</label>
+                                            <select class="form-control form-control-lg" 
+                                                wire:model="mileage_policy"
+                                                x-on:change="if ($event.target.value === 'unlimited') { 
+                                                    $wire.set('mileage_limit', null);
+                                                    $wire.set('excess_mileage_rate', null);
+                                                } else {
+                                                    $wire.set('mileage_limit', '');
+                                                    $wire.set('excess_mileage_rate', '');
+                                                }">
+                                                <option value="">Select Mileage Policy</option>
+                                                <option value="unlimited">Unlimited</option>
+                                                <option value="limited_per_day">Limited per day</option>
+                                                <option value="limited_per_week">Limited per week</option>
+                                                <option value="limited_per_month">Limited per month</option>
+                                                <option value="limited_per_rental">Limited per rental</option>
+                                            </select>
+                                            @error("mileage_policy") <span class="error">Mileage policy is required</span> @enderror
+                                        </div>
+                                    </div>
+                                    @if($mileage_policy != 'unlimited')
+                                    <div class="col-4">
+                                        <div class="form-group mb-2">
+                                            <label>Mileage Limit</label>
+                                            <input class="form-control form-control-lg" min="0" type="number" wire:model="mileage_limit">
+                                            @error("mileage_limit") <span class="error">Mileage limit is required</span> @enderror
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="form-group mb-2">
+                                            <label>Excess Mileage Rate (£ per mile)</label>
+                                            <input class="form-control form-control-lg" type="number" wire:model="excess_mileage_rate" placeholder="Excess Mileage Rate">
+                                            @error("excess_mileage_rate") <span class="error">Excess mileage rate is required</span> @enderror
+                                        </div>
+                                    </div>
+                                    @endif
+                                    <div class="col-12">
+                                        <label>Cancellation Policy</label>
+                                        <select class="form-control form-control-lg" wire:model="cancellation_policy">
+                                            <option value="">Use Supplier Default</option>
+                                            <option value="strict">Strict - 336h Free Cancellation</option>
+                                            <option value="flexible">Flexible - 48h Free Cancellation</option>
+                                            <option value="moderate">Moderate - 168h Free Cancellation</option>
+                                            <option value="non-refundable">Non-Refundable - 0h Free Cancellation</option>
+                                            <option value="flexible">Flexible - 168h Free Cancellation</option>
+                                            <option value="strict">Strict - 24h Free Cancellation</option>
+                                            <option value="non-refundable">Non-Refundable - 0h Free Cancellation</option>
+                                            <option value="moderate">Moderate - 48h Free Cancellation</option>
+                                            <option value="strict">Strict - 72h Free Cancellation</option>
+                                            <option value="flexible">Flexible - 24h Free Cancellation</option>
+                                            <option value="moderate">Moderate - 48h Free Cancellation</option>
+                                        </select>
+                                        @error("cancellation_policy") <span class="error">Cancellation policy is required</span> @enderror
+                                    </div>
+                                </div>
+                            @endif
+
+                            @if($step == 21)
+                                <div class="row">
+                                    <div class="col-12 mb-2 mt-2">
+                                        <h6>Vehicle Photos</h6>
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <div class="row mb-2">
+                                            @foreach ($vehicle_photos as $vehicle_photo)
+                                                <div class="col-md-2">
+                                                    <img src="{{ $vehicle_photo }}" class="img-fluid">
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                        <div class="form-group mb-2">
+                                            <label>Photos</label>
+                                            <input type="file" wire:model="photos_input" multiple class="form-control form-control-lg">
+                                            @error("photos_input") <span class="error">Photos are required</span> @enderror
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
 
                             <div class="row justify-content-center-">
                                 <div class="col-4">

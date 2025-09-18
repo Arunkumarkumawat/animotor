@@ -132,16 +132,12 @@ class Booking extends Component
         if ($response->successful()) {
             $filtered_predictions = $response->json()['predictions'];
 
-
-
             if($type == 'pick_up'){
                 $this->pickup_locations = $filtered_predictions;
             }else{
 
                 $this->drop_off_locations = $filtered_predictions;
             }
-
-
         } else {
             if($type == 'pick_up'){
                 $this->pickup_locations = [];
