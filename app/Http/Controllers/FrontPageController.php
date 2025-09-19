@@ -31,8 +31,26 @@ class FrontPageController extends Controller
         ]);
 
         $car = Car::findOrFail($request->car_id);
+
         $email = $request->email;
         $days = $request->days ?? 1;
+        $booking_period = $request->booking_period ?? 'daily';
+        $price = $car->daily_rate ?? $car->price_per_day;
+
+        switch($booking_period){
+            case 'daily':
+                $booking_period_f = 'day';
+                $price = $car->price_per_day;
+                break;
+            case 'weekly':
+                $booking_period_f = 'week';
+                $price = $car->weekly_rate;
+                break;
+            case 'monthly':
+                $booking_period_f = 'month';
+                $price = $car->monthly_rate;
+                break;
+        }
         $site_name = settings('site_name');
 
         $data['title'] = "Your Car Quote from $site_name";
@@ -54,8 +72,8 @@ class FrontPageController extends Controller
                         </td>
                         <td style='width: 50%; vertical-align: top;'>
                             <p><strong>Gear:</strong> {$car->gear}</p>
-                            <p><strong>Price per day:</strong> " . amt($car->price_per_day) . "</p>
-                            <p><strong>Total for {$days} day(s):</strong> " . amt($car->price_per_day * $days) . "</p>
+                            <p><strong>Price per day:</strong> " . amt($price) . "</p>
+                            <p><strong>Total for {$days} {$booking_period_f}(s):</strong> " . amt($price * $days) . "</p>
                         </td>
                     </tr>
                 </table>
@@ -154,13 +172,42 @@ class FrontPageController extends Controller
     public function deal(Request $request){
         $id = $request->get('car_id');
         $car = Car::findOrFail($id);
+
         $booking_day = $request->get('booking_day');
+        $booking_period = $request->get('booking_period');
+        $price = $car->daily_rate ?? $car->price_per_day;
+        $booking_period_f = 'day';
+        $days_count = 1;
 
-        $car->total = $car->price_per_day * $booking_day;
+        switch($booking_period){
+            case 'daily':
+                $booking_period_f = 'day';
+                $price = $car->price_per_day;
+                $days_count = 1;
+                break;
+            case 'weekly':
+                $booking_period_f = 'week';
+                $price = $car->weekly_rate;
+                $days_count = 7;
+                break;
+            case 'monthly':
+                $booking_period_f = 'month';
+                $price = $car->monthly_rate;
+                $days_count = 30;
+                break;
+        }
 
-        $car->tax = ($car->price_per_day * $booking_day) * settings('tax',0.075);
+        $car->booking_period = $booking_period_f;
+        $car->price = $price;
+        $car->total0 = $price * $booking_day;
+        $car->tax = $car->total0 * settings('tax',0.075);
+        $car->total = $car->total0 + $car->tax;
 
-        $car->total += $car->tax;
+        $insurance_fee = 0;
+        foreach($car->insurance_coverage as $coverage){
+            $insurance_fee += $coverage['daily_price'] * $days_count * $booking_day;
+        }
+        $car->insurance_fee = $insurance_fee;
 
         return view('frontpage.deal', compact('car'));
     }
@@ -168,13 +215,62 @@ class FrontPageController extends Controller
     public function protectionOption(Request $request){
         $id = $request->get('car_id');
         $car = Car::findOrFail($id);
+
         $booking_day = $request->get('booking_day');
+        $booking_period = $request->get('booking_period');
+        $price = $car->daily_rate ?? $car->price_per_day;
+        $booking_period_f = 'day';
+        $days_count = 1;
 
-        $car->total = $car->price_per_day * $booking_day;
+        switch($booking_period){
+            case 'daily':
+                $days_count = 1;
+                $booking_period_f = 'day';
+                $price = $car->price_per_day;
+                break;
+            case 'weekly':
+                $days_count = 7;
+                $booking_period_f = 'week';
+                $price = $car->weekly_rate;
+                break;
+            case 'monthly':
+                $days_count = 30;
+                $booking_period_f = 'month';
+                $price = $car->monthly_rate;
+                break;
+        }
 
-        $car->tax = ($car->price_per_day * $booking_day) * settings('tax',0.075);
+        $car->booking_period = $booking_period_f;
+        $car->price = $price;
+        $car->total0 = $price * $booking_day;
+        $car->tax = $car->total0 * settings('tax',0.075);
+        $car->total = $car->total0 + $car->tax;
 
-        $car->total += $car->tax;
+        $insurance_fee = 0;
+        foreach($car->insurance_coverage as $coverage){
+            $insurance_fee += $coverage['daily_price'] * $days_count * $booking_day;
+        }
+        $car->insurance_fee = $insurance_fee;
+
+        $extras = $request->get('extras');
+        $extra_fee = 0;
+        foreach($extras as $index => $extra){
+            if(!isset($car->extras[$index])){
+                continue;
+            }
+            if($car->extras[$index]['interval'] == 'daily'){
+                $extra_fee += $car->extras[$index]['price'] * $extra * $booking_day * $days_count;
+            }elseif($car->extras[$index]['interval'] == 'weekly'){
+                $extra_fee += $car->extras[$index]['price'] * $extra * $booking_day * $days_count / 7;
+            }elseif($car->extras[$index]['interval'] == 'monthly'){
+                $extra_fee += $car->extras[$index]['price'] * $extra * $booking_day * $days_count / 30;
+            } else {
+                $extra_fee += $car->extras[$index]['price'] * $extra;
+            }
+        }
+
+        $car->extra_fee = $extra_fee;
+        $car->total += $car->extra_fee;
 
         if($request->get('book_type') == 'with_full_protection'){
             $car->total += $car->insurance_fee;
@@ -198,11 +294,63 @@ class FrontPageController extends Controller
         }else{
             $user = null;
         }
+        
         $booking_day = $request->get('booking_day');
-        $car->tax = ($car->price_per_day * $booking_day) * settings('tax',0.075);
-        $car->total = $car->price_per_day * $booking_day;
-        $car->total += $car->tax;
+        $booking_period = $request->get('booking_period');
+        $price = $car->daily_rate ?? $car->price_per_day;
+        $booking_period_f = 'day';
+        $days_count = 1;
+        
+        switch($booking_period){
+            case 'daily':
+                $days_count = 1;
+                $booking_period_f = 'day';
+                $price = $car->price_per_day;
+                break;
+            case 'weekly':
+                $days_count = 7;
+                $booking_period_f = 'week';
+                $price = $car->weekly_rate;
+                break;
+            case 'monthly':
+                $days_count = 30;
+                $booking_period_f = 'month';
+                $price = $car->monthly_rate;
+                break;
+        }
 
+        $car->booking_period = $booking_period_f;
+        $car->price = $price;
+        $car->total0 = $price * $booking_day;
+        $car->tax = $car->total0 * settings('tax',0.075);
+        $car->total = $car->total0 + $car->tax;
+
+        $insurance_fee = 0;
+        foreach($car->insurance_coverage as $coverage){
+            $insurance_fee += $coverage['daily_price'] * $days_count * $booking_day;
+        }
+        $car->insurance_fee = $insurance_fee;
+
+        $extras = $request->get('extras');
+        $extra_fee = 0;
+        foreach($extras as $index => $extra){
+            if(!isset($car->extras[$index])){
+                continue;
+            }
+            if($car->extras[$index]['interval'] == 'daily'){
+                $extra_fee += $car->extras[$index]['price'] * $extra * $booking_day * $days_count;
+            }elseif($car->extras[$index]['interval'] == 'weekly'){
+                $extra_fee += $car->extras[$index]['price'] * $extra * $booking_day * $days_count / 7;
+            }elseif($car->extras[$index]['interval'] == 'monthly'){
+                $extra_fee += $car->extras[$index]['price'] * $extra * $booking_day * $days_count / 30;
+            } else {
+                $extra_fee += $car->extras[$index]['price'] * $extra;
+            }
+        }
+
+        $car->extra_fee = $extra_fee;
+        $car->total += $car->extra_fee;
+        
         if($request->get('book_type') == 'with_full_protection'){
             $car->total += $car->insurance_fee;
         }
@@ -210,18 +358,12 @@ class FrontPageController extends Controller
         return view('frontpage.checkout', compact('car','user'));
     }
 
-//    public function select_payment_method(Request $request){
-//        $request->session()->put('payment_type', 'booking_payment');
-//
-//    }
     public function select_payment_method($booking_id){
-
         $booking = Booking::findOrFail($booking_id);
         return view('frontpage.select_payment_method', compact('booking'));
-
     }
-    public function paymentProcess(Request $request, PaymentService $paymentService){
 
+    public function paymentProcess(Request $request, PaymentService $paymentService){
         $payment_method = $request->get('payment_method');
         $booking_id = $request->get('booking_id');
 
@@ -231,12 +373,9 @@ class FrontPageController extends Controller
         $booking = Booking::findOrFail($booking_id);
 
         $request->session()->put('payment_type', 'booking_payment');
-
         $request->session()->put('booking_id', $booking->id);
 
-
         return $paymentService->process($payment_method);
-
     }
 
     public function search(Request $request){
@@ -245,31 +384,8 @@ class FrontPageController extends Controller
     }
 
     public function page($slug){
-
         $page = Page::where('path',$slug)->firstOrFail();
         $contents = $page->contents;
         return view('frontpage.page', compact('contents','page'));
     }
-
-//    public function menu(){
-//      return [
-//    {
-//        "title": "Manage booking",
-//        "url": "/manage/booking",
-//        "icon": "fa-regular fa-calendar mx-2",
-//        "img" : "/assets/img/icons/calender.png"
-//    },
-//    {
-//        "title": "EUR"
-//    },
-//    {
-//        "img": "/assets/img/icons/lang.png"
-//    },
-//    {
-//        "title": "Login / Register",
-//        "url": "/login",
-//        "icon": "fa-solid fa-sign-in-alt"
-//    }
-//]
-//    }
 }

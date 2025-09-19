@@ -60,8 +60,7 @@
                     <div class="carferrari__item mb__30 car_item d-flex-  bgwhite p-3">
                         <div class="row d-flex p__10 align-items-center car_section">
                             <a href="#0" class="thumb col-sm-12 col-md-5">
-
-                                <img src="{{ $car?->image }}" alt="cars" />
+                                <img src="{{ $car?->image }}" class="img-fluid" alt="cars" />
                             </a>
                             <div class="carferrari__content col-md-6 col-sm-12">
                                 <div class="d-flex- carferari__box justify-content-between">
@@ -96,15 +95,54 @@
                                             <p class="mt-2">{{ $car?->type }}</p>
                                         </div>
 
-
+                                        @if($car->daily_rate)
                                         <div class="col-6 mt-3">
-                                            <p>Price for {{ request()->query('booking_day') }}days</p>
-                                            <p class="mt-2 text-title">{{ amt(request()->query('booking_day') * $car->price_per_day) }}</p>
+                                            <p>Price for 1 day</p>
+                                            <p class="mt-2 text-title">{{ amt($car->daily_rate) }}</p>
                                         </div>
+                                        @endif
 
-                                        <div style="height: 50px"></div>
+                                        @if($car->weekly_rate)
+                                        <div class="col-6 mt-3">
+                                            <p>Price for 1 week</p>
+                                            <p class="mt-2 text-title">{{ amt($car->weekly_rate) }}</p>
+                                        </div>
+                                        @endif
 
+                                        @if($car->monthly_rate)
+                                        <div class="col-6 mt-3">
+                                            <p>Price for 1 month</p>
+                                            <p class="mt-2 text-title">{{ amt($car->monthly_rate) }}</p>
+                                        </div>
+                                        @endif
 
+                                        @if($car->mileage_policy)
+                                        <div class="col-6 mt-3">
+                                            <p>Mileage Policy</p>
+                                            <p class="mt-2 text-title">{{ ucwords(str_replace('_', ' ', $car->mileage_policy)) }}</p>
+                                        </div>
+                                        @endif
+                                        
+                                        @if($car->mileage_limit)
+                                        <div class="col-6 mt-3">
+                                            <p>Mileage Limit</p>
+                                            <p class="mt-2 text-title">{{ $car->mileage_limit }}</p>
+                                        </div>
+                                        @endif
+
+                                        @if($car->excess_mileage_rate)
+                                        <div class="col-6 mt-3">
+                                            <p>Excess Mileage Rate</p>
+                                            <p class="mt-2 text-title">{{ $car->excess_mileage_rate }}</p>
+                                        </div>
+                                        @endif
+
+                                        @if($car->cancellation_policy)
+                                        <div class="col-6 mt-3">
+                                            <p>Cancellation Policy</p>
+                                            <p class="mt-2 text-title">{{ ucwords(str_replace('_', ' ', $car->cancellation_policy)) }}</p>
+                                        </div>
+                                        @endif
                                     </div>
 
                                 </div>
@@ -147,7 +185,6 @@
                             <div class="col-12 mt-4 mb-3">
                                 <p class="text-heading">Great choice</p>
                             </div>
-
                             <div class="row">
                                 @foreach($car->why as $i)
                                 <div class="col-6 d-flex mt-1">
@@ -156,11 +193,9 @@
                                 </div>
                                 @endforeach
                             </div>
-
                             <div class="col-12 mt-4 mb-3">
                                 <p class="text-heading">Included in the price</p>
                             </div>
-
                             <div class="row">
                                 @foreach($car->includes as $i)
                                 <div class="col-12 d-flex mt-1">
@@ -169,22 +204,51 @@
                                 </div>
                                 @endforeach
                             </div>
-
                         </div>
-
                     </div>
 
+                    <form method="get" action="{{ url('protection_option') }}" class="justify-content-end">
+                        @foreach(request()->query() as $key => $value)
+                        <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                        @endforeach
 
-                    <div class="justify-content-end">
-                        <a href="{{ url('protection_option') }}?{{ http_build_query( request()->query()) }}" class="cmn__btn">
-                                               <span>
-                                                 Continue to book
-                                               </span>
-                        </a>
-                    </div>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Addons</th>
+                                    <th>Title</th>
+                                    <th>Price</th>
+                                    <th>Description</th>
+                                    <th>Interval</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            @foreach($car->extras as $index => $extra)
+                                <tr>
+                                    <td>
+                                        <input type="number" style="width: 100px" class="form-control" name="extras[{{ $index }}]" min="0" step="1" value="0" />
+                                    </td>
+                                    <td>{{ $extra['title'] }}</td>
+                                    <td>{{ amt($extra['price']) }}</td>
+                                    <td>{{ isset($extra['description']) ? $extra['description'] : '' }}</td>
+                                    <td>{{ isset($extra['interval']) ? ucwords(str_replace('_', ' ', $extra['interval'])) : '' }}</td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
 
-
-
+                        <div class="input-group">
+                            <input type="number" class="form-control" name="booking_day" min="1" step="1" value="1" required>
+                            <select class="form-control" name="booking_period" required>
+                                <option value="daily">Days</option>
+                                <option value="weekly">Weeks</option>
+                                <option value="monthly">Months</option>
+                            </select>
+                            <button type="submit" class="cmn__btn"> 
+                                Continue to book
+                            </button>
+                        </div>
+                    </form>
                 </div>
                 @include('frontpage.partials.car_booking.checkout_right')
             </div>

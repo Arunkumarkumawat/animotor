@@ -7,7 +7,7 @@
     <div class="carferrari__item mb__30 car_item d-flex-  bgwhite p-3">
         <div class="row d-flex p__10 align-items-center car_section">
             <a href="#0" class="thumb col-sm-12 col-md-5">
-                <img src="{{ $car?->image }}" alt="cars" />
+                <img src="{{ $car?->image }}" class="img-fluid" alt="cars" />
             </a>
             <div class="carferrari__content col-md-6 col-sm-12">
                 <div class="d-flex- carferari__box justify-content-between">
@@ -43,29 +43,66 @@
                         </div>
 
 
-                        <div class="col-6 mt-3">
-                            <p>Price for {{ request()->query('booking_day') }}days</p>
-                            <p class="mt-2 text-title">{{ amt(request()->query('booking_day') * $car->price_per_day) }}</p>
-                        </div>
+                        @if ($car->daily_rate)
+                            <div class="col-6 mt-3">
+                                <p>Price for 1 day</p>
+                                <p class="mt-2 text-title">{{ amt($car->daily_rate) }}</p>
+                            </div>
+                        @endif
 
-                        <div style="height: 50px"></div>
+                        @if ($car->weekly_rate)
+                            <div class="col-6 mt-3">
+                                <p>Price for 1 week</p>
+                                <p class="mt-2 text-title">{{ amt($car->weekly_rate) }}</p>
+                            </div>
+                        @endif
 
+                        @if ($car->monthly_rate)
+                            <div class="col-6 mt-3">
+                                <p>Price for 1 month</p>
+                                <p class="mt-2 text-title">{{ amt($car->monthly_rate) }}</p>
+                            </div>
+                        @endif
 
+                        @if ($car->mileage_policy)
+                            <div class="col-6 mt-3">
+                                <p>Mileage Policy</p>
+                                <p class="mt-2 text-title">{{ ucwords(str_replace('_', ' ', $car->mileage_policy)) }}
+                                </p>
+                            </div>
+                        @endif
+
+                        @if ($car->mileage_limit)
+                            <div class="col-6 mt-3">
+                                <p>Mileage Limit</p>
+                                <p class="mt-2 text-title">{{ $car->mileage_limit }}</p>
+                            </div>
+                        @endif
+
+                        @if ($car->excess_mileage_rate)
+                            <div class="col-6 mt-3">
+                                <p>Excess Mileage Rate</p>
+                                <p class="mt-2 text-title">{{ $car->excess_mileage_rate }}</p>
+                            </div>
+                        @endif
+
+                        @if ($car->cancellation_policy)
+                            <div class="col-6 mt-3">
+                                <p>Cancellation Policy</p>
+                                <p class="mt-2 text-title">
+                                    {{ ucwords(str_replace('_', ' ', $car->cancellation_policy)) }}</p>
+                            </div>
+                        @endif
                     </div>
-
                 </div>
             </div>
-
         </div>
-
 
         <div class="row justify-content-between mt-3">
             <div class="col-12">
                 <div class="d-flex align-items-center justify-content-between">
-
-
-                    <img style="max-height: 40px" src="{{ $car?->company?->logo ?? '/assets/img/icons/compony.png' }}" alt="{{ $car?->company->name }}">
-
+                    <img style="max-height: 40px" src="{{ $car?->company?->logo ?? '/assets/img/icons/compony.png' }}"
+                        alt="{{ $car?->company->name }}">
                     <div class="d-flex">
                         <div class="review_count">
                             0.0
@@ -75,11 +112,8 @@
                             <p>No review yet</p>
                         </div>
                     </div>
-
                 </div>
             </div>
-
-
             <div class="col-12 mt-2 d-flex justify-content-end-">
                 <a href="#car_info" class="d-flex align-items-center">
                     <p class="text-primary mb-0">Important info</p>
@@ -87,10 +121,7 @@
                 </a>
             </div>
         </div>
-
-
     </div>
-
 
     <div class="car__driverdetails mb__40">
         <h5 class="dtext border__bottom pb__24">
@@ -98,77 +129,81 @@
         </h5>
         <p>As they appear on driving license</p>
         <form method="post" wire:submit="checkout" class="signup__form pt__40">
-
-                            @if($errors->any())
-                                <div class="alert alert-danger">
-                                    <ul>
-                                        @foreach($errors->all() as $error)
-                                            <li>{{ $error }}</li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            @endif
-        <div class="row g-4 justify-content-center">
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+            <div class="row g-4 justify-content-center">
                 <div class="col-xl-4 col-lg-6 col-md-6">
                     <div class="input__grp">
                         <label for="fname">First Name</label>
-                        <input wire:model="first_name" class="form-control form-control-lg" type="text"  id="fname" placeholder="Enter First Name">
+                        <input wire:model="first_name" class="form-control form-control-lg" type="text"
+                            id="fname" placeholder="Enter First Name">
                     </div>
                     @error('first_name')
-                    <div class="error"><span class="text-danger">{{ $message }}</span></div>
+                        <div class="error"><span class="text-danger">{{ $message }}</span></div>
                     @enderror
                 </div>
                 <div class="col-xl-4 col-lg-6 col-md-6">
                     <div class="input__grp">
                         <label for="last">Last Name</label>
-                        <input wire:model="last_name" class="form-control form-control-lg"  type ="text" id="last"  placeholder="Enter Last Name">
+                        <input wire:model="last_name" class="form-control form-control-lg" type ="text" id="last"
+                            placeholder="Enter Last Name">
                     </div>
                     @error('last_name')
-                    <div class="error"><span class="text-danger">{{ $message }}</span></div>
+                        <div class="error"><span class="text-danger">{{ $message }}</span></div>
                     @enderror
                 </div>
                 <div class="col-xl-4 col-lg-6 col-md-6">
                     <div class="input__grp">
                         <label for="phone">Contact Number</label>
-                        <input wire:model="phone" class="form-control form-control-lg"  type="text" id="phone" placeholder="Enter Phone Number">
+                        <input wire:model="phone" class="form-control form-control-lg" type="text" id="phone"
+                            placeholder="Enter Phone Number">
                     </div>
                     @error('phone')
-                    <div class="error"><span class="text-danger">{{ $message }}</span></div>
+                        <div class="error"><span class="text-danger">{{ $message }}</span></div>
                     @enderror
                 </div>
                 <div class="col-xl-6 col-lg-6 col-md-6">
                     <div class="input__grp">
                         <label>Country</label>
-                        <select wire:model="country" class="form-control form-control-lg" >
-                            @foreach($countries as $item)
+                        <select wire:model="country" class="form-control form-control-lg">
+                            @foreach ($countries as $item)
                                 <option value="{{ $item->name }}">{{ $item->name }}</option>
                             @endforeach
                         </select>
                     </div>
                     @error('country')
-                    <div class="error"><span class="text-danger">{{ $message }}</span></div>
+                        <div class="error"><span class="text-danger">{{ $message }}</span></div>
                     @enderror
                 </div>
 
                 <div class="col-xl-6 col-lg-6 col-md-6">
                     <div class="input__grp">
                         <label for="address">City</label>
-                        <input wire:model="city" class="form-control form-control-lg"  type="text" id="city" placeholder="Enter city">
+                        <input wire:model="city" class="form-control form-control-lg" type="text" id="city"
+                            placeholder="Enter city">
                     </div>
                     @error('city')
-                    <div class="error"><span class="text-danger">{{ $message }}</span></div>
+                        <div class="error"><span class="text-danger">{{ $message }}</span></div>
                     @enderror
                 </div>
 
-            <div class="col-xl-12 col-lg-12 col-md-12">
-                <div class="input__grp">
-                    <label for="address">Address</label>
-                    <input wire:model="address" class="form-control form-control-lg"  type="text" id="address" placeholder="Enter Address">
+                <div class="col-xl-12 col-lg-12 col-md-12">
+                    <div class="input__grp">
+                        <label for="address">Address</label>
+                        <input wire:model="address" class="form-control form-control-lg" type="text"
+                            id="address" placeholder="Enter Address">
+                    </div>
+                    @error('address')
+                        <div class="error"><span class="text-danger">{{ $message }}</span></div>
+                    @enderror
                 </div>
-                @error('address')
-                <div class="error"><span class="text-danger">{{ $message }}</span></div>
-                @enderror
-            </div>
 
                 <div class="col-xl-12 col-lg-12 col-md-12">
                     <div class="input__grp">
@@ -182,30 +217,32 @@
             </div>
 
             @guest()
-            <div class="row mt-5">
-                <div class="col-12 mb-3">
-                    <p class="text-heading">Create an account</p>
-                    <p>enter email and password to create {{ settings('site_name') }} account</p>
-                </div>
-                <div class="col-xl-6 col-lg-6 col-md-6">
-                    <div class="input__grp">
-                        <label for="email">Email address</label>
-                        <input  class="form-control form-control-lg" wire:model="email" type="email" id="email" placeholder="Enter Email">
+                <div class="row mt-5">
+                    <div class="col-12 mb-3">
+                        <p class="text-heading">Create an account</p>
+                        <p>enter email and password to create {{ settings('site_name') }} account</p>
                     </div>
-                    @error('email')
-                    <div class="error"><span class="text-danger">{{ $message }}</span></div>
-                    @enderror
-                </div>
-                <div class="col-xl-6 col-lg-6 col-md-6">
-                    <div class="input__grp">
-                        <label for="last">Password</label>
-                        <input class="form-control form-control-lg"  wire:model="password" type="password" id="last" name="password" placeholder="Enter password">
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <div class="input__grp">
+                            <label for="email">Email address</label>
+                            <input class="form-control form-control-lg" wire:model="email" type="email" id="email"
+                                placeholder="Enter Email">
+                        </div>
+                        @error('email')
+                            <div class="error"><span class="text-danger">{{ $message }}</span></div>
+                        @enderror
                     </div>
-                    @error('password')
-                    <div class="error"><span class="text-danger">{{ $message }}</span></div>
-                    @enderror
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <div class="input__grp">
+                            <label for="last">Password</label>
+                            <input class="form-control form-control-lg" wire:model="password" type="password"
+                                id="last" name="password" placeholder="Enter password">
+                        </div>
+                        @error('password')
+                            <div class="error"><span class="text-danger">{{ $message }}</span></div>
+                        @enderror
+                    </div>
                 </div>
-            </div>
             @endguest
 
             <div class="row">
@@ -224,7 +261,8 @@
                             No thanks, count me out.
                         </p>
                         <p class="mt-2">
-                            Our <a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">Privacy Statement</a> tells you how to Subscribe .
+                            Our <a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">Privacy
+                                Statement</a> tells you how to Subscribe .
                             It also explains how we use and protect your personal information.
                         </p>
                     </div>
@@ -234,7 +272,8 @@
                         <p>
                             By clicking ‘Book now’, you are confirming that you have read,
                             understood and accepted our Terms of service,
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal"> Policy Terms </a> and the {{ $car?->company?->name }} rental terms.
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal"> Policy Terms </a>
+                            and the {{ $car?->company?->name }} rental terms.
                         </p>
                     </div>
                 </div>
@@ -243,24 +282,12 @@
 
             <div class="justify-content-end d-flex mt-3">
                 <button type="submit" class="cmn__btn">
-                                               <span>
-                                                 Book now
-                                               </span>
-
+                    <span>
+                        Book now
+                    </span>
                 </button>
-
             </div>
 
         </form>
     </div>
-
-
-
-
-
-{{--    </form>--}}
-
-
-
-
 </div>

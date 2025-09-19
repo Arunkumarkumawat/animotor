@@ -74,80 +74,60 @@
                                         </div>
 
                                         <div class="d-flex justify-content-between mt-4 row">
-                                            <div class="col-md-4 mt-2 col-6">
-                                                <p class="text-heading- text-center ">What is <br/>covered</p>
-                                            </div>
-                                            <div class="col-md-4  mt-2 col-6">
-                                                <p class="text-center">No additional <br/>protection</p>
-                                            </div>
-                                            <div class="col-md-4 mt-2 col-6">
-                                                <p class="text-center">Full Protection <br/>Total cover price
-                                                    <br/>
-                                                    {{ amt($car->insurance_fee) }}
-                                                </p>
-                                            </div>
-
-
-
-
-
                                             <!-- Insurance Comparison Table -->
                                             <div class="row border-bottom py-3">
-                                                <div class="col-4">
-                                                    <h5>What's covered</h5>
+                                                <div class="col-3">
+                                                    <h6>Plan</h6>
                                                 </div>
-                                                <div class="col-4 text-center">
-                                                    <h5>No protection</h5>
+                                                <div class="col-3 text-center">
+                                                    <h6 class="text-success">What's covered</h6>
                                                 </div>
-                                                <div class="col-4 text-center">
-                                                    <h5 class="text-success">Collision Damage Protection</h5>
+                                                <div class="col-3 text-center">
+                                                    <h6>Daily Price</h6>
+                                                </div>
+                                                <div class="col-3 text-center">
+                                                    <h6>Excess Amount</h6>
                                                 </div>
                                             </div>
-
-                                            <!-- Row headings for the categories -->
                                             @php
-                                                $categories = ['Damage to car', 'Theft of car', 'Drivers'];
                                                 $insurance_data = $car->insurance_coverage ?? [];
+                                                $total_price = 0;
                                             @endphp
 
                                             @foreach($insurance_data as $index => $coverage)
                                                 <div class="row border-bottom py-4">
-                                                    <div class="col-4">
-                                                        <h6>{{ $categories[$index] ?? '' }}</h6>
+                                                    <div class="col-3">
+                                                        <h6>{{ ucfirst($coverage['level']) }}</h6>
                                                     </div>
-                                                    <div class="col-4 text-center">
+                                                    <div class="col-3 text-center">
                                                         <div class="text-center">
-                                                            <span class="text-muted">✕</span>
-                                                            <p>{{ $index < 2 ? 'Not covered' : 'Doesn\'t cover anyone' }}</p>
-                                                            @if($index < 2)
-                                                                <p class="small bg-light rounded-1 d-inline-block px-3 py-1">We don't reimburse you</p>
-                                                            @endif
+                                                            <p>{{ $coverage['cover'] }}</p>
                                                         </div>
                                                     </div>
-                                                    <div class="col-4 text-center">
-                                                        <div class="text-center">
-                                                            <span class="text-success">✓</span>
-                                                            <p><strong>{{ $coverage['title'] }}</strong></p>
-                                                            <p>{{ $coverage['value'] }}</p>
-                                                            @if($index < 2)
-                                                                <p>We reimburse you</p>
-                                                            @endif
-                                                        </div>
+                                                    <div class="col-3 text-center">
+                                                        <p>{{ amt($coverage['daily_price']) }}</p>
+                                                    </div>
+                                                    <div class="col-3 text-center">
+                                                        <p>{{ amt($coverage['excess']) }}</p>
                                                     </div>
                                                 </div>
+                                                @php
+                                                    $total_price += $coverage['daily_price'];
+                                                @endphp
                                             @endforeach
 
                                             <!-- Price -->
                                             <div class="row py-4">
-                                                <div class="col-4"></div>
-                                                <div class="col-4 text-center">
+                                                <div class="col-3"></div>
+                                                <div class="col-3 text-center">
                                                     <p>No protection price</p>
                                                     <h6>{{ amt(0) }}</h6>
                                                 </div>
-                                                <div class="col-4 text-center">
+                                                <div class="col-3 text-center">
                                                     <p>Total protection price</p>
-                                                    <h6 class="text-success">{{ amt($car->insurance_fee) }}</h6>
+                                                    <h6 class="text-success">{{ amt($total_price) }}</h6>
                                                 </div>
+                                                <div class="col-3"></div>
                                             </div>
 
 

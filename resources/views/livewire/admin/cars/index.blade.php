@@ -109,7 +109,7 @@
                                 <td>{{ $item->model }}</td>
                                 <td>{{ $item->is_approved == 1 ? 'Approved' : 'Not Approved' }}</td>
                                 <td>
-                                    @if($item->is_approved == 0)
+                                    @if(\Auth::user()->hasRole('admin') && $item->is_approved == 0)
                                     <button type="button" wire:key="{{ $item->id }}" wire:click="toggleApproved('{{ $item->id }}')" class="btn btn-sm btn-primary">
                                         Review
                                     </button>
@@ -121,12 +121,12 @@
                             <tr data-id="{{ $item->id }}" class="{{ $opened == $item->id ? '' : 'd-none' }}">
                                 <td colspan="11">
                                     <div class="row mt-2">
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
                                             <h5>Pricing &amp; Commission</h5>
                                             <p class="mb-0">Vendor Rates (Gross)</p>
-                                            <p class="mb-0">Daily: {{ $item->daily_rate }}</p>
-                                            <p class="mb-0">Weekly: {{ $item->weekly_rate }}</p>
-                                            <p class="mb-0">Monthly: {{ $item->monthly_rate }}</p>
+                                            <p class="mb-0">Daily: {{ amt($item->daily_rate) }}</p>
+                                            <p class="mb-0">Weekly: {{ amt($item->weekly_rate) }}</p>
+                                            <p class="mb-0">Monthly: {{ amt($item->monthly_rate) }}</p>
                                             <div>
                                                 <p class="mb-0">Commission Rate</p>
                                                 <div class="input-group">
@@ -135,13 +135,25 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-2">
                                             <h5>Simulated Daily Rentals</h5>
-                                            <p class="mb-0">Price: 100</p>
-                                            <p class="mb-0">Commission: {{ 100 * ($commission_rate[$item->id] ?? 0) / 100 }}</p>
-                                            <p class="mb-0">Vendor Payout: {{ 100 - (100 * ($commission_rate[$item->id] ?? 0) / 100) }}</p>
+                                            <p class="mb-0">Price: {{ amt($item->daily_rate) }}</p>
+                                            <p class="mb-0">Commission: {{ amt($item->daily_rate * ($commission_rate[$item->id] ?? 0) / 100) }}</p>
+                                            <p class="mb-0">Vendor Payout: {{ amt($item->daily_rate - ($item->daily_rate * ($commission_rate[$item->id] ?? 0) / 100)) }}</p>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-2">
+                                            <h5>Simulated Weekly Rentals</h5>
+                                            <p class="mb-0">Price: {{ amt($item->weekly_rate) }}</p>
+                                            <p class="mb-0">Commission: {{ amt($item->weekly_rate * ($commission_rate[$item->id] ?? 0) / 100) }}</p>
+                                            <p class="mb-0">Vendor Payout: {{ amt($item->weekly_rate - ($item->weekly_rate * ($commission_rate[$item->id] ?? 0) / 100)) }}</p>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <h5>Simulated Monthly Rentals</h5>
+                                            <p class="mb-0">Price: {{ amt($item->monthly_rate) }}</p>
+                                            <p class="mb-0">Commission: {{ amt($item->monthly_rate * ($commission_rate[$item->id] ?? 0) / 100) }}</p>
+                                            <p class="mb-0">Vendor Payout: {{ amt($item->monthly_rate - ($item->monthly_rate * ($commission_rate[$item->id] ?? 0) / 100)) }}</p>
+                                        </div>
+                                        <div class="col-md-3">
                                             <h5>Calendar & Rules</h5>
                                             <p class="mb-0">Availability: {{ $item->availabilities->count() }} rules</p>
                                             <p class="mb-0">Blackout: {{ $item->blackouts->count() }} rules</p>

@@ -40,7 +40,7 @@ return new class extends Migration
             $table->json('long_term_term_options')->nullable();
             $table->json('long_term_prices')->nullable();
             $table->string('long_term_excess_liability')->nullable();
-            $table->string('long_term_vehicle_swap_allowed')->nullable();
+            $table->boolean('long_term_vehicle_swap_allowed')->default(false);
             $table->text('long_term_early_termination_rules')->nullable();
 
             $table->string('rent_to_buy_term')->nullable();

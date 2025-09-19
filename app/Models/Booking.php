@@ -19,6 +19,10 @@ class Booking extends Model
 
     protected $fillable = [];
 
+    protected $casts = [
+        'extras' => 'array',
+    ];
+
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);

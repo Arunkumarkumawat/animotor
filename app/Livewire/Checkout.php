@@ -37,6 +37,7 @@ class Checkout extends Component
     public $drop_off_location;
     public $region_id;
     public $car_id;
+    public $params;
 
     public function checkout(){
         $validated = $this->validate([
@@ -53,66 +54,118 @@ class Checkout extends Component
                 'password' => 'required',
                 'email' => 'required|unique:users',
                 'phone' => 'required|unique:users',
-                ]);
+            ]);
 
             $validated['password'] = $this->password;
             $validated['email'] = $this->email;
 
             $user = User::create($validated);
-
             $role = Role::where('name', 'rider')->first();
-
             $user->addRole($role);
 
             Auth::login($user);
-
-//            return $this->redirect()
         }else{
             $user = auth()->user();
             $user->update($validated);
         }
 
-        $tax = ($this->car->price_per_day * $this->booking_day) * settings('tax',0.075);
+        ////////////////////////////////////////////////////////////////////
+        $params = $this->params;
+        
+        $booking_day = $params['booking_day'];
+        $booking_period = $params['booking_period'];
+
+        $price = $this->car->daily_rate ?? $this->car->price_per_day;
+        $booking_period_f = 'day';
+        $days_count = 1;
+        
+        switch($booking_period){
+            case 'daily':
+                $days_count = 1;
+                $booking_period_f = 'day';
+                $price = $this->car->price_per_day;
+                break;
+            case 'weekly':
+                $days_count = 7;
+                $booking_period_f = 'week';
+                $price = $this->car->weekly_rate;
+                break;
+            case 'monthly':
+                $days_count = 30;
+                $booking_period_f = 'month';
+                $price = $this->car->monthly_rate;
+                break;
+        }
+
+        $total0 = $price * $booking_day;
+        $tax = $total0 * settings('tax',0.075);
+        $total = $total0 + $tax;
+
+        $extras = [];
+        $extra_fee = 0;
+        foreach($params['extras'] ?? [] as $index => $extra){
+            if(!isset($this->car->extras[$index]) || $extra == 0){
+                continue;
+            }
+            if($this->car->extras[$index]['interval'] == 'daily'){
+                $extra_fee0 = $this->car->extras[$index]['price'] * $extra * $booking_day * $days_count;
+            }elseif($this->car->extras[$index]['interval'] == 'weekly'){
+                $extra_fee0 = $this->car->extras[$index]['price'] * $extra * $booking_day * $days_count / 7;
+            }elseif($this->car->extras[$index]['interval'] == 'monthly'){
+                $extra_fee0 = $this->car->extras[$index]['price'] * $extra * $booking_day * $days_count / 30;
+            } else {
+                $extra_fee0 = $this->car->extras[$index]['price'] * $extra;
+            }
+
+            $extra_fee += $extra_fee0;
+
+            $extras[] = [
+                'title' => $this->car->extras[$index]['title'],
+                'price' => $this->car->extras[$index]['price'],
+                'quantity' => $extra,
+                'interval' => $this->car->extras[$index]['interval'],
+                'paid' => $extra_fee0,
+            ];
+        }
+        $total += $extra_fee;
+        
+        $insurance_fee = 0;
+        foreach($this->car->insurance_coverage as $coverage){
+            $insurance_fee += $coverage['daily_price'] * $days_count * $booking_day;
+        }
+
+        if(isset($params['book_type']) && $params['book_type'] == 'with_full_protection'){
+            $total += $insurance_fee;
+        }
+
+        //////////////////////////////////////////////////////////
 
         $data['customer_id'] = $user->id;
         $data['region_id'] = $this->car->region_id;
         $data['car_id'] = $this->car->id;
-        $data['fee'] =  $this->car->price_per_day * $this->booking_day;
 
-        if($this->booking_type == 'with_full_protection'){
-            $data['insurance_fee'] = $this->car?->insurance_fee;
-        }else{
-            $data['insurance_fee'] = 0;
-        }
-
+        $data['fee'] =  $total0;
         $data['tax'] =  $tax;
-
-        $data['grand_total'] =  $data['fee'] + $tax + $data['insurance_fee'];
-
-
+        $data['extras'] =  $extras;
+        $data['insurance_fee'] =  $insurance_fee;
+        $data['grand_total'] =  $total;
+        $data['booking_period'] = $booking_day . ' ' . $booking_period_f;
+        
         $data['reference'] = getUniqueReferenceCode();
-
         $data['booking_number'] = getUniqueBookingNumber();
-
         $data['payment_status'] = 'unpaid';
-
         $data['payment_method'] = 'cash';
-
         $data['pick_up_date'] = $this->pick_up_date;
-        $data['booking_type'] = $this->booking_type;
+        $data['booking_type'] = $params['book_type'];
         $data['pick_up_time'] = $this->pick_up_time;
         $data['drop_off_date'] = $this->drop_off_date;
         $data['drop_off_time'] = $this->drop_off_time;
         $data['pick_location'] = $this->pick_location;
         $data['drop_off_location'] = $this->drop_off_location;
 
-
         $booking = Booking::create($data);
 
         if($booking){
-
-//            $this->car->is_available = false;
-
             $this->car->save();
         }
 
@@ -147,6 +200,7 @@ class Checkout extends Component
         $this->drop_off_location = request()->query('drop_off_location');
         $this->region_id = $this?->car?->region_id;
         $this->booking_type = request()->query('book_type');
+        $this->params = request()->query();
     }
 
     public function render()

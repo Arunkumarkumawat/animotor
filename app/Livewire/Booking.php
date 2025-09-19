@@ -47,11 +47,9 @@ class Booking extends Component
     public $state;
     public $empDetails;
 
-    public function mount(){
-
-        $query = request()->query();
-
-        if(request()->has('pick_up_location_id')){
+    public function mount()
+    {
+        if (request()->has('pick_up_location_id')) {
             $this->has_request = true;
             $this->pick_up_location = request()->query('pick_up_location');
             $this->pick_up_location_id = request()->query('pick_up_location_id');
@@ -64,7 +62,7 @@ class Booking extends Component
 
             $this->show_booking = false;
             $this->booking_day = request()->query('booking_day');
-        }else{
+        } else {
             $time = Carbon::now()->addHours(4)->setMinute(0)->format('H:i');
 
             $date = Carbon::now()->addHours(2)->setMinute(0)->format('Y-m-d');
@@ -73,29 +71,28 @@ class Booking extends Component
             $this->drop_off_time =  $time;
             $this->drop_off_date =  Carbon::now()->addDays(2)->setMinute(0)->format('Y-m-d');
             $this->pick_up_date =  $date;
-
         }
-
-
     }
 
-    public function toggleSearch(){
+    public function toggleSearch()
+    {
         $this->show_booking = true;
     }
 
     // Fetch records
-    public function searchResult(){
+    public function searchResult()
+    {
 
-        if(!empty($this->search)){
+        if (!empty($this->search)) {
 
-            $this->records = Region::withoutAirport()->orderby('name','asc')
+            $this->records = Region::withoutAirport()->orderby('name', 'asc')
                 ->select('*')
-                ->where('name','like','%'.$this->search.'%')
+                ->where('name', 'like', '%' . $this->search . '%')
                 ->limit(5)
                 ->get();
 
             $this->showdiv = true;
-        }else{
+        } else {
             $this->showdiv = false;
         }
     }
@@ -114,7 +111,6 @@ class Booking extends Component
     {
         // Call Google Places API to get suggestions
         if (strlen($this->drop_off_location) >= 3) { // Minimum length for search
-
             $this->fetchLocations('drop_off');
         } else {
             $this->drop_off_locations = [];
@@ -129,31 +125,37 @@ class Booking extends Component
             'key' => env('GOOGLE_MAPS_API_KEY'),
         ]);
 
-        if ($response->successful()) {
+        if ($response->successful() && env('GOOGLE_MAPS_API_KEY')) {
             $filtered_predictions = $response->json()['predictions'];
 
-            if($type == 'pick_up'){
+            if ($type == 'pick_up') {
                 $this->pickup_locations = $filtered_predictions;
-            }else{
-
+            } else {
                 $this->drop_off_locations = $filtered_predictions;
             }
         } else {
-            if($type == 'pick_up'){
-                $this->pickup_locations = [];
-            }else{
-                $this->drop_off_locations = [];
+            if ($type == 'pick_up') {
+                $this->pickup_locations = Region::withoutAirport()->orderby('name', 'asc')
+                    ->selectRaw('id AS place_id, name AS description')
+                    ->where('name', 'like', '%' . $this->pick_up_location . '%')
+                    ->limit(5)
+                    ->get();
+            } else {
+                $this->drop_off_locations = Region::withoutAirport()->orderby('name', 'asc')
+                    ->selectRaw('id AS place_id, name AS description')
+                    ->where('name', 'like', '%' . $this->drop_off_location . '%')
+                    ->limit(5)
+                    ->get();
             }
         }
     }
 
     public function selectLocation($place_id, $place, $type)
     {
-        if($type == 'drop_off'){
+        if ($type == 'drop_off') {
             $this->drop_off_location = $place;
             $this->drop_off_locations = [];
-
-        }else{
+        } else {
             $this->pick_up_location = $place;
             $this->pickup_locations = [];
         }
@@ -171,7 +173,7 @@ class Booking extends Component
             'key' => env('GOOGLE_MAPS_API_KEY'),
         ]);
 
-        if ($response->successful()) {
+        if ($response->successful() && env('GOOGLE_MAPS_API_KEY')) {
             $result = $response->json()['result'];
 
             // Extracting city and state
@@ -184,12 +186,10 @@ class Booking extends Component
                 }
             }
 
-          $region = Region::withoutAirport()->orderby('name', 'asc')
-              ->where('name', 'like', '%' . $this->city . '%')
-              ->orWhere('cities', 'like', '%' . $this->city . '%')
+            $region = Region::withoutAirport()->orderby('name', 'asc')
+                ->where('name', 'like', '%' . $this->city . '%')
+                ->orWhere('cities', 'like', '%' . $this->city . '%')
                 ->first();
-
-//            dd($region);
 
             $field = $type === 'pick_up'
                 ? 'pick_up_location'
@@ -215,24 +215,17 @@ class Booking extends Component
                     $this->drop_off_location_id = null;
                 }
             }
-
-
+        } else {
+            if($type == 'pick_up'){
+                $this->pick_up_location_id = $placeId;
+            }else{
+                $this->drop_off_location_id = $placeId;
+            }
         }
-
-
     }
-
-
-    public function updatedPickUpDate(){
-//        dd($this->pick_up_date);
-    }
-
-
-
 
     public function save()
     {
-
         try {
             $validatedData = $this->validate([
                 'pick_up_location_id' => 'required',
@@ -243,7 +236,6 @@ class Booking extends Component
                 'drop_off_time' => 'required',
                 'pick_up_date' => 'required|date|after_or_equal:today',
                 'drop_off_date' => 'required|date|after_or_equal:today|after_or_equal:pick_up_date',
-
             ]);
 
             $startDate = Carbon::parse($validatedData['pick_up_date']);
@@ -252,17 +244,13 @@ class Booking extends Component
             $validatedData['booking_day']  = $endDate->diffInDays($startDate) + 1;
 
             return redirect()->route('search', $validatedData);
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             $this->dispatch('booking-error', message: 'Please enter valid booking address information before proceeding');
         }
-
-
     }
-
 
     public function render()
     {
-
         return view('livewire.booking');
     }
 }

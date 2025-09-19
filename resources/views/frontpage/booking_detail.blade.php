@@ -81,10 +81,6 @@
                                     @endif
                                 @endif
 
-{{--                            </div>--}}
-
-
-
                         </div>
 
                     </div>
@@ -93,7 +89,7 @@
 
                         <div style="border-bottom: 0" class="row d-flex p__10 align-items-center car_section">
                             <a href="#0" class="thumb col-sm-12 col-md-5">
-                                <img src="{{ $booking?->car?->image }}" alt="cars" />
+                                <img src="{{ $booking?->car?->image }}" class="img-fluid" alt="cars" />
                             </a>
                             <div class="carferrari__content col-md-6 col-sm-12">
                                 <div class="d-flex- carferari__box justify-content-between">
@@ -135,15 +131,54 @@
                                             <p class="mt-2">{{ $booking->car?->type }}</p>
                                         </div>
 
-
+                                        @if($booking->car->daily_rate)
                                         <div class="col-6 mt-3">
-                                            <p>Price for {{ $booking->days }}days</p>
-                                            <p class="mt-2 text-title">{{ amt($booking->fee) }}</p>
+                                            <p>Price for 1 day</p>
+                                            <p class="mt-2 text-title">{{ amt($booking->car->daily_rate) }}</p>
                                         </div>
+                                        @endif
 
-                                        <div style="height: 50px"></div>
+                                        @if($booking->car->weekly_rate)
+                                        <div class="col-6 mt-3">
+                                            <p>Price for 1 week</p>
+                                            <p class="mt-2 text-title">{{ amt($booking->car->weekly_rate) }}</p>
+                                        </div>
+                                        @endif
 
+                                        @if($booking->car->monthly_rate)
+                                        <div class="col-6 mt-3">
+                                            <p>Price for 1 month</p>
+                                            <p class="mt-2 text-title">{{ amt($booking->car->monthly_rate) }}</p>
+                                        </div>
+                                        @endif
 
+                                        @if($booking->car->mileage_policy)
+                                        <div class="col-6 mt-3">
+                                            <p>Mileage Policy</p>
+                                            <p class="mt-2 text-title">{{ ucwords(str_replace('_', ' ', $booking->car->mileage_policy)) }}</p>
+                                        </div>
+                                        @endif
+                                        
+                                        @if($booking->car->mileage_limit)
+                                        <div class="col-6 mt-3">
+                                            <p>Mileage Limit</p>
+                                            <p class="mt-2 text-title">{{ $booking->car->mileage_limit }}</p>
+                                        </div>
+                                        @endif
+
+                                        @if($booking->car->excess_mileage_rate)
+                                        <div class="col-6 mt-3">
+                                            <p>Excess Mileage Rate</p>
+                                            <p class="mt-2 text-title">{{ $booking->car->excess_mileage_rate }}</p>
+                                        </div>
+                                        @endif
+
+                                        @if($booking->car->cancellation_policy)
+                                        <div class="col-6 mt-3">
+                                            <p>Cancellation Policy</p>
+                                            <p class="mt-2 text-title">{{ ucwords(str_replace('_', ' ', $booking->car->cancellation_policy)) }}</p>
+                                        </div>
+                                        @endif
                                     </div>
 
                                 </div>
@@ -344,11 +379,14 @@
                                     <p class="">{{ amt($booking->insurance_fee) }}</p>
                                 </div>
 
-                                <div class="d-flex mt-2 justify-content-between">
-                                    <p class="m2">Grand total</p>
-                                    <p class="text-heading">{{ amt($booking->grand_total) }}</p>
-                                </div>
-
+                                @if($booking->extras)
+                                    @foreach($booking->extras as $extra)
+                                        <div class="d-flex justify-content-between">
+                                            <p class="m2">{{ $extra['title'] }}</p>
+                                            <p class="">{{ amt($extra['paid']) }}</p>
+                                        </div>
+                                    @endforeach
+                                @endif
 
                                 <div class="d-flex mt-2 justify-content-between">
                                     <p class="m2">Payment status</p>

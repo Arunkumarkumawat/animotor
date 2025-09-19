@@ -185,6 +185,8 @@ class Form extends Component
     public $phv_plate_number = "";
     public $phv_expiry_date = "";
     public $hr_insurance_expiry = "";
+    public $plate_certificate = "";
+    public $hr_insurance_proof = "";
     public $plate_certificate_input = "";
     public $hr_insurance_proof_input = "";
 
@@ -197,7 +199,7 @@ class Form extends Component
     public $short_term_pricing_cadence = "";
     public $short_term_weekly_price_wo_ins = "";
     public $short_term_weekly_price_w_ins = "";
-    public $short_term_maintenance_included = "";
+    public bool $short_term_maintenance_included = false;
     public $short_term_deposit = "";
     public $short_term_excess_liability = "";
     public $short_term_early_return_fee = "";
@@ -208,7 +210,7 @@ class Form extends Component
     public ?array $long_term_term_options = [];
     public ?array $long_term_prices = [];
     public $long_term_excess_liability = "";
-    public $long_term_vehicle_swap_allowed = "";
+    public bool $long_term_vehicle_swap_allowed = false;
     public $long_term_early_termination_rules = "";
 
     public $rent_to_buy_term = "";
@@ -219,19 +221,24 @@ class Form extends Component
     public $rent_to_buy_payment_break_weeks_year = "";
     public $rent_to_buy_mileage_allowance_per_cycle = "";
     public $rent_to_buy_excess_mileage_rate = "";
-    public $rent_to_buy_insurance_included = "";
-    public $rent_to_buy_maintenance_included = "";
-    public $rent_to_buy_ev_incentive_included = "";
+    public bool $rent_to_buy_insurance_included = false;
+    public bool $rent_to_buy_maintenance_included = false;
+    public bool $rent_to_buy_ev_incentive_included = false;
     public $rent_to_buy_ownership_transfer_notes = "";
     
-    public function updatePrivateHire($value)
+    public function updatePrivateHire($checked)
     {
-        $this->private_hire = $value === "1";
+        $this->private_hire = $checked;
+        if(!$checked){
+            $this->short_term = false;
+            $this->long_term = false;
+            $this->rent_to_buy = false;
+        }
     }
 
-    public function updateData($key, $value)
+    public function updateData($key, $checked)
     {
-        $this->{$key} = $value === "1";
+        $this->{$key} = $checked;
     }
 
     public function updateLttOptions($value, $checked)
@@ -618,15 +625,15 @@ class Form extends Component
         if ($this->step == 20) {
             $this->validate([
                 'mileage_policy' => ['required', 'string'],
-                'mileage_limit' => ['required', 'numeric'],
-                'excess_mileage_rate' => ['required', 'numeric'],
+                'mileage_limit' => ['nullable', 'numeric'],
+                'excess_mileage_rate' => ['nullable', 'numeric'],
                 'cancellation_policy' => ['required', 'string'],
             ]);
 
             $this->car->update([
                 'mileage_policy' => $this->mileage_policy,
-                'mileage_limit' => $this->mileage_limit,
-                'excess_mileage_rate' => $this->excess_mileage_rate,
+                'mileage_limit' => $this->mileage_limit ?? null,
+                'excess_mileage_rate' => $this->excess_mileage_rate ?? null,
                 'cancellation_policy' => $this->cancellation_policy,
             ]);
 
@@ -714,8 +721,8 @@ class Form extends Component
             'phv_plate_number' => ['required', 'string'],
             'phv_expiry_date' => ['required', 'string'],
             'hr_insurance_expiry' => ['required', 'string'],
-            'plate_certificate_input' => ['required', 'file'],
-            'hr_insurance_proof_input' => ['required', 'file'],
+            'plate_certificate_input' => ['nullable', 'file'],
+            'hr_insurance_proof_input' => ['nullable', 'file'],
 
             'short_term' => 'nullable|boolean',
             'long_term' => 'nullable|boolean',
@@ -799,10 +806,7 @@ class Form extends Component
             $validated['hr_insurance_proof'] = $file;
         }
 
-        
-
         $this->car->update($validated);
-
         $this->successMsg();
     }
 

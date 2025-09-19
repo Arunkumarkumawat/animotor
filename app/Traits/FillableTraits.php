@@ -59,6 +59,9 @@ trait FillableTraits
         'insurance_coverage',
         'deposit_fee',
         'company_id',
+
+        'extras',
+        'booking_period',
     ];
 
     protected array $car_extra = [

@@ -157,11 +157,15 @@
                                         <div class="form-group">
                                             <label class="form-label-outlined-" for="private_hire">Private Hire</label>
                                             <div class="form-control-wrap">
-                                                <select wire:model="private_hire" class="form-select form-control-lg" wire:change="updatePrivateHire($event.target.value)">
-                                                    <option value="">Select</option>
-                                                    <option value="1">Yes</option>
-                                                    <option value="0">No</option>
-                                                </select>
+                                                <div class="form-check form-switch">
+                                                    <input type="checkbox" class="form-check-input" id="private_hire" 
+                                                           wire:model.live="private_hire" 
+                                                           wire:change="updatePrivateHire($event.target.checked ? 1 : 0)"
+                                                           style="width: 3em; height: 1.5em;">
+                                                    <label class="form-check-label ms-2" for="private_hire">
+                                                        {{ $private_hire ? 'Yes' : 'No' }}
+                                                    </label>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -360,25 +364,31 @@
                                         <div class="col-md-4 mt-2">
                                             <div class="form-group">
                                                 <label>PHV Expiry Date</label>
-                                                <input type="date" wire:model="phv_expiry_date" class="form-control" placeholder="PHV Expiry Date">
+                                                <input type="text" data-type="date" wire:model="phv_expiry_date" class="form-control flatpickr" placeholder="PHV Expiry Date">
                                             </div>
                                         </div>
                                         <div class="col-md-4 mt-2">
                                             <div class="form-group">
                                                 <label>H&R Insurance Expiry</label>
-                                                <input type="date" wire:model="hr_insurance_expiry" class="form-control" placeholder="H&R Insurance Expiry">
+                                                <input type="text" data-type="date" wire:model="hr_insurance_expiry" class="form-control flatpickr" placeholder="H&R Insurance Expiry">
                                             </div>
                                         </div>
                                         <div class="col-md-4 mt-2">
                                             <div class="form-group">
                                                 <label>Plate Certificate</label>
                                                 <input type="file" wire:model="plate_certificate_input" class="form-control" placeholder="Plate Certificate">
+                                                @if($plate_certificate)
+                                                    <a href="{{ $plate_certificate }}" target="_blank">View Plate Certificate</a>
+                                                @endif
                                             </div>
                                         </div>
                                         <div class="col-md-4 mt-2">
                                             <div class="form-group">
                                                 <label>H&R Insurance Proof</label>
                                                 <input type="file" wire:model="hr_insurance_proof_input" class="form-control" placeholder="H&R Insurance Proof">
+                                                @if($hr_insurance_proof)
+                                                    <a href="{{ $hr_insurance_proof }}" target="_blank">View H&R Insurance Proof</a>
+                                                @endif
                                             </div>
                                         </div>                                                
                                     </div>
@@ -390,7 +400,7 @@
                                         <div class="col-md-4 mt-2">
                                             <div class="form-group">
                                                 <label>
-                                                    <input type="checkbox" wire:model="short_term" value="1" wire:change="updateData('short_term', $event.target.value)">
+                                                    <input type="checkbox" wire:model="short_term" value="1" wire:change="updateData('short_term', $event.target.checked)">
                                                     Short Term Flexible
                                                 </label>
                                                 <p>1 week - 3 months</p>
@@ -399,7 +409,7 @@
                                         <div class="col-md-4 mt-2">
                                             <div class="form-group">
                                                 <label>
-                                                    <input type="checkbox" wire:model="long_term" value="1" wire:change="updateData('long_term', $event.target.value)">
+                                                    <input type="checkbox" wire:model="long_term" value="1" wire:change="updateData('long_term', $event.target.checked)">
                                                     Long Term
                                                 </label>
                                                 <p>3 months+</p>
@@ -408,7 +418,7 @@
                                         <div class="col-md-4 mt-2">
                                             <div class="form-group">
                                                 <label>
-                                                    <input type="checkbox" wire:model="rent_to_buy" value="1" wire:change="updateData('rent_to_buy', $event.target.value)">
+                                                    <input type="checkbox" wire:model="rent_to_buy" value="1" wire:change="updateData('rent_to_buy', $event.target.checked)">
                                                     Rent-to-Buy
                                                 </label>
                                                 <p>R2B Option</p>
@@ -602,7 +612,7 @@
                                                                 <input type="checkbox" wire:model="long_term_prices.3m.maintenance_included" wire:change="updateMaintenanceField('3m', $event.target.checked)">
                                                             </td>
                                                             <td>
-                                                                @if(isset($long_term_prices['3m']) && !$long_term_prices['3m']['maintenance_included'])
+                                                                @if(!isset($long_term_prices['3m']) || !isset($long_term_prices['3m']['maintenance_included']) || !$long_term_prices['3m']['maintenance_included'])
                                                                     <select class="form-control" wire:model="long_term_prices.3m.maintenance_type">
                                                                         <option value="">Select</option>
                                                                         <option value="basic">Basic</option>
@@ -611,7 +621,7 @@
                                                                 @endif
                                                             </td>
                                                             <td>
-                                                                @if(isset($long_term_prices['3m']) && !$long_term_prices['3m']['maintenance_included'])
+                                                                @if(!isset($long_term_prices['3m']) || !isset($long_term_prices['3m']['maintenance_included']) || !$long_term_prices['3m']['maintenance_included'])
                                                                     <input type="number" min="0" wire:model="long_term_prices.3m.maintenance_price" class="form-control">
                                                                 @endif
                                                             </td>
@@ -637,7 +647,7 @@
                                                                 <input type="checkbox" wire:model="long_term_prices.6m.maintenance_included" wire:change="updateMaintenanceField('6m', $event.target.checked)">
                                                             </td>
                                                             <td>
-                                                                @if(isset($long_term_prices['6m']) && !$long_term_prices['6m']['maintenance_included'])
+                                                                @if(!isset($long_term_prices['6m']) || !isset($long_term_prices['6m']['maintenance_included']) || !$long_term_prices['6m']['maintenance_included'])
                                                                     <select class="form-control" wire:model="long_term_prices.6m.maintenance_type">
                                                                         <option value="">Select</option>
                                                                         <option value="basic">Basic</option>
@@ -646,7 +656,7 @@
                                                                 @endif
                                                             </td>
                                                             <td>
-                                                                @if(isset($long_term_prices['6m']) && !$long_term_prices['6m']['maintenance_included'])
+                                                                @if(!isset($long_term_prices['6m']) || !isset($long_term_prices['6m']['maintenance_included']) || !$long_term_prices['6m']['maintenance_included'])
                                                                     <input type="number" min="0" wire:model="long_term_prices.6m.maintenance_price" class="form-control">
                                                                 @endif
                                                             </td>
@@ -672,7 +682,7 @@
                                                                 <input type="checkbox" wire:model="long_term_prices.9m.maintenance_included" wire:change="updateMaintenanceField('9m', $event.target.checked)">
                                                             </td>
                                                             <td>
-                                                                @if(isset($long_term_prices['9m']) && !$long_term_prices['9m']['maintenance_included'])
+                                                                @if(!isset($long_term_prices['9m']) || !isset($long_term_prices['9m']['maintenance_included']) || !$long_term_prices['9m']['maintenance_included'])
                                                                     <select class="form-control" wire:model="long_term_prices.9m.maintenance_type">
                                                                         <option value="">Select</option>
                                                                         <option value="basic">Basic</option>
@@ -681,7 +691,7 @@
                                                                 @endif
                                                             </td>
                                                             <td>
-                                                                @if(isset($long_term_prices['9m']) && !$long_term_prices['9m']['maintenance_included'])
+                                                                @if(!isset($long_term_prices['9m']) || !isset($long_term_prices['9m']['maintenance_included']) || !$long_term_prices['9m']['maintenance_included'])
                                                                     <input type="number" min="0" wire:model="long_term_prices.9m.maintenance_price" class="form-control">
                                                                 @endif
                                                             </td>
@@ -707,7 +717,7 @@
                                                                 <input type="checkbox" wire:model="long_term_prices.12m.maintenance_included" wire:change="updateMaintenanceField('12m', $event.target.checked)">
                                                             </td>
                                                             <td>
-                                                                @if(isset($long_term_prices['12m']) && !$long_term_prices['12m']['maintenance_included'])
+                                                                @if(!isset($long_term_prices['12m']) || !isset($long_term_prices['12m']['maintenance_included']) || !$long_term_prices['12m']['maintenance_included'])
                                                                     <select class="form-control" wire:model="long_term_prices.12m.maintenance_type">
                                                                         <option value="">Select</option>
                                                                         <option value="basic">Basic</option>
@@ -716,7 +726,7 @@
                                                                 @endif
                                                             </td>
                                                             <td>
-                                                                @if(!$long_term_prices['12m']['maintenance_included'])
+                                                                @if(!isset($long_term_prices['12m']) || !isset($long_term_prices['12m']['maintenance_included']) || !$long_term_prices['12m']['maintenance_included'])
                                                                     <input type="number" min="0" wire:model="long_term_prices.12m.maintenance_price" class="form-control">
                                                                 @endif
                                                             </td>
@@ -742,7 +752,7 @@
                                                                 <input type="checkbox" wire:model="long_term_prices.18m.maintenance_included" wire:change="updateMaintenanceField('18m', $event.target.checked)">
                                                             </td>
                                                             <td>
-                                                                @if(isset($long_term_prices['18m']) && !$long_term_prices['18m']['maintenance_included'])
+                                                                @if(!isset($long_term_prices['18m']) || !isset($long_term_prices['18m']['maintenance_included']) || !$long_term_prices['18m']['maintenance_included'])
                                                                     <select class="form-control" wire:model="long_term_prices.18m.maintenance_type">
                                                                         <option value="">Select</option>
                                                                         <option value="basic">Basic</option>
@@ -751,7 +761,7 @@
                                                                 @endif
                                                             </td>
                                                             <td>
-                                                                @if(isset($long_term_prices['18m']) && !$long_term_prices['18m']['maintenance_included'])
+                                                                @if(!isset($long_term_prices['18m']) || !isset($long_term_prices['18m']['maintenance_included']) || !$long_term_prices['18m']['maintenance_included'])
                                                                     <input type="number" min="0" wire:model="long_term_prices.18m.maintenance_price" class="form-control">
                                                                 @endif
                                                             </td>
@@ -839,13 +849,13 @@
                                                         <input wire:model="rent_to_buy_payment_break_weeks_year" type="number" min="0" class="form-control">
                                                     </div>
                                                 </div>
-                                                <div class="col-md-4 mt-2">
+                                                <div class="col-md-6 mt-2">
                                                     <div class="form-group">
                                                         <label class="form-label">Mileage Allowance (Per Cycle)</label>
                                                         <input wire:model="rent_to_buy_mileage_allowance_per_cycle" type="number" min="0" class="form-control">
                                                     </div>
                                                 </div>
-                                                <div class="col-md-4 mt-2">
+                                                <div class="col-md-6 mt-2">
                                                     <div class="form-group">
                                                         <label class="form-label">Excess Mileage Rate</label>
                                                         <input wire:model="rent_to_buy_excess_mileage_rate" type="number" min="0" class="form-control">
@@ -972,11 +982,11 @@
                                         @endif
                                         <div class="form-group">
                                             <label for="start_date">Start Date</label>
-                                            <input type="date" wire:model.live="dynamic_pricing_start_date" name="start_date" class="form-control form-control-lg" data-ui="xl" id="start_date">
+                                            <input type="text" data-type="date" wire:model="dynamic_pricing_start_date" name="start_date" class="form-control form-control-lg flatpickr" data-ui="xl" id="start_date">
                                         </div>
                                         <div class="form-group">
                                             <label for="end_date">End Date</label>
-                                            <input type="date" wire:model.live="dynamic_pricing_end_date" name="end_date" class="form-control form-control-lg" data-ui="xl" id="end_date">
+                                            <input type="text" data-type="date" wire:model="dynamic_pricing_end_date" name="end_date" class="form-control form-control-lg flatpickr" data-ui="xl" id="end_date">
                                         </div>
                                         <div class="text-center">
                                             <button type="button" wire:click="addDynamicPricing" class="btn btn-primary">Add</button>
@@ -1139,8 +1149,7 @@
                                         <div class="form-group">
                                             <label class="form-label" for="mot.test_date">Test date</label>
                                             <div class="form-control-wrap">
-                                                <input wire:model="mots.test_date" type="date"
-                                                       class="form-control @error('mots.test_date') error @enderror  form-control-xl"
+                                                <input wire:model="mots.test_date" type="text" data-type="date" class="form-control flatpickr @error('mots.test_date') error @enderror  form-control-xl"
                                                        id="mot.test_date"/>
                                                 @error("mot.test_date") <span
                                                     class="invalid">{{ $message }}</span>@enderror
@@ -1152,8 +1161,7 @@
                                         <div class="form-group">
                                             <label class="form-label" for="expiry_date">Expiry date</label>
                                             <div class="form-control-wrap">
-                                                <input wire:model="mots.expiry_date" type="date"
-                                                       class="form-control @error('mots.expiry_date') error @enderror  form-control-xl"
+                                                <input wire:model="mots.expiry_date" type="text" data-type="date" class="form-control flatpickr @error('mots.expiry_date') error @enderror  form-control-xl"
                                                        id="expiry_date"/>
                                                 @error("mots.expiry_date") <span
                                                     class="invalid">{{ $message }}</span>@enderror
@@ -1251,8 +1259,7 @@
                                             <div class="form-group">
                                                 <label class="form-label" for="tax_expiry_date">Expiry Date</label>
                                                 <div class="form-control-wrap">
-                                                    <input wire:model.live="tax_expiry_date" type="date"
-                                                           class="form-control @error('tax_expiry_date') error @enderror  form-control-xl"
+                                                    <input wire:model.live="tax_expiry_date" type="text" data-type="date" class="form-control flatpickr @error('tax_expiry_date') error @enderror  form-control-xl"
                                                            id="tax_expiry_date"/>
                                                     @error("tax_expiry_date") <span
                                                         class="invalid">{{ $message }}</span>@enderror
@@ -1297,8 +1304,7 @@
                                         <div class="form-group">
                                             <label class="form-label" for="last_service_date">Last Service Date</label>
                                             <div class="form-control-wrap">
-                                                <input wire:model="service.last_service_date" type="date"
-                                                       class="form-control @error('service.last_service_date') error @enderror  form-control-xl"
+                                                <input wire:model="service.last_service_date" type="text" data-type="date" class="form-control flatpickr @error('service.last_service_date') error @enderror  form-control-xl"
                                                        id="last_service_date"/>
                                                 @error("service.last_service_date") <span
                                                     class="invalid">{{ $message }}</span>@enderror
@@ -1309,8 +1315,7 @@
                                         <div class="form-group">
                                             <label class="form-label" for="next_service_date">Next Service Date</label>
                                             <div class="form-control-wrap">
-                                                <input wire:model="service.next_service_date" type="date"
-                                                       class="form-control @error('service.next_service_date') error @enderror  form-control-xl"
+                                                <input wire:model="service.next_service_date" type="text" data-type="date" class="form-control flatpickr @error('service.next_service_date') error @enderror  form-control-xl"
                                                        id="next_service_date"/>
                                                 @error("service.next_service_date") <span
                                                     class="invalid">{{ $message }}</span>@enderror
@@ -1712,8 +1717,7 @@
                                             <label class="form-label"
                                                    for="document.upload_date">{{ __('admin.upload_date') }}</label>
                                             <div class="form-control-wrap">
-                                                <input wire:model="document.upload_date" type="date"
-                                                       class="form-control @error('document.upload_date') error @enderror  form-control-xl"
+                                                <input wire:model="document.upload_date" type="text" data-type="date" class="form-control flatpickr @error('document.upload_date') error @enderror  form-control-xl"
                                                        id="document.upload_date"/>
                                                 @error("document.upload_date") <span
                                                     class="invalid">{{ $message }}</span>@enderror
@@ -1727,8 +1731,7 @@
                                             <label class="form-label"
                                                    for="document.expiry_date">{{ __('admin.expiry_date') }}</label>
                                             <div class="form-control-wrap">
-                                                <input wire:model="document.expiry_date" type="date"
-                                                       class="form-control @error('document.expiry_date') error @enderror  form-control-xl"
+                                                <input wire:model="document.expiry_date" type="text" data-type="date" class="form-control flatpickr @error('document.expiry_date') error @enderror  form-control-xl"
                                                        id="document.expiry_date"/>
                                                 @error("document.expiry_date") <span
                                                     class="invalid">{{ $message }}</span>@enderror
@@ -1755,8 +1758,7 @@
                                             <label class="form-label"
                                                    for="document.action_date">{{ __('admin.action_date') }}</label>
                                             <div class="form-control-wrap">
-                                                <input wire:model="document.action_date" type="date"
-                                                       class="form-control @error('document.action_date') error @enderror  form-control-xl"
+                                                <input wire:model="document.action_date" type="text" data-type="date" class="form-control flatpickr @error('document.action_date') error @enderror  form-control-xl"
                                                        id="document.action_date"/>
                                                 @error("document.action_date") <span
                                                     class="invalid">{{ $message }}</span>@enderror
@@ -1901,8 +1903,7 @@
                                             <label class="form-label"
                                                    for="finance.agreement_start_date">{{ __('admin.agreement_start_date') }}</label>
                                             <div class="form-control-wrap">
-                                                <input wire:model="finance.agreement_start_date" type="date"
-                                                       class="form-control @error('finance.agreement_start_date') error @enderror  form-control-xl"
+                                                <input wire:model="finance.agreement_start_date" type="text" data-type="date" class="form-control flatpickr @error('finance.agreement_start_date') error @enderror  form-control-xl"
                                                        id="finance.agreement_start_date"/>
                                                 @error("finance.agreement_start_date") <span
                                                     class="invalid">{{ $message }}</span>@enderror
@@ -1914,8 +1915,7 @@
                                             <label class="form-label"
                                                    for="finance.agreement_end_date">{{ __('admin.agreement_end_date') }}</label>
                                             <div class="form-control-wrap">
-                                                <input wire:model="finance.agreement_end_date" type="date"
-                                                       class="form-control @error('finance.agreement_end_date') error @enderror  form-control-xl"
+                                                <input wire:model="finance.agreement_end_date" type="text" data-type="date" class="form-control flatpickr @error('finance.agreement_end_date') error @enderror  form-control-xl"
                                                        id="finance.agreement_end_date"/>
                                                 @error("finance.agreement_end_date") <span
                                                     class="invalid">{{ $message }}</span>@enderror
@@ -1978,8 +1978,7 @@
                                             <label class="form-label"
                                                    for="damage.reported_Date">{{ __('admin.reported_date') }}</label>
                                             <div class="form-control-wrap">
-                                                <input wire:model="damage.reported_date" type="date"
-                                                       class="form-control @error('damage.reported_date') error @enderror  form-control-xl"
+                                                <input wire:model="damage.reported_date" type="text" data-type="date" class="form-control flatpickr @error('damage.reported_date') error @enderror  form-control-xl"
                                                        id="damage.reported_date"/>
                                                 @error("damage.reported_date") <span
                                                     class="invalid">{{ $message }}</span>@enderror
@@ -1992,8 +1991,7 @@
                                             <label class="form-label"
                                                    for="damage.incident_date">{{ __('admin.incident_date') }}</label>
                                             <div class="form-control-wrap">
-                                                <input wire:model="damage.incident_date" type="date"
-                                                       class="form-control @error('damage.incident_date') error @enderror  form-control-xl"
+                                                <input wire:model="damage.incident_date" type="text" data-type="date" class="form-control flatpickr @error('damage.incident_date') error @enderror  form-control-xl"
                                                        id="damage.incident_date"/>
                                                 @error("damage.incident_date") <span
                                                     class="invalid">{{ $message }}</span>@enderror
@@ -2124,8 +2122,7 @@
                                             <label class="form-label"
                                                    for="repair.booking_date">{{ __('admin.booking_date') }}</label>
                                             <div class="form-control-wrap">
-                                                <input wire:model="repair.booking_date" type="date"
-                                                       class="form-control @error('repair.booking_date') error @enderror  form-control-xl"
+                                                <input wire:model="repair.booking_date" type="text" data-type="date" class="form-control flatpickr @error('repair.booking_date') error @enderror  form-control-xl"
                                                        id="repair.booking_date"/>
                                                 @error("repair.booking_date") <span
                                                     class="invalid">{{ $message }}</span>@enderror
@@ -2138,8 +2135,7 @@
                                             <label class="form-label"
                                                    for="repair.date_time">{{ __('admin.date_time') }}</label>
                                             <div class="form-control-wrap">
-                                                <input wire:model="repair.date_time" type="datetime-local"
-                                                       class="form-control @error('repair.date_time') error @enderror  form-control-xl"
+                                                <input wire:model="repair.date_time" type="text" data-type="datetime" class="form-control flatpickr @error('repair.date_time') error @enderror  form-control-xl"
                                                        id="damage.insurance_reference_no"/>
                                                 @error("repair.date_time") <span
                                                     class="invalid">{{ $message }}</span>@enderror
@@ -2589,22 +2585,22 @@
                                         </div>
                                         <div class="col-6 mb-2">
                                             <label for="pickup_hours_start">Start</label>
-                                            <input type="time" class="form-control" id="pickup_hours_start" wire:model="availability.pickup_hours_start">
+                                            <input type="text" data-type="time" class="form-control flatpickr" id="pickup_hours_start" wire:model="availability.pickup_hours_start">
                                         </div>
                                         <div class="col-6 mb-2">
                                             <label for="pickup_hours_end">End</label>
-                                            <input type="time" class="form-control" id="pickup_hours_end" wire:model="availability.pickup_hours_end">
+                                            <input type="text" data-type="time" class="form-control flatpickr" id="pickup_hours_end" wire:model="availability.pickup_hours_end">
                                         </div>
                                         <div class="col-12 mb-2">
                                             <h6>Return Hours</h6>
                                         </div>
                                         <div class="col-6 mb-2">
                                             <label for="return_hours_start">Start</label>
-                                            <input type="time" class="form-control" id="return_hours_start" wire:model="availability.return_hours_start">
+                                            <input type="text" data-type="time" class="form-control flatpickr" id="return_hours_start" wire:model="availability.return_hours_start">
                                         </div>
                                         <div class="col-6 mb-2">
                                             <label for="return_hours_end">End</label>
-                                            <input type="time" class="form-control" id="return_hours_end" wire:model="availability.return_hours_end">
+                                            <input type="text" data-type="time" class="form-control flatpickr" id="return_hours_end" wire:model="availability.return_hours_end">
                                         </div>
                                         <div class="col-12 text-center">
                                             <button type="button" wire:click.prevent="saveAvailability" class="btn btn-lg btn-success">
@@ -2650,11 +2646,11 @@
                                     <div class="row">
                                         <div class="col-6 mb-2">
                                             <label for="start_date_time">Start Date/Time</label>
-                                            <input type="datetime-local" class="form-control" id="start_date_time" wire:model="blackout.start_date_time">
+                                            <input type="text" data-type="datetime" class="form-control flatpickr" id="start_date_time" wire:model="blackout.start_date_time">
                                         </div>
                                         <div class="col-6 mb-2">
                                             <label for="end_date_time">End Date/Time</label>
-                                            <input type="datetime-local" class="form-control" id="end_date_time" wire:model="blackout.end_date_time">
+                                            <input type="text" data-type="datetime" class="form-control flatpickr" id="end_date_time" wire:model="blackout.end_date_time">
                                         </div>
                                         <div class="col-6 mb-2">
                                             <label for="reason">Reason</label>
@@ -2825,3 +2821,5 @@
         </div>
     </div>
 </div><!-- .nk-block -->
+
+

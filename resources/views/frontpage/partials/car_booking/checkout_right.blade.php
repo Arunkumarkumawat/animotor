@@ -20,55 +20,51 @@
         <div class="carferrari__item flex-wrap mt-3 align-items-center-">
             <div class="carferrari__content">
                 <div class="d-flex justify-content-between">
-                    <p class="m2">Car hire charge per day</p>
-                    <p class="">{{ amt($car->price_per_day) }}</p>
+                    <p class="m2">Car hire charge per {{ $car->booking_period }}</p>
+                    <p class="">{{ amt($car->price) }}</p>
                 </div>
 
                 <div class="d-flex mt-2 justify-content-between">
-                    <p class="m2">Price for {{ request()->query('booking_day') }}days</p>
-                    <p class="text-heading_">{{ amt(request()->query('booking_day') * $car->price_per_day) }}</p>
+                    <p class="m2">Price for {{ request()->query('booking_day') }} {{ $car->booking_period }}(s)</p>
+                    <p class="text-heading_">{{ amt($car->total0) }}</p>
                 </div>
 
                 @if(request()->get('book_type') == 'with_full_protection')
                 <div class="d-flex mt-2 justify-content-between">
                     <p class="m2">Full protection fee </p>
-                    <p class="text-heading_">{{ amt($car->insurance_fee ) }}</p>
+                    <p class="text-heading_">{{ amt($car->insurance_fee ?? 0) }}</p>
                 </div>
                 @endif
-
 
                 @if($car->tax)
                     <div class="d-flex mt-2 justify-content-between">
                         <p class="m2">Tax </p>
-                        <p class="text-heading_">{{ amt($car->tax) }}</p>
+                        <p class="text-heading_">{{ amt($car->tax ?? 0) }}</p>
                     </div>
-
                 @endif
 
-
+                @if($car->extra_fee)
+                    <div class="d-flex mt-2 justify-content-between">
+                        <p class="m2">Extra fee </p>
+                        <p class="text-heading_">{{ amt($car->extra_fee ?? 0) }}</p>
+                    </div>
+                @endif
 
                 @if($car->total)
                     <div class="d-flex mt-2 justify-content-between">
                         <p class="m2 text-heading">Total </p>
-                        <p class="text-heading">{{ amt($car->total) }}</p>
+                        <p class="text-heading">{{ amt($car->total ?? 0) }}</p>
                     </div>
-
                 @endif
-
-
-
             </div>
         </div>
-
     </div>
     @if($car->total)
     <div class="hotel__confirm__invocie bg-primary mt-4 car__confirmdetails__right">
-        <p class="text-heading mt-2">This car is costing you just {{ amt($car->total) }} - a real bargain...</p>
-
+        <p class="text-heading mt-2">This car is costing you just {{ amt($car->total ?? 0) }} - a real bargain...</p>
     </div>
     @endif
 </div>
-
 
 <div class="modal fade" id="pickup_instructions">
     <div class="modal-dialog modal-lg">

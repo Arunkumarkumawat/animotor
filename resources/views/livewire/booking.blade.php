@@ -67,14 +67,9 @@
                                 @if(count($this->pickup_locations) > 0)
                                     <ul>
                                         @foreach($this->pickup_locations as $item)
-
-
                                             <li wire:click="selectLocation('{{ $item['place_id'] }}', '{{ $item['description'] }}', 'pick_up')">
                                                 {{ $item['description'] }}
                                             </li>
-
-{{--                                            <li id="{{ $item->id }}" wire:click="setLocation('{{ 'pick_up' }}', '{{ $item->id }}', '{{ $item->name }}')">{{ $item->name}}</li>--}}
-
                                         @endforeach
                                     </ul>
                                 @endif
@@ -95,13 +90,9 @@
                                 @if(count($this->drop_off_locations) > 0)
                                     <ul >
                                         @foreach($this->drop_off_locations as $item)
-
                                             <li wire:click="selectLocation('{{ $item['place_id'] }}', '{{ $item['description'] }}', 'drop_off')">
-                                            {{ $item['description'] }}
+                                                {{ $item['description'] }}
                                             </li>
-
-{{--                                            <li id="{{ $item->id }}" wire:click="setLocation('{{ 'drop_off' }}', '{{ $item->id }}','{{ $item->name }}')">{{ $item->name}}</li>--}}
-
                                         @endforeach
                                     </ul>
                                 @endif
