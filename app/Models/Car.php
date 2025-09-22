@@ -186,4 +186,8 @@ class Car extends Model
         return $this->belongsTo(User::class, 'driver_id');
     }
 
+    public function getMileagePolicyFormattedAttribute()
+    {
+        return 'Miles ' . ucwords(str_replace('_', ' ', str_replace('limited_', ' ', $this->mileage_policy)));
+    }
 }

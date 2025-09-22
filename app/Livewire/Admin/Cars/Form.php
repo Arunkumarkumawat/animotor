@@ -716,11 +716,11 @@ class Form extends Component
 
     public function storePrivateHire(){
         $validated = $this->validate([
-            'private_hire' => ['required', 'boolean'],
-            'licensing_authority' => ['required', 'string'],
-            'phv_plate_number' => ['required', 'string'],
-            'phv_expiry_date' => ['required', 'string'],
-            'hr_insurance_expiry' => ['required', 'string'],
+            'private_hire' => ['nullable', 'boolean'],
+            'licensing_authority' => ['nullable', 'string'],
+            'phv_plate_number' => ['nullable', 'string'],
+            'phv_expiry_date' => ['nullable', 'string'],
+            'hr_insurance_expiry' => ['nullable', 'string'],
             'plate_certificate_input' => ['nullable', 'file'],
             'hr_insurance_proof_input' => ['nullable', 'file'],
 

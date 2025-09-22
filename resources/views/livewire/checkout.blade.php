@@ -42,28 +42,6 @@
                             <p class="mt-2">{{ $car?->type }}</p>
                         </div>
 
-
-                        @if ($car->daily_rate)
-                            <div class="col-6 mt-3">
-                                <p>Price for 1 day</p>
-                                <p class="mt-2 text-title">{{ amt($car->daily_rate) }}</p>
-                            </div>
-                        @endif
-
-                        @if ($car->weekly_rate)
-                            <div class="col-6 mt-3">
-                                <p>Price for 1 week</p>
-                                <p class="mt-2 text-title">{{ amt($car->weekly_rate) }}</p>
-                            </div>
-                        @endif
-
-                        @if ($car->monthly_rate)
-                            <div class="col-6 mt-3">
-                                <p>Price for 1 month</p>
-                                <p class="mt-2 text-title">{{ amt($car->monthly_rate) }}</p>
-                            </div>
-                        @endif
-
                         @if ($car->mileage_policy)
                             <div class="col-6 mt-3">
                                 <p>Mileage Policy</p>

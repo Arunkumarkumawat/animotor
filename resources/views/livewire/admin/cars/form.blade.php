@@ -957,39 +957,41 @@
                                         </table>
                                     </div>
                                     <div class="col-md-4 mt-3">
-                                        <div class="form-group">
-                                            <label for="rule_name">Rule Name</label>
-                                            <input type="text" wire:model.live="dynamic_pricing_rule_name" name="rule_name" class="form-control form-control-lg" data-ui="xl" id="rule_name">
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="adjustment_type">Adjustment Type</label>
-                                            <select wire:model.live="dynamic_pricing_adjustment_type" name="adjustment_type" class="form-control form-control-lg" data-ui="xl" id="adjustment_type">
-                                                <option value="percentage_increase">Percentage Increase</option>
-                                                <option value="fixed_surcharge">Fixed Surcharge</option>
-                                                <option value="fixed_price">Fixed Price</option>
-                                            </select>
-                                        </div>
-                                        @if($dynamic_pricing_adjustment_type == "percentage_increase")
-                                        <div class="form-group">
-                                            <label for="adjustment_value">Adjustment Value</label>
-                                            <input type="number" min="0" max="100" wire:model.live="dynamic_pricing_adjustment_value" name="adjustment_value" class="form-control form-control-lg" data-ui="xl" id="adjustment_value">
-                                        </div>
-                                        @elseif($dynamic_pricing_adjustment_type == "fixed_surcharge" || $dynamic_pricing_adjustment_type == 'fixed_price')
-                                        <div class="form-group">
-                                            <label for="adjustment_value">Adjustment Value</label>
-                                            <input type="number" min="0" wire:model.live="dynamic_pricing_adjustment_value" name="adjustment_value" class="form-control form-control-lg" data-ui="xl" id="adjustment_value">
-                                        </div>
-                                        @endif
-                                        <div class="form-group">
-                                            <label for="start_date">Start Date</label>
-                                            <input type="text" data-type="date" wire:model="dynamic_pricing_start_date" name="start_date" class="form-control form-control-lg flatpickr" data-ui="xl" id="start_date">
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="end_date">End Date</label>
-                                            <input type="text" data-type="date" wire:model="dynamic_pricing_end_date" name="end_date" class="form-control form-control-lg flatpickr" data-ui="xl" id="end_date">
-                                        </div>
-                                        <div class="text-center">
-                                            <button type="button" wire:click="addDynamicPricing" class="btn btn-primary">Add</button>
+                                        <div style="background: #fbfbfb;border-radius: 15px;padding: 20px;">
+                                            <div class="form-group">
+                                                <label for="rule_name">Rule Name</label>
+                                                <input type="text" wire:model.live="dynamic_pricing_rule_name" name="rule_name" class="form-control form-control-lg" data-ui="xl" id="rule_name">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="adjustment_type">Adjustment Type</label>
+                                                <select wire:model.live="dynamic_pricing_adjustment_type" name="adjustment_type" class="form-control form-control-lg" data-ui="xl" id="adjustment_type">
+                                                    <option value="percentage_increase">Percentage Increase</option>
+                                                    <option value="fixed_surcharge">Fixed Surcharge</option>
+                                                    <option value="fixed_price">Fixed Price</option>
+                                                </select>
+                                            </div>
+                                            @if($dynamic_pricing_adjustment_type == "percentage_increase")
+                                            <div class="form-group">
+                                                <label for="adjustment_value">Adjustment Value</label>
+                                                <input type="number" min="0" max="100" wire:model.live="dynamic_pricing_adjustment_value" name="adjustment_value" class="form-control form-control-lg" data-ui="xl" id="adjustment_value">
+                                            </div>
+                                            @elseif($dynamic_pricing_adjustment_type == "fixed_surcharge" || $dynamic_pricing_adjustment_type == 'fixed_price')
+                                            <div class="form-group">
+                                                <label for="adjustment_value">Adjustment Value</label>
+                                                <input type="number" min="0" wire:model.live="dynamic_pricing_adjustment_value" name="adjustment_value" class="form-control form-control-lg" data-ui="xl" id="adjustment_value">
+                                            </div>
+                                            @endif
+                                            <div class="form-group">
+                                                <label for="start_date">Start Date</label>
+                                                <input type="text" data-type="date" wire:model="dynamic_pricing_start_date" name="start_date" class="form-control form-control-lg flatpickr" data-ui="xl" id="start_date">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="end_date">End Date</label>
+                                                <input type="text" data-type="date" wire:model="dynamic_pricing_end_date" name="end_date" class="form-control form-control-lg flatpickr" data-ui="xl" id="end_date">
+                                            </div>
+                                            <div class="text-center">
+                                                <button type="button" wire:click="addDynamicPricing" class="btn btn-primary">Add</button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -1600,31 +1602,33 @@
                                         </table>
                                     </div>
                                     <div class="col-4 mt-2">
-                                        <div class="form-group">
-                                            <input class="form-control  form-control-lg" type="text" wire:model="extras.title" placeholder="Title">
-                                            @error("extras.title") <span class="error">This title is required</span> @enderror
-                                        </div>
-                                        <div class="form-group">
-                                            <input class="form-control  form-control-lg" type="text" wire:model="extras.description" placeholder="Description">
-                                            @error("extras.description") <span class="error">This description is required</span> @enderror
-                                        </div>
-                                        <div class="form-group">
-                                            <input class="form-control form-control-lg" type="number" wire:model="extras.price" placeholder="Price">
-                                            @error("extras.price") <span class="error">This price is required</span> @enderror
-                                        </div>
-                                        <div class="form-group">
-                                            <select class="form-control form-control-lg select2" wire:model="extras.interval" placeholder="Interval">
-                                                <option value="">Select Interval</option>
-                                                <option value="daily">Daily</option>
-                                                <option value="weekly">Weekly</option>
-                                                <option value="one_time">One Time</option>
-                                            </select>
-                                            @error("extras.interval") <span class="error">This interval is required</span> @enderror
-                                        </div>
-                                        <div class="form-group mt-3">
-                                            <button type="button" wire:click.prevent="addExtras" class="btn btn-lg btn-success">
-                                                Save
-                                            </button>
+                                        <div style="background: #fbfbfb;border-radius: 15px;padding: 20px;">
+                                            <div class="form-group">
+                                                <input class="form-control  form-control-lg" type="text" wire:model="extras.title" placeholder="Title">
+                                                @error("extras.title") <span class="error">This title is required</span> @enderror
+                                            </div>
+                                            <div class="form-group">
+                                                <input class="form-control  form-control-lg" type="text" wire:model="extras.description" placeholder="Description">
+                                                @error("extras.description") <span class="error">This description is required</span> @enderror
+                                            </div>
+                                            <div class="form-group">
+                                                <input class="form-control form-control-lg" type="number" wire:model="extras.price" placeholder="Price">
+                                                @error("extras.price") <span class="error">This price is required</span> @enderror
+                                            </div>
+                                            <div class="form-group">
+                                                <select class="form-control form-control-lg select2" wire:model="extras.interval" placeholder="Interval">
+                                                    <option value="">Select Interval</option>
+                                                    <option value="daily">Daily</option>
+                                                    <option value="weekly">Weekly</option>
+                                                    <option value="one_time">One Time</option>
+                                                </select>
+                                                @error("extras.interval") <span class="error">This interval is required</span> @enderror
+                                            </div>
+                                            <div class="form-group mt-3">
+                                                <button type="button" wire:click.prevent="addExtras" class="btn btn-lg btn-success">
+                                                    Save
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -2512,40 +2516,42 @@
                                         </table>
                                     </div>
                                     <div class="col-4 mt-2">
-                                        <div class="form-group">
-                                            <select class="form-control form-control-lg select2" wire:model="insurance_coverage.level">
-                                                <option value="">Select Level</option>
-                                                <option value="basic">Basic</option>
-                                                <option value="full">Full</option>
-                                                <option value="excess">Excess</option>
-                                            </select>
-                                            @error("insurance_coverage.level") <span class="error">Level is required</span> @enderror
-                                        </div>
-                                        <div class="form-group">
-                                            <input class="form-control form-control-lg" type="text" wire:model="insurance_coverage.cover" placeholder="What's Covered">
-                                            @error("insurance_coverage.cover") <span class="error">Cover is required</span> @enderror
-                                        </div>
-                                        <div class="form-group">
-                                            <input class="form-control form-control-lg" type="number" wire:model="insurance_coverage.daily_price" placeholder="Daily Price">
-                                            @error("insurance_coverage.daily_price") <span class="error">Daily price is required</span> @enderror
-                                        </div>
-                                        <div class="form-group">
-                                            <input class="form-control form-control-lg" type="number" wire:model="insurance_coverage.excess" placeholder="Excess">
-                                            @error("insurance_coverage.excess") <span class="error">Excess is required</span> @enderror
-                                        </div>
-                                        <div class="form-group">
-                                            <select class="form-control form-control-lg select2" wire:model="insurance_coverage.interval" placeholder="Interval">
-                                                <option value="">Select Interval</option>
-                                                <option value="daily">Daily</option>
-                                                <option value="weekly">Weekly</option>
-                                                <option value="one_time">One Time</option>
-                                            </select>
-                                            @error("extras.interval") <span class="error">This interval is required</span> @enderror
-                                        </div>
-                                        <div class="form-group mt-3">
-                                            <button type="button" wire:click.prevent="addInsuranceCoverage" class="btn btn-lg btn-success">
-                                                Save
-                                            </button>
+                                        <div style="background: #fbfbfb;border-radius: 15px;padding: 20px;">
+                                            <div class="form-group">
+                                                <select class="form-control form-control-lg select2" wire:model="insurance_coverage.level">
+                                                    <option value="">Select Level</option>
+                                                    <option value="basic">Basic</option>
+                                                    <option value="full">Full</option>
+                                                    <option value="excess">Excess</option>
+                                                </select>
+                                                @error("insurance_coverage.level") <span class="error">Level is required</span> @enderror
+                                            </div>
+                                            <div class="form-group">
+                                                <input class="form-control form-control-lg" type="text" wire:model="insurance_coverage.cover" placeholder="What's Covered">
+                                                @error("insurance_coverage.cover") <span class="error">Cover is required</span> @enderror
+                                            </div>
+                                            <div class="form-group">
+                                                <input class="form-control form-control-lg" type="number" wire:model="insurance_coverage.daily_price" placeholder="Daily Price">
+                                                @error("insurance_coverage.daily_price") <span class="error">Daily price is required</span> @enderror
+                                            </div>
+                                            <div class="form-group">
+                                                <input class="form-control form-control-lg" type="number" wire:model="insurance_coverage.excess" placeholder="Excess">
+                                                @error("insurance_coverage.excess") <span class="error">Excess is required</span> @enderror
+                                            </div>
+                                            <div class="form-group">
+                                                <select class="form-control form-control-lg select2" wire:model="insurance_coverage.interval" placeholder="Interval">
+                                                    <option value="">Select Interval</option>
+                                                    <option value="daily">Daily</option>
+                                                    <option value="weekly">Weekly</option>
+                                                    <option value="one_time">One Time</option>
+                                                </select>
+                                                @error("extras.interval") <span class="error">This interval is required</span> @enderror
+                                            </div>
+                                            <div class="form-group mt-3">
+                                                <button type="button" wire:click.prevent="addInsuranceCoverage" class="btn btn-lg btn-success">
+                                                    Save
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -2564,48 +2570,50 @@
                             <div class="tab-content" id="myTabContent">
                                 <div class="tab-pane fade {{ $calendarTab == 'availability' ? 'show active' : '' }}" role="tabpanel">
                                     <h4>Availability</h4>
-                                    <div class="row">
-                                        <div class="col-12 mb-2">
-                                            <div class="form-group">
-                                                <label for="day_of_week">Day of Week</label>
-                                                <select class="form-control select2" id="availability.day_of_week" wire:model="availability.day_of_week">
-                                                    <option value="">Select Day of Week</option>
-                                                    <option value="Monday">Monday</option>
-                                                    <option value="Tuesday">Tuesday</option>
-                                                    <option value="Wednesday">Wednesday</option>
-                                                    <option value="Thursday">Thursday</option>
-                                                    <option value="Friday">Friday</option>
-                                                    <option value="Saturday">Saturday</option>
-                                                    <option value="Sunday">Sunday</option>
-                                                </select>
+                                    <div style="background:#f5f5f5;padding:20px;border-radius:15px;">
+                                        <div class="row">
+                                            <div class="col-12 mb-2">
+                                                <div class="form-group">
+                                                    <label for="day_of_week">Day of Week</label>
+                                                    <select class="form-control select2" id="availability.day_of_week" wire:model="availability.day_of_week">
+                                                        <option value="">Select Day of Week</option>
+                                                        <option value="Monday">Monday</option>
+                                                        <option value="Tuesday">Tuesday</option>
+                                                        <option value="Wednesday">Wednesday</option>
+                                                        <option value="Thursday">Thursday</option>
+                                                        <option value="Friday">Friday</option>
+                                                        <option value="Saturday">Saturday</option>
+                                                        <option value="Sunday">Sunday</option>
+                                                    </select>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="col-12 mb-2">
-                                            <h6>Pickup Hours</h6>
-                                        </div>
-                                        <div class="col-6 mb-2">
-                                            <label for="pickup_hours_start">Start</label>
-                                            <input type="text" data-type="time" class="form-control flatpickr" id="pickup_hours_start" wire:model="availability.pickup_hours_start">
-                                        </div>
-                                        <div class="col-6 mb-2">
-                                            <label for="pickup_hours_end">End</label>
-                                            <input type="text" data-type="time" class="form-control flatpickr" id="pickup_hours_end" wire:model="availability.pickup_hours_end">
-                                        </div>
-                                        <div class="col-12 mb-2">
-                                            <h6>Return Hours</h6>
-                                        </div>
-                                        <div class="col-6 mb-2">
-                                            <label for="return_hours_start">Start</label>
-                                            <input type="text" data-type="time" class="form-control flatpickr" id="return_hours_start" wire:model="availability.return_hours_start">
-                                        </div>
-                                        <div class="col-6 mb-2">
-                                            <label for="return_hours_end">End</label>
-                                            <input type="text" data-type="time" class="form-control flatpickr" id="return_hours_end" wire:model="availability.return_hours_end">
-                                        </div>
-                                        <div class="col-12 text-center">
-                                            <button type="button" wire:click.prevent="saveAvailability" class="btn btn-lg btn-success">
-                                                Save
-                                            </button>
+                                            <div class="col-12 mb-2">
+                                                <h6>Pickup Hours</h6>
+                                            </div>
+                                            <div class="col-6 mb-2">
+                                                <label for="pickup_hours_start">Start</label>
+                                                <input type="text" data-type="time" class="form-control flatpickr" id="pickup_hours_start" wire:model="availability.pickup_hours_start">
+                                            </div>
+                                            <div class="col-6 mb-2">
+                                                <label for="pickup_hours_end">End</label>
+                                                <input type="text" data-type="time" class="form-control flatpickr" id="pickup_hours_end" wire:model="availability.pickup_hours_end">
+                                            </div>
+                                            <div class="col-12 mb-2">
+                                                <h6>Return Hours</h6>
+                                            </div>
+                                            <div class="col-6 mb-2">
+                                                <label for="return_hours_start">Start</label>
+                                                <input type="text" data-type="time" class="form-control flatpickr" id="return_hours_start" wire:model="availability.return_hours_start">
+                                            </div>
+                                            <div class="col-6 mb-2">
+                                                <label for="return_hours_end">End</label>
+                                                <input type="text" data-type="time" class="form-control flatpickr" id="return_hours_end" wire:model="availability.return_hours_end">
+                                            </div>
+                                            <div class="col-12 text-center">
+                                                <button type="button" wire:click.prevent="saveAvailability" class="btn btn-lg btn-success">
+                                                    Save
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="table-responsive mt-2">
@@ -2643,41 +2651,43 @@
                                 </div>
                                 <div class="tab-pane fade {{ $calendarTab == 'blackout' ? 'show active' : '' }}" role="tabpanel">
                                     <h4>Blackout</h4>
-                                    <div class="row">
-                                        <div class="col-6 mb-2">
-                                            <label for="start_date_time">Start Date/Time</label>
-                                            <input type="text" data-type="datetime" class="form-control flatpickr" id="start_date_time" wire:model="blackout.start_date_time">
-                                        </div>
-                                        <div class="col-6 mb-2">
-                                            <label for="end_date_time">End Date/Time</label>
-                                            <input type="text" data-type="datetime" class="form-control flatpickr" id="end_date_time" wire:model="blackout.end_date_time">
-                                        </div>
-                                        <div class="col-6 mb-2">
-                                            <label for="reason">Reason</label>
-                                            <select class="form-control" id="reason" wire:model="blackout.reason">
-                                                <option value="">Select Reason</option>
-                                                <option value="maintenance">Maintenance</option>
-                                                <option value="mot">MOT</option>
-                                                <option value="insurance">Insurance</option>
-                                                <option value="personal_use">Personal Use</option>
-                                            </select>  
-                                        </div>
-                                        <div class="col-6 mb-2">
-                                            <label for="hard_block">Hard Block (cannot be overriden)</label>
-                                            <select class="form-control" id="hard_block" wire:model="blackout.hard_block">
-                                                <option value="">Select Option</option>
-                                                <option value="1">Yes</option>
-                                                <option value="0">No</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-12 mb-2">
-                                            <label for="">Notes (optional)</label>
-                                            <textarea class="form-control" id="" wire:model="blackout.notes"></textarea>
-                                        </div>
-                                        <div class="col-12 text-center">
-                                            <button type="button" wire:click.prevent="saveBlackout" class="btn btn-lg btn-success">
-                                                Save
-                                            </button>
+                                    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 15px;">
+                                        <div class="row">
+                                            <div class="col-6 mb-2">
+                                                <label for="start_date_time">Start Date/Time</label>
+                                                <input type="text" data-type="datetime" class="form-control flatpickr" id="start_date_time" wire:model="blackout.start_date_time">
+                                            </div>
+                                            <div class="col-6 mb-2">
+                                                <label for="end_date_time">End Date/Time</label>
+                                                <input type="text" data-type="datetime" class="form-control flatpickr" id="end_date_time" wire:model="blackout.end_date_time">
+                                            </div>
+                                            <div class="col-6 mb-2">
+                                                <label for="reason">Reason</label>
+                                                <select class="form-control" id="reason" wire:model="blackout.reason">
+                                                    <option value="">Select Reason</option>
+                                                    <option value="maintenance">Maintenance</option>
+                                                    <option value="mot">MOT</option>
+                                                    <option value="insurance">Insurance</option>
+                                                    <option value="personal_use">Personal Use</option>
+                                                </select>  
+                                            </div>
+                                            <div class="col-6 mb-2">
+                                                <label for="hard_block">Hard Block (cannot be overriden)</label>
+                                                <select class="form-control" id="hard_block" wire:model="blackout.hard_block">
+                                                    <option value="">Select Option</option>
+                                                    <option value="1">Yes</option>
+                                                    <option value="0">No</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-12 mb-2">
+                                                <label for="">Notes (optional)</label>
+                                                <textarea class="form-control" id="" wire:model="blackout.notes"></textarea>
+                                            </div>
+                                            <div class="col-12 text-center">
+                                                <button type="button" wire:click.prevent="saveBlackout" class="btn btn-lg btn-success">
+                                                    Save
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="table-responsive mt-2">

@@ -95,27 +95,6 @@
                                             <p class="mt-2">{{ $car?->type }}</p>
                                         </div>
 
-                                        @if($car->daily_rate)
-                                        <div class="col-6 mt-3">
-                                            <p>Price for 1 day</p>
-                                            <p class="mt-2 text-title">{{ amt($car->daily_rate) }}</p>
-                                        </div>
-                                        @endif
-
-                                        @if($car->weekly_rate)
-                                        <div class="col-6 mt-3">
-                                            <p>Price for 1 week</p>
-                                            <p class="mt-2 text-title">{{ amt($car->weekly_rate) }}</p>
-                                        </div>
-                                        @endif
-
-                                        @if($car->monthly_rate)
-                                        <div class="col-6 mt-3">
-                                            <p>Price for 1 month</p>
-                                            <p class="mt-2 text-title">{{ amt($car->monthly_rate) }}</p>
-                                        </div>
-                                        @endif
-
                                         @if($car->mileage_policy)
                                         <div class="col-6 mt-3">
                                             <p>Mileage Policy</p>
@@ -212,42 +191,30 @@
                         <input type="hidden" name="{{ $key }}" value="{{ $value }}">
                         @endforeach
 
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Addons</th>
-                                    <th>Title</th>
-                                    <th>Price</th>
-                                    <th>Description</th>
-                                    <th>Interval</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            @foreach($car->extras as $index => $extra)
-                                <tr>
-                                    <td>
-                                        <input type="number" style="width: 100px" class="form-control" name="extras[{{ $index }}]" min="0" step="1" value="0" />
-                                    </td>
-                                    <td>{{ $extra['title'] }}</td>
-                                    <td>{{ amt($extra['price']) }}</td>
-                                    <td>{{ isset($extra['description']) ? $extra['description'] : '' }}</td>
-                                    <td>{{ isset($extra['interval']) ? ucwords(str_replace('_', ' ', $extra['interval'])) : '' }}</td>
-                                </tr>
-                            @endforeach
-                            </tbody>
-                        </table>
-
-                        <div class="input-group">
-                            <input type="number" class="form-control" name="booking_day" min="1" step="1" value="1" required>
-                            <select class="form-control" name="booking_period" required>
-                                <option value="daily">Days</option>
-                                <option value="weekly">Weeks</option>
-                                <option value="monthly">Months</option>
-                            </select>
-                            <button type="submit" class="cmn__btn"> 
-                                Continue to book
-                            </button>
+                        <div class="row row-cols-1 row-cols-md-2">
+                        @foreach($car->extras as $index => $extra)
+                            <div class="col mb-4">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <h5 class="card-title">{{ $extra['title'] }}</h5>
+                                            <div class="input-group" style="max-width: 125px;">
+                                                <button type="button" class="btn btn-light" onclick="decrement({{ $index }})">-</button>
+                                                <input type="number" class="form-control" style="appearance: textfield;" name="extras[{{ $index }}]" min="0" step="1" value="0" />
+                                                <button type="button" class="btn btn-light" onclick="increment({{ $index }})">+</button>
+                                            </div>
+                                        </div>
+                                        <p class="card-text">{{ isset($extra['description']) ? $extra['description'] : '' }}</p>
+                                        <p class="card-text text-primary"><small class="text-muted">{{ amt($extra['price']) }} {{ isset($extra['interval']) ? ucwords(str_replace('_', ' ', $extra['interval'])) : '' }}</small></p>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
                         </div>
+
+                        <button type="submit" class="cmn__btn"> 
+                            Continue to book
+                        </button>
                     </form>
                 </div>
                 @include('frontpage.partials.car_booking.checkout_right')
@@ -280,5 +247,19 @@
             </div>
         </div>
     </div>
+    <script>
+        function decrement(index) {
+            var input = document.querySelector('input[name="extras[' + index + ']"]');
+            var value = parseInt(input.value);
+            if (value > 0) {
+                input.value = value - 1;
+            }
+        }
 
+        function increment(index) {
+            var input = document.querySelector('input[name="extras[' + index + ']"]');
+            var value = parseInt(input.value);
+            input.value = value + 1;
+        }
+    </script>
 @endsection

@@ -73,31 +73,22 @@ class Checkout extends Component
         $params = $this->params;
         
         $booking_day = $params['booking_day'];
-        $booking_period = $params['booking_period'];
 
-        $price = $this->car->daily_rate ?? $this->car->price_per_day;
-        $booking_period_f = 'day';
-        $days_count = 1;
-        
-        switch($booking_period){
-            case 'daily':
-                $days_count = 1;
-                $booking_period_f = 'day';
-                $price = $this->car->price_per_day;
-                break;
-            case 'weekly':
-                $days_count = 7;
-                $booking_period_f = 'week';
-                $price = $this->car->weekly_rate;
-                break;
-            case 'monthly':
-                $days_count = 30;
-                $booking_period_f = 'month';
-                $price = $this->car->monthly_rate;
-                break;
+        if(is_int($booking_day / 30)){
+            $booking_period = 'month';
+            $days_count = 30;   
+            $price = $this->car->monthly_rate;  
+        }elseif(is_int($booking_day / 7)){
+            $booking_period = 'week';
+            $days_count = 7;
+            $price = $this->car->weekly_rate;
+        }else{
+            $booking_period = 'day';
+            $days_count = 1;
+            $price = $this->car->daily_rate;
         }
 
-        $total0 = $price * $booking_day;
+        $total0 = $price * $booking_day / $days_count;
         $tax = $total0 * settings('tax',0.075);
         $total = $total0 + $tax;
 
@@ -149,7 +140,7 @@ class Checkout extends Component
         $data['extras'] =  $extras;
         $data['insurance_fee'] =  $insurance_fee;
         $data['grand_total'] =  $total;
-        $data['booking_period'] = $booking_day . ' ' . $booking_period_f;
+        $data['booking_period'] = ($booking_day/$days_count) . ' ' . $booking_period;
         
         $data['reference'] = getUniqueReferenceCode();
         $data['booking_number'] = getUniqueBookingNumber();
@@ -162,6 +153,7 @@ class Checkout extends Component
         $data['drop_off_time'] = $this->drop_off_time;
         $data['pick_location'] = $this->pick_location;
         $data['drop_off_location'] = $this->drop_off_location;
+        $data['company_id'] = $this->car->company_id;
 
         $booking = Booking::create($data);
 
@@ -170,8 +162,6 @@ class Checkout extends Component
         }
 
         return redirect()->route('booking_successful', ['id' => $booking->id])->with('success','Booking successfully submitted, please proceed to payment');
-
-
     }
 
     public function mount(){

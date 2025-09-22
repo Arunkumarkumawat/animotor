@@ -25,7 +25,7 @@
                 </div>
 
                 <div class="d-flex mt-2 justify-content-between">
-                    <p class="m2">Price for {{ request()->query('booking_day') }} {{ $car->booking_period }}(s)</p>
+                    <p class="m2">Price for {{ $car->booking_day }} {{ $car->booking_period }}(s)</p>
                     <p class="text-heading_">{{ amt($car->total0) }}</p>
                 </div>
 

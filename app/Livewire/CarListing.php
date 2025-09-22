@@ -24,6 +24,9 @@ class CarListing extends Component
     public array $selected_car_models = [];
     public array $selected_mileage = [];
     public array $selected_electric_cars = [];
+    public array $selected_car_seats = [];
+
+    public ?string $order_by = null;
 
     public $search;
     public $priceRange = 10;
@@ -98,6 +101,19 @@ class CarListing extends Component
 
     public function render()
     {
+        $booking_type = 'day';
+        $priceColumn = 'daily_rate';
+        $day = $this->booking_day;
+        if(is_int($this->booking_day / 30)){
+            $booking_type = 'month';
+            $priceColumn = 'monthly_rate';
+            $day = $this->booking_day / 30;
+        } else if(is_int($this->booking_day / 7)){
+            $booking_type = 'week';
+            $priceColumn = 'weekly_rate';
+            $day = $this->booking_day / 7;
+        }
+
         $services = $this->services();
         $vehicle_types = $this->vehicleTypes();
 
@@ -105,19 +121,20 @@ class CarListing extends Component
 
         $filteredCars = Car::query();
         
-        $filteredCars->where('is_approved', '1');
-
-        $filteredCars->where('region_id', $this->location->id)->where('is_available', true);
+        $filteredCars->where('region_id', $this->location->id)
+            ->where('is_available', true)
+            ->where('is_approved', '1');
 
         $this->filters['car_types'] = array_unique($filteredCars->pluck('type')->toArray());
 
         $this->filters['car_makes'] = array_unique($filteredCars->pluck('make')->toArray());
         $this->filters['car_models'] = array_unique($filteredCars->pluck('model')->toArray());
+        $this->filters['car_seats'] = array_unique($filteredCars->pluck('seats')->toArray());
 
-        $this->min_price = $filteredCars->min('price_per_day');
-        $this->max_price = $filteredCars->max('price_per_day');
+        $this->min_price = (clone $filteredCars)->selectRaw("MIN($priceColumn * $day) AS price")->first()?->price ?? 0;
+        $this->max_price = (clone $filteredCars)->selectRaw("MAX($priceColumn * $day) AS price")->first()?->price ?? 0;
 
-        $filteredCars->whereBetween('price_per_day', [$this->priceRange, $this->max_price]);
+        $filteredCars->whereRaw("($priceColumn * $day) BETWEEN ? AND ?", [$this->priceRange, $this->max_price]);
 
         $filteredCars->when(count($this->selected_transmissions) > 0, function ($query) {
             $query->whereIn('gear', $this->selected_transmissions);
@@ -135,13 +152,19 @@ class CarListing extends Component
             $query->whereIn('type', $this->selected_car_types);
         });
 
+        $filteredCars->when(count($this->selected_car_seats) > 0, function ($query) {
+            $query->whereIn('seats', $this->selected_car_seats);
+        });
+
         $filteredCars->when(count($this->selected_mileage) > 0, function ($query) {
             if (in_array('unlimited', $this->selected_mileage)) {
-                $query->where('mileage', 0);
+                $query->where('mileage_policy', 'unlimited');
             }
 
             if (in_array('limited', $this->selected_mileage)) {
-                $query->orWhere('mileage', '>', 0);
+                $query->where(function ($query) {
+                    $query->where('mileage_policy', 'like', 'limited%');
+                });
             }
         });
 
@@ -155,11 +178,22 @@ class CarListing extends Component
             $query->whereIn('fuel_type', $this->selected_electric_cars);
         });
 
+        $filteredCars->when($this->order_by, function ($query) {
+            switch($this->order_by){
+                case 'price_asc':
+                    $query->orderBy('daily_rate', 'asc');
+                    break;
+                case 'price_desc':
+                    $query->orderBy('daily_rate', 'desc');
+                    break;
+            }
+        });
+
         $filteredCars = $filteredCars->paginate(4);
 
         $this->loading = false;
 
-        return view('livewire.car-listing',  compact('filteredCars', 'services', 'vehicle_types'));
+        return view('livewire.car-listing',  compact('filteredCars', 'services', 'vehicle_types', 'booking_type'));
     }
 
     public function filterHeading($title): string

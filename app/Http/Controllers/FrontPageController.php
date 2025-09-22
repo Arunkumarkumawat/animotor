@@ -174,38 +174,31 @@ class FrontPageController extends Controller
         $car = Car::findOrFail($id);
 
         $booking_day = $request->get('booking_day');
-        $booking_period = $request->get('booking_period');
-        $price = $car->daily_rate ?? $car->price_per_day;
-        $booking_period_f = 'day';
-        $days_count = 1;
 
-        switch($booking_period){
-            case 'daily':
-                $booking_period_f = 'day';
-                $price = $car->price_per_day;
-                $days_count = 1;
-                break;
-            case 'weekly':
-                $booking_period_f = 'week';
-                $price = $car->weekly_rate;
-                $days_count = 7;
-                break;
-            case 'monthly':
-                $booking_period_f = 'month';
-                $price = $car->monthly_rate;
-                $days_count = 30;
-                break;
+        if(is_int($booking_day / 30)){
+            $divideBy = 30;
+            $booking_period = 'month';
+            $price = $car->monthly_rate;
+        } elseif(is_int($booking_day / 7)){
+            $divideBy = 7;
+            $booking_period = 'week';
+            $price = $car->weekly_rate;
+        } else {
+            $divideBy = 1;
+            $booking_period = 'day';
+            $price = $car->daily_rate;
         }
 
-        $car->booking_period = $booking_period_f;
+        $car->booking_day = $booking_day / $divideBy;
+        $car->booking_period = $booking_period;
         $car->price = $price;
-        $car->total0 = $price * $booking_day;
+        $car->total0 = $price * $car->booking_day;
         $car->tax = $car->total0 * settings('tax',0.075);
         $car->total = $car->total0 + $car->tax;
 
         $insurance_fee = 0;
         foreach($car->insurance_coverage as $coverage){
-            $insurance_fee += $coverage['daily_price'] * $days_count * $booking_day;
+            $insurance_fee += $coverage['daily_price'] * $booking_day;
         }
         $car->insurance_fee = $insurance_fee;
 
@@ -217,38 +210,31 @@ class FrontPageController extends Controller
         $car = Car::findOrFail($id);
 
         $booking_day = $request->get('booking_day');
-        $booking_period = $request->get('booking_period');
-        $price = $car->daily_rate ?? $car->price_per_day;
-        $booking_period_f = 'day';
-        $days_count = 1;
 
-        switch($booking_period){
-            case 'daily':
-                $days_count = 1;
-                $booking_period_f = 'day';
-                $price = $car->price_per_day;
-                break;
-            case 'weekly':
-                $days_count = 7;
-                $booking_period_f = 'week';
-                $price = $car->weekly_rate;
-                break;
-            case 'monthly':
-                $days_count = 30;
-                $booking_period_f = 'month';
-                $price = $car->monthly_rate;
-                break;
+        if(is_int($booking_day / 30)){
+            $divideBy = 30;
+            $booking_period = 'month';
+            $price = $car->monthly_rate;
+        } elseif(is_int($booking_day / 7)){
+            $divideBy = 7;
+            $booking_period = 'week';
+            $price = $car->weekly_rate;
+        } else {
+            $divideBy = 1;
+            $booking_period = 'day';
+            $price = $car->daily_rate;
         }
 
-        $car->booking_period = $booking_period_f;
+        $car->booking_day = $booking_day / $divideBy;
+        $car->booking_period = $booking_period;
         $car->price = $price;
-        $car->total0 = $price * $booking_day;
+        $car->total0 = $price * $car->booking_day;
         $car->tax = $car->total0 * settings('tax',0.075);
         $car->total = $car->total0 + $car->tax;
 
         $insurance_fee = 0;
         foreach($car->insurance_coverage as $coverage){
-            $insurance_fee += $coverage['daily_price'] * $days_count * $booking_day;
+            $insurance_fee += $coverage['daily_price'] * $booking_day;
         }
         $car->insurance_fee = $insurance_fee;
 
@@ -259,11 +245,11 @@ class FrontPageController extends Controller
                 continue;
             }
             if($car->extras[$index]['interval'] == 'daily'){
-                $extra_fee += $car->extras[$index]['price'] * $extra * $booking_day * $days_count;
+                $extra_fee += $car->extras[$index]['price'] * $extra * $booking_day * $divideBy;
             }elseif($car->extras[$index]['interval'] == 'weekly'){
-                $extra_fee += $car->extras[$index]['price'] * $extra * $booking_day * $days_count / 7;
+                $extra_fee += $car->extras[$index]['price'] * $extra * $booking_day * $divideBy / 7;
             }elseif($car->extras[$index]['interval'] == 'monthly'){
-                $extra_fee += $car->extras[$index]['price'] * $extra * $booking_day * $days_count / 30;
+                $extra_fee += $car->extras[$index]['price'] * $extra * $booking_day * $divideBy / 30;
             } else {
                 $extra_fee += $car->extras[$index]['price'] * $extra;
             }
@@ -282,52 +268,39 @@ class FrontPageController extends Controller
     public function checkout(Request $request){
         $id = $request->get('car_id');
         $car = Car::findOrFail($id);
+        
         if(auth()->check()){
             $user = auth()->user();
-
-            $booking = Booking::where('customer_id', $user->id)
-                ->where('car_id', $id)
-                ->where('completed', false)->where('cancelled', false)->first();
-            if($booking){
-                return redirect()->route('booking', $booking->id)->with('error','Please complete your ongoing booking');
-            }
         }else{
             $user = null;
         }
         
         $booking_day = $request->get('booking_day');
-        $booking_period = $request->get('booking_period');
-        $price = $car->daily_rate ?? $car->price_per_day;
-        $booking_period_f = 'day';
-        $days_count = 1;
-        
-        switch($booking_period){
-            case 'daily':
-                $days_count = 1;
-                $booking_period_f = 'day';
-                $price = $car->price_per_day;
-                break;
-            case 'weekly':
-                $days_count = 7;
-                $booking_period_f = 'week';
-                $price = $car->weekly_rate;
-                break;
-            case 'monthly':
-                $days_count = 30;
-                $booking_period_f = 'month';
-                $price = $car->monthly_rate;
-                break;
+
+        if(is_int($booking_day / 30)){
+            $divideBy = 30;
+            $booking_period = 'month';
+            $price = $car->monthly_rate;
+        } elseif(is_int($booking_day / 7)){
+            $divideBy = 7;
+            $booking_period = 'week';
+            $price = $car->weekly_rate;
+        } else {
+            $divideBy = 1;
+            $booking_period = 'day';
+            $price = $car->daily_rate;
         }
 
-        $car->booking_period = $booking_period_f;
+        $car->booking_day = $booking_day / $divideBy;
+        $car->booking_period = $booking_period;
         $car->price = $price;
-        $car->total0 = $price * $booking_day;
+        $car->total0 = $price * $car->booking_day;
         $car->tax = $car->total0 * settings('tax',0.075);
         $car->total = $car->total0 + $car->tax;
 
         $insurance_fee = 0;
         foreach($car->insurance_coverage as $coverage){
-            $insurance_fee += $coverage['daily_price'] * $days_count * $booking_day;
+            $insurance_fee += $coverage['daily_price'] * $booking_day;
         }
         $car->insurance_fee = $insurance_fee;
 
@@ -338,11 +311,11 @@ class FrontPageController extends Controller
                 continue;
             }
             if($car->extras[$index]['interval'] == 'daily'){
-                $extra_fee += $car->extras[$index]['price'] * $extra * $booking_day * $days_count;
+                $extra_fee += $car->extras[$index]['price'] * $extra * $booking_day * $divideBy;
             }elseif($car->extras[$index]['interval'] == 'weekly'){
-                $extra_fee += $car->extras[$index]['price'] * $extra * $booking_day * $days_count / 7;
+                $extra_fee += $car->extras[$index]['price'] * $extra * $booking_day * $divideBy / 7;
             }elseif($car->extras[$index]['interval'] == 'monthly'){
-                $extra_fee += $car->extras[$index]['price'] * $extra * $booking_day * $days_count / 30;
+                $extra_fee += $car->extras[$index]['price'] * $extra * $booking_day * $divideBy / 30;
             } else {
                 $extra_fee += $car->extras[$index]['price'] * $extra;
             }
