@@ -76,17 +76,20 @@
                                         <div class="d-flex justify-content-between mt-4 row">
                                             <!-- Insurance Comparison Table -->
                                             <div class="row border-bottom py-3">
-                                                <div class="col-3">
+                                                <div class="col-2">
                                                     <h6>Plan</h6>
                                                 </div>
-                                                <div class="col-3 text-center">
+                                                <div class="col-4 text-center">
                                                     <h6 class="text-success">What's covered</h6>
                                                 </div>
-                                                <div class="col-3 text-center">
+                                                <div class="col-2 text-center">
                                                     <h6>Daily Price</h6>
                                                 </div>
-                                                <div class="col-3 text-center">
+                                                <div class="col-2 text-center">
                                                     <h6>Excess Amount</h6>
+                                                </div>
+                                                <div class="col-2">
+                                                    <h6>Actions</h6>
                                                 </div>
                                             </div>
                                             @php
@@ -96,19 +99,26 @@
 
                                             @foreach($insurance_data as $index => $coverage)
                                                 <div class="row border-bottom py-4">
-                                                    <div class="col-3">
+                                                    <div class="col-2">
                                                         <h6>{{ ucfirst($coverage['level']) }}</h6>
                                                     </div>
-                                                    <div class="col-3 text-center">
+                                                    <div class="col-4 text-center">
                                                         <div class="text-center">
-                                                            <p>{{ $coverage['cover'] }}</p>
+                                                            <p style="margin-top:5px;">{{ $coverage['cover'] }}</p>
                                                         </div>
                                                     </div>
-                                                    <div class="col-3 text-center">
-                                                        <p>{{ amt($coverage['daily_price']) }}</p>
+                                                    <div class="col-2 text-center">
+                                                        <p style="margin-top:5px;">{{ amt($coverage['daily_price']) }}</p>
                                                     </div>
-                                                    <div class="col-3 text-center">
-                                                        <p>{{ amt($coverage['excess']) }}</p>
+                                                    <div class="col-2 text-center">
+                                                        <p style="margin-top:5px;">{{ amt($coverage['excess']) }}</p>
+                                                    </div>
+                                                    <div class="col-2">
+                                                        <a href="{{ url('checkout') }}?{{ http_build_query(['book_type' => 'with_full_protection', 'insurance_id' => $index] + request()->query()) }}" class="cmn__btn" style="padding:5px 14px; font-size:16px;">
+                                                            <span>
+                                                                Add
+                                                            </span>
+                                                        </a>
                                                     </div>
                                                 </div>
                                                 @php
@@ -136,50 +146,6 @@
 
                                     </div>
 
-                                    <!--Accordion items-->
-                                    <div class="accordion-item wow fadeInUp" data-wow-duration="0.9s" style="visibility: visible; animation-duration: 0.9s; animation-name: fadeInUp;">
-                                        <h2 class="accordion-header" id="headingOne">
-                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-                                                The Car’s Excess
-                                            </button>
-                                        </h2>
-                                        <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample" style="">
-                                            <div class="accordion-body">
-                                                {{ $car->damage_excess }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!--Accordion items-->
-                                    <div class="accordion-item wow fadeInUp" data-wow-duration="1s" style="visibility: visible; animation-duration: 1s; animation-name: fadeInUp;">
-                                        <h2 class="accordion-header" id="headingTwo">
-                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                                Security Deposit Information
-                                            </button>
-                                        </h2>
-                                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample" style="">
-                                            <div class="accordion-body">
-                                                <p>
-                                                    {!! $car->security_deposit !!}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="accordion-item wow fadeInUp" data-wow-duration="1s" style="visibility: visible; animation-duration: 1s; animation-name: fadeInUp;">
-                                        <h2 class="accordion-header" id="heading3">
-                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3" aria-expanded="false" aria-controls="collapseTwo">
-                                                Mileage Information
-                                            </button>
-                                        </h2>
-                                        <div id="collapse3" class="accordion-collapse collapse" aria-labelledby="heading3" data-bs-parent="#accordionExample" style="">
-                                            <div class="accordion-body">
-                                                <p>
-                                                    {!! $car->mileage_text !!}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-
                                 </div>
                             </div>
                         </div>
@@ -187,18 +153,10 @@
                     </div>
 
 
-                    <div class="justify-content-end d-flex gap-4 text-center">
+                    <div class="justify-content-center d-flex gap-4 text-center">
                         <div>
                             <p>Without <br/>Full Protection</p>
                             <a href="{{ url('checkout') }}?{{ http_build_query(['book_type' => 'without_full_protection'] + request()->query()) }}" class="cmn_btn_white">
-                                               <span>
-                                                 Go to book
-                                               </span>
-                            </a>
-                        </div>
-                        <div>
-                           <p>With <br/>Full Protection</p>
-                            <a href="{{ url('checkout') }}?{{ http_build_query(['book_type' => 'with_full_protection'] + request()->query()) }}" class="cmn__btn">
                                                <span>
                                                  Go to book
                                                </span>

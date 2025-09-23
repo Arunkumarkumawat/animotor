@@ -125,18 +125,45 @@
 
 {{-- Important text modal --}}
 <div class="modal fade" id="importantInfoModal{{ $car->id }}">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">Important Information</h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                @if ($car->important_text)
-                    {!! $car->important_text !!}
-                @else
-                    <p>No important information available for this car.</p>
-                @endif
+                <table class="table table-bordered">
+                    @if ($car->important_text)
+                    <tr>
+                        <th>Important Information</th>
+                        <td>{!! $car->important_text !!}</td>
+                    </tr>
+                    @endif
+                    @if($car->requirements)
+                    <tr>
+                        <th>Driver & License Requirements</th>
+                        <td>{!! $car->requirements !!}</td>
+                    </tr>
+                    @endif
+                    @if($car->security_deposit)
+                    <tr>
+                        <th>Security Deposit</th>
+                        <td>{!! $car->security_deposit !!}</td>
+                    </tr>
+                    @endif
+                    @if($car->damage_excess)
+                    <tr>
+                        <th>Damace Excess</th>
+                        <td>{!! $car->damage_excess !!}</td>
+                    </tr>
+                    @endif
+                    @if($car->mileage_text)
+                    <tr>
+                        <th>Mileage Policy</th>
+                        <td>{!! $car->mileage_text !!}</td>
+                    </tr>
+                    @endif
+                </table>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

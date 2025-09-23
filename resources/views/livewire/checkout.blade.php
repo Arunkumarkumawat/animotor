@@ -1,8 +1,13 @@
 <div class="col-xxl-8 col-xl-8 col-lg-8">
-    <div class="alert alert-success alert-dismissible mb-4">
-        <p class="text-heading">What if my plans change?</p>
-        <p>You’ll get a full refund if you cancel at least 48 hours before pick-up.</p>
-    </div>
+    @if ($car->cancellation_policy == 0)
+        <div class="alert alert-danger alert-dismissible mb-4">
+            <p>No Cancellation Allowed</p>
+        </div>
+    @else
+        <div class="alert alert-success alert-dismissible mb-4">
+            <p>Free Cancellation up to {{ $car->cancellation_policy }} hours before pick-up</p>
+        </div>
+    @endif
 
     <div class="carferrari__item mb__30 car_item d-flex-  bgwhite p-3">
         <div class="row d-flex p__10 align-items-center car_section">
@@ -29,38 +34,26 @@
 
                         <div class="col-6 mt-2">
                             <p><img src="/assets/img/icons/bag.png" />
-                                {{ $car->bags ?? '1 large bag' }}</p>
+                                {{ $car->bags ?? '1 large' }} bag</p>
                         </div>
 
                         <div class="col-6 mt-2">
-                            <p><img src="/assets/img/icons/signpost.png" />
-                                {{ $car->mileage }} miles per rental</p>
-                        </div>
-
-                        <div class="col-6 mt-3">
-                            <p class="text-primary">{{ $car?->pick_up_location ?? 'Pick-up Not set' }}</p>
-                            <p class="mt-2">{{ $car?->type }}</p>
+                            <p>{{ $car?->type }}</p>
                         </div>
 
                         @if ($car->mileage_policy)
                             <div class="col-6 mt-3">
                                 <p>Mileage Policy</p>
-                                <p class="mt-2 text-title">{{ ucwords(str_replace('_', ' ', $car->mileage_policy)) }}
+                                <p class="mt-2 text-title">
+                                    {{ $car->mileage_policy == 'unlimited' ? '' : $car->mileage_limit }}{{ ucwords(str_replace('_', ' ', $car->mileage_policy)) }}
                                 </p>
-                            </div>
-                        @endif
-
-                        @if ($car->mileage_limit)
-                            <div class="col-6 mt-3">
-                                <p>Mileage Limit</p>
-                                <p class="mt-2 text-title">{{ $car->mileage_limit }}</p>
                             </div>
                         @endif
 
                         @if ($car->excess_mileage_rate)
                             <div class="col-6 mt-3">
                                 <p>Excess Mileage Rate</p>
-                                <p class="mt-2 text-title">{{ $car->excess_mileage_rate }}</p>
+                                <p class="mt-2 text-title">{{ $car->excess_mileage_rate }} per mile</p>
                             </div>
                         @endif
 
@@ -68,7 +61,8 @@
                             <div class="col-6 mt-3">
                                 <p>Cancellation Policy</p>
                                 <p class="mt-2 text-title">
-                                    {{ ucwords(str_replace('_', ' ', $car->cancellation_policy)) }}</p>
+                                    {{ $car->cancellation_policy == 0 ? 'No Cancellation' : $car->cancellation_policy . ' hours before pick-up' }}
+                                </p>
                             </div>
                         @endif
                     </div>
@@ -93,7 +87,8 @@
                 </div>
             </div>
             <div class="col-12 mt-2 d-flex justify-content-end-">
-                <a href="#car_info" class="d-flex align-items-center">
+                <a href="javascript:void(0)" class="d-flex align-items-center" data-bs-toggle="modal"
+                    data-bs-target="#importantInfoModal{{ $car->id }}">
                     <p class="text-primary mb-0">Important info</p>
                     <img src="assets/img/icons/info.png" class="mx-3" alt="cars">
                 </a>
@@ -190,8 +185,6 @@
                         <input wire:model="is_business" type="radio" name="is_business" value="no"> No
                     </div>
                 </div>
-
-
             </div>
 
             @guest()
@@ -267,5 +260,54 @@
             </div>
 
         </form>
+    </div>
+
+    {{-- Important text modal --}}
+    <div class="modal fade" id="importantInfoModal{{ $car->id }}">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Important Information</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered">
+                        @if ($car->important_text)
+                            <tr>
+                                <th>Important Information</th>
+                                <td>{!! $car->important_text !!}</td>
+                            </tr>
+                        @endif
+                        @if ($car->requirements)
+                            <tr>
+                                <th>Driver & License Requirements</th>
+                                <td>{!! $car->requirements !!}</td>
+                            </tr>
+                        @endif
+                        @if ($car->security_deposit)
+                            <tr>
+                                <th>Security Deposit</th>
+                                <td>{!! $car->security_deposit !!}</td>
+                            </tr>
+                        @endif
+                        @if ($car->damage_excess)
+                            <tr>
+                                <th>Damace Excess</th>
+                                <td>{!! $car->damage_excess !!}</td>
+                            </tr>
+                        @endif
+                        @if ($car->mileage_text)
+                            <tr>
+                                <th>Mileage Policy</th>
+                                <td>{!! $car->mileage_text !!}</td>
+                            </tr>
+                        @endif
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

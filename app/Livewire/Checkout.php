@@ -121,8 +121,11 @@ class Checkout extends Component
         $total += $extra_fee;
         
         $insurance_fee = 0;
-        foreach($this->car->insurance_coverage as $coverage){
-            $insurance_fee += $coverage['daily_price'] * $days_count * $booking_day;
+        foreach($this->car->insurance_coverage as $index => $coverage){
+            if($params['insurance_id'] == $index){
+                $insurance_fee = $coverage['daily_price'] * $booking_day;
+                break;
+            }
         }
 
         if(isset($params['book_type']) && $params['book_type'] == 'with_full_protection'){

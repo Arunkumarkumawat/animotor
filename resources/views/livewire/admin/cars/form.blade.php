@@ -2772,17 +2772,12 @@
                                         <label>Cancellation Policy</label>
                                         <select class="form-control form-control-lg" wire:model="cancellation_policy">
                                             <option value="">Use Supplier Default</option>
-                                            <option value="strict">Strict - 336h Free Cancellation</option>
-                                            <option value="flexible">Flexible - 48h Free Cancellation</option>
-                                            <option value="moderate">Moderate - 168h Free Cancellation</option>
-                                            <option value="non-refundable">Non-Refundable - 0h Free Cancellation</option>
-                                            <option value="flexible">Flexible - 168h Free Cancellation</option>
-                                            <option value="strict">Strict - 24h Free Cancellation</option>
-                                            <option value="non-refundable">Non-Refundable - 0h Free Cancellation</option>
-                                            <option value="moderate">Moderate - 48h Free Cancellation</option>
-                                            <option value="strict">Strict - 72h Free Cancellation</option>
-                                            <option value="flexible">Flexible - 24h Free Cancellation</option>
-                                            <option value="moderate">Moderate - 48h Free Cancellation</option>
+                                            <option value="336">Flexible - 336h Free Cancellation</option>
+                                            <option value="168">Flexible - 168h Free Cancellation</option>
+                                            <option value="72">Moderate - 72h Free Cancellation</option>
+                                            <option value="48">Moderate - 48h Free Cancellation</option>
+                                            <option value="24">Strict - 24h Free Cancellation</option>
+                                            <option value="0">Non-Refundable - 0h Free Cancellation</option>                                            
                                         </select>
                                         @error("cancellation_policy") <span class="error">Cancellation policy is required</span> @enderror
                                     </div>

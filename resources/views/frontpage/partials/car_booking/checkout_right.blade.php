@@ -1,5 +1,5 @@
 <div class="col-xl-4 col-lg-4" id="car_info">
-    <div class="hotel__confirm__invocie bg-primary car__confirmdetails__right">
+    <div class="hotel__confirm__invocie car__confirmdetails__right">
         <p class="text-heading">Pick-up and drop-off</p>
         <div class="carferrari__item flex-wrap mt-3 d-flex align-items-center-">
 {{--            <img style="height: 100%" src="/assets/img/icons/dot_v.png" />--}}
@@ -15,7 +15,7 @@
         </div>
 
     </div>
-    <div class="hotel__confirm__invocie bg-primary mt-4 car__confirmdetails__right">
+    <div class="hotel__confirm__invocie mt-4 car__confirmdetails__right">
         <p class="text-heading">Car price breakdown</p>
         <div class="carferrari__item flex-wrap mt-3 align-items-center-">
             <div class="carferrari__content">
@@ -43,11 +43,13 @@
                     </div>
                 @endif
 
-                @if($car->extra_fee)
+                @if($car->extra_fees)
+                    @foreach($car->extra_fees as $extra_fee)
                     <div class="d-flex mt-2 justify-content-between">
-                        <p class="m2">Extra fee </p>
-                        <p class="text-heading_">{{ amt($car->extra_fee ?? 0) }}</p>
+                        <p class="m2">{{ $extra_fee['name'] }} </p>
+                        <p class="text-heading_">{{ amt($extra_fee['amount'] ?? 0) }}</p>
                     </div>
+                    @endforeach
                 @endif
 
                 @if($car->total)
@@ -60,7 +62,7 @@
         </div>
     </div>
     @if($car->total)
-    <div class="hotel__confirm__invocie bg-primary mt-4 car__confirmdetails__right">
+    <div class="hotel__confirm__invocie mt-4 car__confirmdetails__right">
         <p class="text-heading mt-2">This car is costing you just {{ amt($car->total ?? 0) }} - a real bargain...</p>
     </div>
     @endif

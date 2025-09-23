@@ -111,72 +111,31 @@
 
                                         <div class="col-6 mt-2">
                                             <p><img src="/assets/img/icons/bag.png" />
-                                                {{ $booking->car->bags ?? '1 large bag' }}</p>
+                                                {{ $booking->car->bags ?? '1 large' }} bag</p>
                                         </div>
 
                                         <div class="col-6 mt-2">
-                                            <p><img src="/assets/img/icons/signpost.png" />
-                                                @if($booking->car->mileage < 1)
-                                                    Unlimited Mileage
-
-                                                @else
-                                                    {{ $booking->car->mileage }} miles per rental
-                                                @endif
-
-                                            </p>
-                                        </div>
-
-                                        <div class="col-6 mt-3">
-                                            <p class="text-primary">{{ $booking->car?->pick_up_location ?? 'Pick-up Not set' }}</p>
                                             <p class="mt-2">{{ $booking->car?->type }}</p>
                                         </div>
-
-                                        @if($booking->car->daily_rate)
-                                        <div class="col-6 mt-3">
-                                            <p>Price for 1 day</p>
-                                            <p class="mt-2 text-title">{{ amt($booking->car->daily_rate) }}</p>
-                                        </div>
-                                        @endif
-
-                                        @if($booking->car->weekly_rate)
-                                        <div class="col-6 mt-3">
-                                            <p>Price for 1 week</p>
-                                            <p class="mt-2 text-title">{{ amt($booking->car->weekly_rate) }}</p>
-                                        </div>
-                                        @endif
-
-                                        @if($booking->car->monthly_rate)
-                                        <div class="col-6 mt-3">
-                                            <p>Price for 1 month</p>
-                                            <p class="mt-2 text-title">{{ amt($booking->car->monthly_rate) }}</p>
-                                        </div>
-                                        @endif
 
                                         @if($booking->car->mileage_policy)
                                         <div class="col-6 mt-3">
                                             <p>Mileage Policy</p>
-                                            <p class="mt-2 text-title">{{ ucwords(str_replace('_', ' ', $booking->car->mileage_policy)) }}</p>
-                                        </div>
-                                        @endif
-                                        
-                                        @if($booking->car->mileage_limit)
-                                        <div class="col-6 mt-3">
-                                            <p>Mileage Limit</p>
-                                            <p class="mt-2 text-title">{{ $booking->car->mileage_limit }}</p>
+                                            <p class="mt-2 text-title">{{ $booking->car->mileage_policy == 'unlimited' ? '' : $booking->car->mileage_limit }}{{ ucwords(str_replace('_', ' ', $booking->car->mileage_policy)) }}</p>
                                         </div>
                                         @endif
 
                                         @if($booking->car->excess_mileage_rate)
                                         <div class="col-6 mt-3">
                                             <p>Excess Mileage Rate</p>
-                                            <p class="mt-2 text-title">{{ $booking->car->excess_mileage_rate }}</p>
+                                            <p class="mt-2 text-title">{{ $booking->car->excess_mileage_rate }} per mile</p>
                                         </div>
                                         @endif
 
                                         @if($booking->car->cancellation_policy)
                                         <div class="col-6 mt-3">
                                             <p>Cancellation Policy</p>
-                                            <p class="mt-2 text-title">{{ ucwords(str_replace('_', ' ', $booking->car->cancellation_policy)) }}</p>
+                                            <p class="mt-2 text-title">{{ $booking->car->cancellation_policy == 0 ? 'No Cancellation' : $booking->car->cancellation_policy . ' hours before pick-up' }}</p>
                                         </div>
                                         @endif
                                     </div>

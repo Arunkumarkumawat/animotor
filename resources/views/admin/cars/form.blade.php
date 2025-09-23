@@ -13,13 +13,7 @@
 
             @include('admin.partials.form.text', [ 'colSize' => 'col-md-12', 'value' => $car?->cancellation_fee ?? 0, 'fieldName' => 'cancellation_fee','title' => 'Cancellation Fee (0 for free cancellation)'])
             @include('admin.partials.form.text', ['attributes' => 'required', 'colSize' => 'col-md-12', 'value' => $car?->color, 'fieldName' => 'color','title' => 'Car Color'])
-            @include('admin.partials.form.text', ['attributes' => 'required', 'type' => 'number', 'colSize' => 'col-md-12', 'value' => $car?->year, 'fieldName' => 'year','title' => 'Car Year'])
-
-            @include('admin.partials.form.text', ['attributes' => 'required',  'colSize' => 'col-md-12', 'value' => $car?->vehicle_no, 'fieldName' => 'vehicle_no','title' => 'Car Number'])
-            @include('admin.partials.form.text', [ 'colSize' => 'col-md-12', 'type' => 'number', 'fieldName' => 'door', 'value' => $car?->door,'title' => 'Door count'])
-            @include('admin.partials.form.text', [ 'colSize' => 'col-md-12', 'type' => 'number', 'fieldName' => 'seats', 'value' => $car?->seats,'title' => 'How many seats'])
             @include('admin.partials.form.text', [ 'colSize' => 'col-md-12', 'fieldName' => 'bags', 'value' => $car?->bags,'title' => 'Allowed bags'])
-
         </div>
     </div>
 
@@ -37,15 +31,13 @@
 
             <img src="{{ asset('admin/assets/images/yt.png') }}" />
             @include('admin.partials.form.text', [ 'colSize' => 'col-md-12', 'fieldName' => 'youtube_link', 'value' => $car?->youtube_link,'title' => 'Youtube Video ID (make sure its correct)'])
-            @include('admin.partials.form.text', ['attributes' => 'required', 'colSize' => 'col-md-12', 'type' => 'number', 'fieldName' => 'mileage', 'value' => $car?->mileage ?? 0,'title' => 'Mileage (0 for unlimited)'])
-            @include('admin.partials.form.text', [ 'attributes' => 'required', 'type' => 'number', 'colSize' => 'col-md-12', 'fieldName' => 'price_per_mileage', 'value' => $car?->price_per_mileage ?? 0,'title' => 'Price per exceeded mileage'])
             @include('admin.partials.form.text', [ 'attributes' => 'required',  'type' => 'number', 'colSize' => 'col-md-12', 'fieldName' => 'deposit', 'value' => $car?->deposit,'title' => 'Security Deposit'])
 
-            @include('admin.partials.image-upload',['field' => 'image','id' => 'car_image', 'colSize' => 'col-md-12', 'image' => $car?->image,'title' => 'Car Featured Image'])
-            @include('admin.partials.image-m-upload',['field' => 'photos','id' => 'car_photos', 'colSize' => 'col-md-12', 'images' => $car?->photos_array, 'image' => $car?->photos,'title' => 'Car Other Images (select multiple images)'])
+            @include('admin.partials.form.text', ['attributes' => 'required', 'type' => 'number', 'colSize' => 'col-md-12', 'value' => $car?->year, 'fieldName' => 'year','title' => 'Car Year'])
 
-
-
+            @include('admin.partials.form.text', ['attributes' => 'required',  'colSize' => 'col-md-12', 'value' => $car?->vehicle_no, 'fieldName' => 'vehicle_no','title' => 'Car Number'])
+            @include('admin.partials.form.text', [ 'colSize' => 'col-md-12', 'type' => 'number', 'fieldName' => 'door', 'value' => $car?->door,'title' => 'Door count'])
+            @include('admin.partials.form.text', [ 'colSize' => 'col-md-12', 'type' => 'number', 'fieldName' => 'seats', 'value' => $car?->seats,'title' => 'How many seats'])
         </div>
     </div>
 </div>

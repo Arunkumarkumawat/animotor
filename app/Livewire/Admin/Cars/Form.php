@@ -557,9 +557,7 @@ class Form extends Component
         }
 
         if ($this->step == 10) {
-            // Booking Information step - just move to next step without validation
-            $this->step++;
-            $this->successMsg();
+            $this->updateBookingInfo();
             return;
         }
 

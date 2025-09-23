@@ -11600,7 +11600,8 @@ h5, p{
 }
 
 p {
-    color: #718096;
+    color: #3c3d3e;
+    margin-top: -5px;
 }
 
 .text-primary {

@@ -255,16 +255,10 @@
                                                                 {{ $booking->car->bags ?? '1 large bag' }}</p>
                                                         </div>
 
-                                                        <div class="col-6 mt-2">
-                                                            <p><img src="/assets/img/icons/signpost.png" />
-                                                                {{ $booking->car->mileage }} miles per rental</p>
-                                                        </div>
-
                                                         <div class="col-6 mt-3">
                                                             <p class="text-primary">{{ $booking->car?->pick_up_location ?? 'Pick-up Not set' }}</p>
                                                             <p class="mt-2">{{ $booking->car?->type }}</p>
                                                         </div>
-
 
                                                         <div class="col-6 mt-3">
                                                             <p>Price for {{ $booking->days }}days</p>

@@ -30,7 +30,6 @@ class Car extends Model
     protected $casts = [
         'extras' => 'array',
         'driver' => 'array',
-        'insurance_coverage' => 'array',
         'dynamic_pricings' => 'array',
         'is_approved' => 'boolean',
         'vehicle_photos' => 'array',
@@ -115,7 +114,7 @@ class Car extends Model
     public function getIncludesAttribute(): array
     {
         return [
-            $this->cancellation_fee > 0 ? 'Cancellation Fee : '.amt($this->cancellation_fee) : 'Free cancellation up to 48 hours before pick-up',
+            $this->cancellation_policy == 0 ? 'No Cancellation Allowed' : 'Free cancellation up to '. $this->cancellation_policy.' hours before pick-up',
             'Collision Damage Waiver',
             'Theft Protection',
             $this->mileage < 1 ? 'Unlimited mileage' : $this->mileage.' mileage per rental'
@@ -129,7 +128,7 @@ class Car extends Model
             'Short queues',
             'Easy to find counter',
             'Helpful counter staff',
-            'Free Cancellation'
+            $this->cancellation_policy == 0 ? 'No Cancellation Allowed' : 'Free Cancellation up to '.$this->cancellation_policy.' hours before pick-up'
         ];
     }
 
@@ -161,10 +160,13 @@ class Car extends Model
 
     public function getImageAttribute($value): string
     {
-        if(!$value) {
+        $photos = $this->vehicle_photos;
+
+        if(!$photos) {
             return asset('assets/img/cars/big_car.png');
         }
-        return $value;
+
+        return $photos[0];
     }
 
     public function attributeList(): array
