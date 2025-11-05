@@ -392,7 +392,7 @@ p {
 }
 
 .fz-24 {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
 }
 
 .fz-26 {
@@ -11015,7 +11015,7 @@ form .flag__select .nice-select .list li {
 }
 
 .carferrari__item {
-  box-shadow: 0px 6px 30px rgba(0, 0, 0, 0.08);
+  box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.08);
   border-radius: 10px;
   gap: 20px 35px;
 }
@@ -11600,7 +11600,8 @@ h5, p{
 }
 
 p {
-    color: #718096;
+    color: #3c3d3e;
+    margin-top: -5px;
 }
 
 .text-primary {
@@ -11637,7 +11638,7 @@ p {
 /*    width: 100%;*/
 /*}*/
 .car_item .thumb {
-    background-color: #E6F1FC;
+  
     padding: 10px;
     height: 100%;
     display: block;
@@ -11847,4 +11848,10 @@ p a {
     border-radius: 5px;
     /*flex-direction: row;*/
     padding: 10px;
+}
+
+.common__filter__wrapper {
+    background: none;
+    border: 1px solid #eee;
+    
 }

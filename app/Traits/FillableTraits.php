@@ -62,6 +62,7 @@ trait FillableTraits
 
         'extras',
         'booking_period',
+        'billing_details',
     ];
 
     protected array $car_extra = [
@@ -77,7 +78,7 @@ trait FillableTraits
         'finance',
         'damage_history',
         'repairs',
-        ];
+    ];
 
     protected array $car = [
         'driver_id',
@@ -107,11 +108,10 @@ trait FillableTraits
 
         'deposit',
         'bags',
+        'bags_large',
         'cancellation_fee',
         'price_per_mileage',
         'mileage',
-        'map_lat',
-        'map_lng',
         'requirements',
         'security_deposit',
         'damage_excess',
@@ -121,7 +121,6 @@ trait FillableTraits
         'important_text',
         'air_condition',
         'seats',
-        'pick_up_location',
         'extras',
         'drop_off_instruction',
         'pickup_instruction',
@@ -188,6 +187,22 @@ trait FillableTraits
         'rent_to_buy_maintenance_included',
         'rent_to_buy_ev_incentive_included',
         'rent_to_buy_ownership_transfer_notes',
+        
+        'top_pick',
+        'ideal_for_family',
+        
+        'pickup',
+        'dropup',
+        
+        'free_cancellation',
+        'collision_damage_waiver',
+        'theft_protection',
+        'unlimited_mileage',
+        
+        'vehicle_features',
+        'daily_rate_tax_incl',
+        'weekly_rate_tax_incl',
+        'monthly_rate_tax_incl',
     ];
 
     protected array $user = [
@@ -227,7 +242,6 @@ trait FillableTraits
         'phone_number',
         'email_address',
         'relationship',
-
     ];
 
     protected array $trip_request = [

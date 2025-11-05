@@ -20,7 +20,8 @@ class Booking extends Component
     public string $drop_off_date;
     public $drop_off_time;
     public $booking_day;
-    public string $aged;
+    public bool $aged;
+    public string $age;
 
 
 
@@ -237,6 +238,14 @@ class Booking extends Component
                 'pick_up_date' => 'required|date|after_or_equal:today',
                 'drop_off_date' => 'required|date|after_or_equal:today|after_or_equal:pick_up_date',
             ]);
+            
+            $startDateTime = Carbon::parse($validatedData['pick_up_date'] . ' ' . $validatedData['pick_up_time'] . ':00');
+            $endDateTime = Carbon::parse($validatedData['drop_off_date'] . ' ' . $validatedData['drop_off_time'] . ':00');
+            
+            if($startDateTime >= $endDateTime){
+                $this->dispatch('booking-error', message: 'End Date should be after Start Date.');
+                return;
+            }
 
             $startDate = Carbon::parse($validatedData['pick_up_date']);
             $endDate = Carbon::parse($validatedData['drop_off_date']);
@@ -247,6 +256,10 @@ class Booking extends Component
         } catch (\Exception $exception) {
             $this->dispatch('booking-error', message: 'Please enter valid booking address information before proceeding');
         }
+    }
+    
+    public function updateAged($val){
+        $this->aged = $val;
     }
 
     public function render()

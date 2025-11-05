@@ -12,14 +12,20 @@ use Livewire\Component;
 
 class Checkout extends Component
 {
+    public $id = null;
+
     public $first_name;
     public $last_name;
-    public $id = null;
-    public $address;
+    public $phone;
     public $country;
     public $city;
+    public $address;
+    public $zipcode;
+
+    public array $billing = [];
+    
     public string $is_business_booking = 'no';
-    public $phone;
+    
     public $email;
     public $password;
     public $booking_type;
@@ -46,7 +52,15 @@ class Checkout extends Component
             'address' => 'required',
             'country' => 'required',
             'city' => 'required',
+            'zipcode' => 'required',
             'phone' => 'required|unique:users,phone,'.$this->id,
+            'billing.first_name' => 'required',
+            'billing.last_name' => 'required',
+            'billing.address' => 'required',
+            'billing.country' => 'required',
+            'billing.city' => 'required',
+            'billing.phone' => 'required',
+            'billing.zipcode' => 'required',
         ]);
 
         if(!auth()->check()){
@@ -59,14 +73,31 @@ class Checkout extends Component
             $validated['password'] = $this->password;
             $validated['email'] = $this->email;
 
-            $user = User::create($validated);
+            $user = User::create([
+                'first_name' => $validated['first_name'],
+                'last_name' => $validated['last_name'],
+                'address' => $validated['address'],
+                'country' => $validated['country'],
+                'city' => $validated['city'],
+                'phone' => $validated['phone'],
+                'email' => $validated['email'],
+                'password' => $validated['password'],
+            ]);
             $role = Role::where('name', 'rider')->first();
             $user->addRole($role);
 
             Auth::login($user);
-        }else{
+        } else {
             $user = auth()->user();
-            $user->update($validated);
+            $user->update([
+                'first_name' => $validated['first_name'],
+                'last_name' => $validated['last_name'],
+                'address' => $validated['address'],
+                'country' => $validated['country'],
+                'city' => $validated['city'],
+                'phone' => $validated['phone'],
+                'zipcode' => $validated['zipcode'],
+            ]);
         }
 
         ////////////////////////////////////////////////////////////////////
@@ -89,7 +120,7 @@ class Checkout extends Component
         }
 
         $total0 = $price * $booking_day / $days_count;
-        $tax = $total0 * settings('tax',0.075);
+        $tax = 0;//$total0 * settings('tax',0.075);
         $total = $total0 + $tax;
 
         $extras = [];
@@ -121,8 +152,11 @@ class Checkout extends Component
         $total += $extra_fee;
         
         $insurance_fee = 0;
-        foreach($this->car->insurance_coverage as $coverage){
-            $insurance_fee += $coverage['daily_price'] * $days_count * $booking_day;
+        foreach($this->car->insurance_coverage as $index => $coverage){
+            if(isset($params['insurance_id']) && $params['insurance_id'] == $index){
+                $insurance_fee = $coverage['daily_price'] * $booking_day;
+                break;
+            }
         }
 
         if(isset($params['book_type']) && $params['book_type'] == 'with_full_protection'){
@@ -154,6 +188,15 @@ class Checkout extends Component
         $data['pick_location'] = $this->pick_location;
         $data['drop_off_location'] = $this->drop_off_location;
         $data['company_id'] = $this->car->company_id;
+        $data['billing_details'] = [
+            'first_name' => $this->billing['first_name'],
+            'last_name' => $this->billing['last_name'],
+            'address' => $this->billing['address'],
+            'country' => $this->billing['country'],
+            'city' => $this->billing['city'],
+            'phone' => $this->billing['phone'],
+            'zipcode' => $this->billing['zipcode'],
+        ];
 
         $booking = Booking::create($data);
 

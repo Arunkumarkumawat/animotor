@@ -72,6 +72,7 @@ class Index extends Component
     }
     public function resetPageData()
     {
+        $this->search = '';
         $this->resetPage();
     }
 
@@ -109,7 +110,10 @@ class Index extends Component
 
     public function applyApproval($itemId, $status)
     {
-        if(!isset($this->commission_rate[$itemId])) {
+        if($status == 1 && !isset($this->commission_rate[$itemId])) {
+            $this->js("NioApp.Toast('Please enter commission', 'warning', {
+                position: 'top-right'
+            });");
             return;
         }
 
@@ -117,11 +121,42 @@ class Index extends Component
 
         $item->update([
             'is_approved' => $status,
-            'commission_fee' => $this->commission_rate[$itemId],
+            'commission_fee' => isset($this->commission_rate[$itemId]) ? $this->commission_rate[$itemId] : 0,
         ]);
-
+        
+        $item->availabilities()->where('status', '0')->update(['status' => '1']);
+        $item->blackouts()->where('status', '0')->update(['status' => '1']);
+        
+        $items = $item->dynamic_pricings;
+        foreach($items as $index => &$item0){
+            if(!isset($item0['status'])){
+                $item0['status'] = $status;
+            }
+        }
+        $item->dynamic_pricings = $items;
+        $item->save();
+        
         $this->js("NioApp.Toast('Status updated successfully', 'success', {
             position: 'top-right'
         });");
+    }
+    
+    public function applyApprovalSub($type, $itemId, $subItem, $status){
+        $item0 = Car::findOrFail($itemId);
+        
+        if($type == 'availability'){
+            $item0->availabilities()->where('id', $subItem)->update(['status' => $status]);
+        } else if($type == 'blackout'){
+            $item0->blackouts()->where('id', $subItem)->update(['status' => $status]);
+        } else if($type == 'dpricing') {
+            $items = $item0->dynamic_pricings;
+            foreach($items as $index => &$item){
+                if($index == $subItem){
+                    $item['status'] = $status;
+                }
+            }
+            $item0->dynamic_pricings = $items;
+            $item0->save();
+        }
     }
 }

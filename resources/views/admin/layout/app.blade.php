@@ -850,6 +850,14 @@
 
 <script src="/vendor/toastr/toastr.min.js"></script>
 
+<!-- Summernote -->
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+
+<!-- Flatpickr -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css">
+<script src="{{ asset('jquery.datetimepicker.full.min.js') }}"></script>
+    
 @yield('js')
 
 @if (session('success'))

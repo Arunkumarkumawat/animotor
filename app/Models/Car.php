@@ -30,12 +30,21 @@ class Car extends Model
     protected $casts = [
         'extras' => 'array',
         'driver' => 'array',
-        'insurance_coverage' => 'array',
         'dynamic_pricings' => 'array',
-        'is_approved' => 'boolean',
+        'is_approved' => 'integer',
         'vehicle_photos' => 'array',
         'long_term_term_options' => 'array',
         'long_term_prices' => 'array',
+        'pickup' => 'array',
+        'dropup' => 'array',
+        'free_cancellation' => 'boolean',
+        'collision_damage_waiver' => 'boolean',
+        'theft_protection' => 'boolean',
+        'unlimited_mileage' => 'boolean',
+        'vehicle_features' => 'array',
+        'daily_rate_tax_incl' => 'boolean',
+        'weekly_rate_tax_incl' => 'boolean',
+        'monthly_rate_tax_incl' => 'boolean',
     ];
 
     public function region(): BelongsTo
@@ -115,7 +124,7 @@ class Car extends Model
     public function getIncludesAttribute(): array
     {
         return [
-            $this->cancellation_fee > 0 ? 'Cancellation Fee : '.amt($this->cancellation_fee) : 'Free cancellation up to 48 hours before pick-up',
+            $this->cancellation_policy == 0 ? 'No Cancellation Allowed' : 'Free cancellation up to '. $this->cancellation_policy.' hours before pick-up',
             'Collision Damage Waiver',
             'Theft Protection',
             $this->mileage < 1 ? 'Unlimited mileage' : $this->mileage.' mileage per rental'
@@ -129,14 +138,13 @@ class Car extends Model
             'Short queues',
             'Easy to find counter',
             'Helpful counter staff',
-            'Free Cancellation'
+            $this->cancellation_policy == 0 ? 'No Cancellation Allowed' : 'Free Cancellation up to '.$this->cancellation_policy.' hours before pick-up'
         ];
     }
 
     public function getPhotosArrayAttribute(): array
     {
-        $photos = $this->photos;
-        return explode(',', $photos);
+        return $this->vehicle_photos ?? [];
     }
 
     public function getDetailsAttribute(): array
@@ -161,10 +169,13 @@ class Car extends Model
 
     public function getImageAttribute($value): string
     {
-        if(!$value) {
-            return asset('assets/img/cars/big_car.png');
+        $photos = $this->vehicle_photos;
+
+        if(!$photos) {
+            return asset('default/404.png');
         }
-        return $value;
+
+        return $photos[0];
     }
 
     public function attributeList(): array

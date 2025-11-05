@@ -179,7 +179,7 @@ function removeDuplicatePhotos($photos_array, $new): string
 
 }
 
-function listTime(): array
+function listTime($show = false): array
 {
 
     $time = Carbon::createFromTime(0, 0, 0);
@@ -189,7 +189,11 @@ function listTime(): array
     $timeStrings = [];
 
     while ($time <= $endTime) {
-        $timeStrings[] = $time->format('H:i');
+        if($show){
+            $timeStrings[$time->format('H:i')] = $time->format('h:i A');
+        } else {
+            $timeStrings[] = $time->format('H:i');
+        }
         $time->addMinutes(30);
     }
 

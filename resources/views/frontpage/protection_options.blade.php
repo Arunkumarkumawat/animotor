@@ -63,11 +63,11 @@
                                 <div class="accordion" id="accordionExample">
 
                                     <div class="p-3">
-                                        <div class="d-md-flex d-sm-block justify-content-between">
-                                        <p class="text-heading">Insurance for peace of mind</p>
-                                            <div class="justify-content-end align-items-end">
-                                                <p class="">{{ $car->cancellation_fee > 0 ? 'Cancellation Fee : '.amt($car->cancellation_fee) : 'Free cancellation' }}</p>
-                                            </div>
+                                        <div>
+                                            <p class="text-heading mb-2">Protection... <span class="text-success">for peace of mind</span></p>
+                                            <p class="mb-2">At the rental counter, the car hire company will place a hold on your credit card for the security deposit. If the car is damaged or stolen, you could lose this deposit — but with our Full Protection, Rentalcover.com will reimburse you in full. (The price shown already includes all taxes and fees.)</p>
+                                            <p class="mb-2">Terms & Conditions and standard exclusions apply. Please review carefully:</p>
+                                            <p class="mb-2" ><a href="#" class="text-decoration-none">Protection terms</a></p>
                                         </div>
                                         <div class="mt-3">
                                             <p>{!! $car->security_deposit !!}</p>
@@ -76,17 +76,20 @@
                                         <div class="d-flex justify-content-between mt-4 row">
                                             <!-- Insurance Comparison Table -->
                                             <div class="row border-bottom py-3">
-                                                <div class="col-3">
-                                                    <h6>Plan</h6>
+                                                <div class="col-2">
+                                                    <h6>Cover Type</h6>
                                                 </div>
-                                                <div class="col-3 text-center">
-                                                    <h6 class="text-success">What's covered</h6>
+                                                <div class="col-4 text-center">
+                                                    <h6 class="text-success">Description</h6>
                                                 </div>
-                                                <div class="col-3 text-center">
+                                                <div class="col-2 text-center">
                                                     <h6>Daily Price</h6>
                                                 </div>
-                                                <div class="col-3 text-center">
+                                                <div class="col-2 text-center">
                                                     <h6>Excess Amount</h6>
+                                                </div>
+                                                <div class="col-2">
+                                                    <h6>Actions</h6>
                                                 </div>
                                             </div>
                                             @php
@@ -96,88 +99,43 @@
 
                                             @foreach($insurance_data as $index => $coverage)
                                                 <div class="row border-bottom py-4">
-                                                    <div class="col-3">
+                                                    <div class="col-2">
                                                         <h6>{{ ucfirst($coverage['level']) }}</h6>
                                                     </div>
-                                                    <div class="col-3 text-center">
+                                                    <div class="col-4 text-center">
                                                         <div class="text-center">
-                                                            <p>{{ $coverage['cover'] }}</p>
+                                                            <div class="btn-group">
+                                                                <button type="button" class="btn btn-link" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none;">
+                                                                    {{ $coverage['cover'] }}
+                                                                </button>
+                                                                @if( isset($coverage['cover_descr']) )
+                                                                <div class="dropdown-menu dropdown-menu-start" style="min-width: 400px; max-height:400px; overflow-y:auto; padding: 10px;">
+                                                                    {!! $coverage['cover_descr'] !!}
+                                                                </div>
+                                                                @endif
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                    <div class="col-3 text-center">
-                                                        <p>{{ amt($coverage['daily_price']) }}</p>
+                                                    <div class="col-2 text-center">
+                                                        <p style="margin-top:5px;">{{ amt($coverage['daily_price']) }}</p>
                                                     </div>
-                                                    <div class="col-3 text-center">
-                                                        <p>{{ amt($coverage['excess']) }}</p>
+                                                    <div class="col-2 text-center">
+                                                        <p style="margin-top:5px;">{{ amt($coverage['excess']) }}</p>
+                                                    </div>
+                                                    <div class="col-2">
+                                                        <a href="{{ url('checkout') }}?{{ http_build_query(['book_type' => 'with_full_protection', 'insurance_id' => $index] + request()->query()) }}" class="cmn__btn" style="padding:5px 14px; font-size:16px;">
+                                                            <span>
+                                                                Add
+                                                            </span>
+                                                        </a>
                                                     </div>
                                                 </div>
                                                 @php
                                                     $total_price += $coverage['daily_price'];
                                                 @endphp
                                             @endforeach
-
-                                            <!-- Price -->
-                                            <div class="row py-4">
-                                                <div class="col-3"></div>
-                                                <div class="col-3 text-center">
-                                                    <p>No protection price</p>
-                                                    <h6>{{ amt(0) }}</h6>
-                                                </div>
-                                                <div class="col-3 text-center">
-                                                    <p>Total protection price</p>
-                                                    <h6 class="text-success">{{ amt($total_price) }}</h6>
-                                                </div>
-                                                <div class="col-3"></div>
-                                            </div>
-
-
-
                                         </div>
 
-                                    </div>
-
-                                    <!--Accordion items-->
-                                    <div class="accordion-item wow fadeInUp" data-wow-duration="0.9s" style="visibility: visible; animation-duration: 0.9s; animation-name: fadeInUp;">
-                                        <h2 class="accordion-header" id="headingOne">
-                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-                                                The Car’s Excess
-                                            </button>
-                                        </h2>
-                                        <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample" style="">
-                                            <div class="accordion-body">
-                                                {{ $car->damage_excess }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!--Accordion items-->
-                                    <div class="accordion-item wow fadeInUp" data-wow-duration="1s" style="visibility: visible; animation-duration: 1s; animation-name: fadeInUp;">
-                                        <h2 class="accordion-header" id="headingTwo">
-                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                                Security Deposit Information
-                                            </button>
-                                        </h2>
-                                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample" style="">
-                                            <div class="accordion-body">
-                                                <p>
-                                                    {!! $car->security_deposit !!}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="accordion-item wow fadeInUp" data-wow-duration="1s" style="visibility: visible; animation-duration: 1s; animation-name: fadeInUp;">
-                                        <h2 class="accordion-header" id="heading3">
-                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3" aria-expanded="false" aria-controls="collapseTwo">
-                                                Mileage Information
-                                            </button>
-                                        </h2>
-                                        <div id="collapse3" class="accordion-collapse collapse" aria-labelledby="heading3" data-bs-parent="#accordionExample" style="">
-                                            <div class="accordion-body">
-                                                <p>
-                                                    {!! $car->mileage_text !!}
-                                                </p>
-                                            </div>
-                                        </div>
                                     </div>
 
                                 </div>
@@ -186,8 +144,11 @@
 
                     </div>
 
+                    <div class="alert alert-danger">
+                        <b>Please note:</b> Your own car insurance is unlikely to cover hire cars. All refunds are subject to T&Cs and standard exclusions.
+                    </div>
 
-                    <div class="justify-content-end d-flex gap-4 text-center">
+                    <div class="justify-content-center d-flex gap-4 text-center">
                         <div>
                             <p>Without <br/>Full Protection</p>
                             <a href="{{ url('checkout') }}?{{ http_build_query(['book_type' => 'without_full_protection'] + request()->query()) }}" class="cmn_btn_white">
@@ -196,19 +157,8 @@
                                                </span>
                             </a>
                         </div>
-                        <div>
-                           <p>With <br/>Full Protection</p>
-                            <a href="{{ url('checkout') }}?{{ http_build_query(['book_type' => 'with_full_protection'] + request()->query()) }}" class="cmn__btn">
-                                               <span>
-                                                 Go to book
-                                               </span>
-                            </a>
-                        </div>
 
                     </div>
-
-
-
                 </div>
 
                 @include('frontpage.partials.car_booking.checkout_right')

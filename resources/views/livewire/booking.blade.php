@@ -53,7 +53,7 @@
                         <div class="dating__body__box justify-content-center">
 
 
-                            <div class="search-box dating__item">
+                            <div class="search-box dating__item" @click.away="$wire.set('pickup_locations', [])">
 
                                 <input placeholder="Pick-up location"
                                        autocomplete="off"
@@ -77,7 +77,7 @@
 
                             </div>
 
-                            <div class="search-box dating__item">
+                            <div class="search-box dating__item" @click.away="$wire.set('drop_off_locations', []);">
                                 <input placeholder="Drop-off location" type='text' wire:model.live="drop_off_location"  />
 
 
@@ -106,7 +106,7 @@
 
                             <div class="dating__item dating__hidden-">
                                 <div class="input-group- date-input-container">
-                                    <input  wire:model.live="pick_up_date" class="form-control date- date-input" type="date" placeholder="Pick-up date" />
+                                    <input  wire:model.live="pick_up_date" class="form-control date- date-input" type="date" placeholder="Pick-up date" min="{{ date('Y-m-d') }}" />
                                     <span class="date-placeholder">Pick-up date</span>
 
                                     @error('pick_up_date')
@@ -130,7 +130,7 @@
 
                             <div class="dating__item dating__hidden-">
                                 <div id="datepicker2-" class="input-group- date-input-container">
-                                    <input  wire:model="drop_off_date" class="form-control date-input" type="date" placeholder="Drop-off date" />
+                                    <input  wire:model="drop_off_date" class="form-control date-input" type="date" placeholder="Drop-off date"  min="{{ date('Y-m-d') }}" />
                                     <span class="date-placeholder">Drop-off date</span>
 
                                     @error('drop_off_date')
@@ -141,9 +141,9 @@
                             <div class="dating__item select__border" >
                                 <select class="nice-select" wire:model="drop_off_time">
 
-                                    @foreach(listTime() as $time)
+                                    @foreach(listTime(true) as $time => $time_f)
                                         <option value="{{ $time }}">
-                                            {{ $time }}
+                                            {{ $time_f }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -159,11 +159,15 @@
                         </div>
                     </div>
                     <div class="boock__check mt__30">
-                        <input class="form-check-input" type="checkbox" value="" id="bcheckbok">
+                        <input class="form-check-input" wire:model="aged" wire:change="updateAged('aged', $event.target.checked)" type="checkbox" value="" id="bcheckbok">
                         <label class="form-check-label" for="bcheckbok">
                             Driver aged between 30 - 65?
                         </label>
+                        @if($aged)
+                        <input type="number" wire:model="age" class="form-control" min="18" max="99" pattern="/[0-9]*/" placeholder="Age Number" style="max-width:250px; margin-left:20px;">
+                        @endif
                     </div>
+                    
                 </form>
             </div>
 

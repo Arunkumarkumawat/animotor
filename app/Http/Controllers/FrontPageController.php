@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\PaymentService;
 use App\Services\WalletService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use Laravel\Sanctum\PersonalAccessToken;
 
@@ -173,6 +174,10 @@ class FrontPageController extends Controller
         $id = $request->get('car_id');
         $car = Car::findOrFail($id);
 
+        Cache::remember('viewed_car-' . $car->id . '-' . str_replace('.', '', $request->ip()), 60 * 60, function() {
+            return 1;
+        });
+
         $booking_day = $request->get('booking_day');
 
         if(is_int($booking_day / 30)){
@@ -193,7 +198,7 @@ class FrontPageController extends Controller
         $car->booking_period = $booking_period;
         $car->price = $price;
         $car->total0 = $price * $car->booking_day;
-        $car->tax = $car->total0 * settings('tax',0.075);
+        $car->tax = 0;//$car->total0 * settings('tax',0.075);
         $car->total = $car->total0 + $car->tax;
 
         $insurance_fee = 0;
@@ -229,34 +234,42 @@ class FrontPageController extends Controller
         $car->booking_period = $booking_period;
         $car->price = $price;
         $car->total0 = $price * $car->booking_day;
-        $car->tax = $car->total0 * settings('tax',0.075);
+        $car->tax = 0;//$car->total0 * settings('tax',0.075);
         $car->total = $car->total0 + $car->tax;
 
         $insurance_fee = 0;
-        foreach($car->insurance_coverage as $coverage){
-            $insurance_fee += $coverage['daily_price'] * $booking_day;
+        foreach($car->insurance_coverage as $index => $coverage){
+            if($request->get('insurance_id') == $index){
+                $insurance_fee = $coverage['daily_price'] * $booking_day;
+                break;
+            }
         }
         $car->insurance_fee = $insurance_fee;
 
         $extras = $request->get('extras');
         $extra_fee = 0;
+        $extra_fee_list = [];
         foreach($extras as $index => $extra){
-            if(!isset($car->extras[$index])){
+            if(!isset($car->extras[$index]) || $extra == 0){
                 continue;
             }
+
             if($car->extras[$index]['interval'] == 'daily'){
-                $extra_fee += $car->extras[$index]['price'] * $extra * $booking_day * $divideBy;
+                $amt = $car->extras[$index]['price'] * $extra * $booking_day * $divideBy;
             }elseif($car->extras[$index]['interval'] == 'weekly'){
-                $extra_fee += $car->extras[$index]['price'] * $extra * $booking_day * $divideBy / 7;
+                $amt = $car->extras[$index]['price'] * $extra * $booking_day * $divideBy / 7;
             }elseif($car->extras[$index]['interval'] == 'monthly'){
-                $extra_fee += $car->extras[$index]['price'] * $extra * $booking_day * $divideBy / 30;
+                $amt = $car->extras[$index]['price'] * $extra * $booking_day * $divideBy / 30;
             } else {
-                $extra_fee += $car->extras[$index]['price'] * $extra;
+                $amt = $car->extras[$index]['price'] * $extra;
             }
+
+            $extra_fee += $amt;
+            $extra_fee_list[] = ['name' => $car->extras[$index]['title'], 'amount' => $amt];
         }
 
-        $car->extra_fee = $extra_fee;
-        $car->total += $car->extra_fee;
+        $car->extra_fees = $extra_fee_list;
+        $car->total += $extra_fee;
 
         if($request->get('book_type') == 'with_full_protection'){
             $car->total += $car->insurance_fee;
@@ -295,34 +308,42 @@ class FrontPageController extends Controller
         $car->booking_period = $booking_period;
         $car->price = $price;
         $car->total0 = $price * $car->booking_day;
-        $car->tax = $car->total0 * settings('tax',0.075);
+        $car->tax = 0;//$car->total0 * settings('tax',0.075);
         $car->total = $car->total0 + $car->tax;
 
         $insurance_fee = 0;
-        foreach($car->insurance_coverage as $coverage){
-            $insurance_fee += $coverage['daily_price'] * $booking_day;
+        foreach($car->insurance_coverage as $index => $coverage){
+            if($request->get('insurance_id') == $index){
+                $insurance_fee = $coverage['daily_price'] * $booking_day;
+                break;
+            }
         }
         $car->insurance_fee = $insurance_fee;
 
         $extras = $request->get('extras');
         $extra_fee = 0;
+        $extra_fee_list = [];
         foreach($extras as $index => $extra){
-            if(!isset($car->extras[$index])){
+            if(!isset($car->extras[$index]) || $extra == 0){
                 continue;
             }
+
             if($car->extras[$index]['interval'] == 'daily'){
-                $extra_fee += $car->extras[$index]['price'] * $extra * $booking_day * $divideBy;
+                $amt = $car->extras[$index]['price'] * $extra * $booking_day * $divideBy;
             }elseif($car->extras[$index]['interval'] == 'weekly'){
-                $extra_fee += $car->extras[$index]['price'] * $extra * $booking_day * $divideBy / 7;
+                $amt = $car->extras[$index]['price'] * $extra * $booking_day * $divideBy / 7;
             }elseif($car->extras[$index]['interval'] == 'monthly'){
-                $extra_fee += $car->extras[$index]['price'] * $extra * $booking_day * $divideBy / 30;
+                $amt = $car->extras[$index]['price'] * $extra * $booking_day * $divideBy / 30;
             } else {
-                $extra_fee += $car->extras[$index]['price'] * $extra;
+                $amt = $car->extras[$index]['price'] * $extra;
             }
+
+            $extra_fee += $amt;
+            $extra_fee_list[] = ['name' => $car->extras[$index]['title'], 'amount' => $amt];
         }
 
-        $car->extra_fee = $extra_fee;
-        $car->total += $car->extra_fee;
+        $car->extra_fees = $extra_fee_list;
+        $car->total += $extra_fee;
         
         if($request->get('book_type') == 'with_full_protection'){
             $car->total += $car->insurance_fee;

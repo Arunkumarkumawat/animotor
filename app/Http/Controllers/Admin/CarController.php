@@ -161,16 +161,25 @@ class CarController extends Controller
 
             'deposit' => 'nullable',
             'bags' => 'required',
+            'bags_large' => 'required',
             'cancellation_fee' => 'nullable',
             'price_per_mileage' => 'nullable',
             'mileage' => 'nullable',
-            'map_lat' => 'nullable',
-            'map_lng' => 'nullable',
 
             'air_condition' => 'nullable',
             'seats' => 'nullable',
-            'pick_up_location' => 'nullable',
             'insurance_fee' => 'nullable',
+            
+            'pickup' => 'nullable|array',
+            'pickup.*.location' => 'required|string',
+            'pickup.*.latitude' => 'required|numeric',
+            'pickup.*.longitude' => 'required|numeric',
+            
+            'dropup' => 'nullable|array',
+            'dropup.*.location' => 'required|string',
+            'dropup.*.latitude' => 'required|numeric',
+            'dropup.*.longitude' => 'required|numeric',
+            'vehicle_features' => 'nullable|array',
         ];
 
         return $request->validate($rules);

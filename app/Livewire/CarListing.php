@@ -35,6 +35,8 @@ class CarListing extends Component
     public int $booking_day = 0;
     public int $total_cars = 0;
     public int $total_booking = 0;
+    public ?string $pick_up_date = null;
+    public ?string $drop_off_date = null;
     public Region $location;
 
     #[Computed]
@@ -62,6 +64,9 @@ class CarListing extends Component
 
     public function mount()
     {
+        $this->pick_up_date = request()->query('pick_up_date');
+        $this->drop_off_date = request()->query('drop_off_date');
+        
         $location_id = request()->query('pick_up_location_id');
         $this->booking_day = request()->query('booking_day');
         $this->location = Region::withoutAirport()->withCount(['cars' => function ($query) {
@@ -177,18 +182,24 @@ class CarListing extends Component
         $filteredCars->when(count($this->selected_electric_cars) > 0, function ($query) {
             $query->whereIn('fuel_type', $this->selected_electric_cars);
         });
+        
+        $filteredCars->whereRaw('cars.id NOT IN (SELECT car_id FROM car_blackouts WHERE start_date_time < ? AND end_date_time > ? AND status = 1)', [
+            $this->drop_off_date,
+            $this->pick_up_date,
+        ]);
 
-        $filteredCars->when($this->order_by, function ($query) {
-            switch($this->order_by){
-                case 'price_asc':
-                    $query->orderBy('daily_rate', 'asc');
-                    break;
-                case 'price_desc':
-                    $query->orderBy('daily_rate', 'desc');
-                    break;
-            }
-        });
-
+        switch($this->order_by ?? ''){
+            case 'price_asc':
+                $filteredCars->orderBy('daily_rate', 'asc');
+                break;
+            case 'price_desc':
+                $filteredCars->orderBy('daily_rate', 'desc');
+                break;
+            default:
+                $filteredCars->orderBy('created_at', 'desc');
+                break;
+        }
+        
         $filteredCars = $filteredCars->paginate(4);
 
         $this->loading = false;

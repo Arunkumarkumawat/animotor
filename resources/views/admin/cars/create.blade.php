@@ -26,6 +26,7 @@
 
                                             <form action="{{ route('admin.cars.store') }}" method="POST" enctype="multipart/form-data">
                                                 @csrf
+
                                                 @if ($errors->any())
                                                     <div class="alert alert-danger">
                                                         <ul>
@@ -35,12 +36,12 @@
                                                         </ul>
                                                     </div>
                                                 @endif
+
                                                 @if(session()->has('success'))
                                                     <div class="alert alert-success">
                                                         {{ session()->get('success') }}
                                                     </div>
                                                 @endif
-
 
                                                 @include('admin.cars.form', ['car' => null, 'car_types' => $car_types, 'car_makes' => $car_makes])
 {{--                                                @include('livewire.admin.cars.form', ['car' => null, 'car_types' => $car_types, 'car_makes' => $car_makes])--}}
@@ -63,7 +64,7 @@
             </div>
         </div>
     </div>
-
+    
 @endsection
 
 
@@ -93,6 +94,25 @@
         {{--        }--}}
         {{--    });--}}
         {{--}--}}
+        
+        function initAutocomplete(element){
+            const autocomplete = new google.maps.places.Autocomplete(element, { types: ['geocode'] });
+            
+            autocomplete.addListener('place_changed', function(){
+                var place = autocomplete.getPlace();
+        
+                if (!place.geometry) {
+                    return;
+                }
+                
+                var latitudeInput = document.getElementById(element.id.replace('origin', 'lat'));
+                var longitudeInput = document.getElementById(element.id.replace('origin', 'lng'));
+        
+                element.value = place.name;
+                latitudeInput.value = place.geometry.location.lat();
+                longitudeInput.value = place.geometry.location.lng();
+            })
+        }
 
         function populateModels() {
             var makeElement = document.getElementById('make');
@@ -127,15 +147,42 @@
         // Call the function after the DOM is loaded
         document.addEventListener('DOMContentLoaded', function () {
             populateModels();
+            
+            $('[id^="porigin"], [id^="dorigin"]').each(function(index,elem){
+                initAutocomplete(elem);
+            })
         });
-
 
         document.addEventListener('livewire:navigated', function () {
             // Call the function when livewire:navigated event is triggered
             populateModels();
 
             $('#make').on('select2:select', function (e) {
-                alert('heeeeeeeeeeeee')
+                var makeElement = document.getElementById('make');
+                var modelElement = document.getElementById('model');
+            
+                var makeId = makeElement.value;
+                if (makeId) {
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('GET', "{{ route('admin.api.get.models') }}?make_id=" + makeId, true);
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState === 4 && xhr.status === 200) {
+                            var data = JSON.parse(xhr.responseText);
+                            modelElement.innerHTML = '<option value="">Select Model</option>';
+                            if (data.data.length > 0) {
+                                data.data.forEach(function (model) {
+                                    var option = document.createElement('option');
+                                    option.value = model.name;
+                                    option.text = model.name;
+                                    modelElement.appendChild(option);
+                                });
+                            }
+                        }
+                    };
+                    xhr.send();
+                } else {
+                    modelElement.innerHTML = '<option value="">Select Model</option>';
+                }
             })
         });
     </script>

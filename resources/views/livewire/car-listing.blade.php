@@ -34,7 +34,7 @@
 
     @if ($total_cars > 0)
         <div class="row g-4 justify-content-center">
-            <div class="col-xxl-3 col-xl-3 col-lg-3">
+            <div class="col-xxl-4 col-xl-4 col-lg-4">
                 <div class="common__filter__wrapper">
                     <h5 class="filltertext borderb text-start pb__20 mb__20">
                         Filter
@@ -99,7 +99,7 @@
                 </div>
             </div>
 
-            <div class="col-xxl-9 col-xl-9 col-lg-9">
+            <div class="col-xxl-8 col-xl-8 col-lg-8">
 
                 <section class="hotel__bookslider1 pb-5">
 
@@ -316,5 +316,6 @@
             </div>
         </div>
     </div>
-
 </div>
+
+<script src="https://maps.googleapis.com/maps/api/js?key={{ env('MAP_API_KEY') }}&libraries=places"></script>

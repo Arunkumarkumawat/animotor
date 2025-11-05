@@ -107,7 +107,15 @@
                                     </button>
                                 </td>
                                 <td>{{ $item->model }}</td>
-                                <td>{{ $item->is_approved == 1 ? 'Approved' : 'Not Approved' }}</td>
+                                <td>
+                                    @if($item->is_approved == 1)
+                                        Approved
+                                    @elseif($item->is_approved == -1)
+                                        Rejected
+                                    @else
+                                        Pending
+                                    @endif
+                                </td>
                                 <td>
                                     @if(\Auth::user()->hasRole('admin') && $item->is_approved == 0)
                                     <button type="button" wire:key="{{ $item->id }}" wire:click="toggleApproved('{{ $item->id }}')" class="btn btn-sm btn-primary">
@@ -121,7 +129,7 @@
                             <tr data-id="{{ $item->id }}" class="{{ $opened == $item->id ? '' : 'd-none' }}">
                                 <td colspan="11">
                                     <div class="row mt-2">
-                                        <div class="col-md-3">
+                                        <div class="col-md-2">
                                             <h5>Pricing &amp; Commission</h5>
                                             <p class="mb-0">Vendor Rates (Gross)</p>
                                             <p class="mb-0">Daily: {{ amt($item->daily_rate) }}</p>
@@ -135,30 +143,287 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-2">
-                                            <h5>Simulated Daily Rentals</h5>
-                                            <p class="mb-0">Price: {{ amt($item->daily_rate) }}</p>
-                                            <p class="mb-0">Commission: {{ amt($item->daily_rate * ($commission_rate[$item->id] ?? 0) / 100) }}</p>
-                                            <p class="mb-0">Vendor Payout: {{ amt($item->daily_rate - ($item->daily_rate * ($commission_rate[$item->id] ?? 0) / 100)) }}</p>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <h5>Simulated Weekly Rentals</h5>
-                                            <p class="mb-0">Price: {{ amt($item->weekly_rate) }}</p>
-                                            <p class="mb-0">Commission: {{ amt($item->weekly_rate * ($commission_rate[$item->id] ?? 0) / 100) }}</p>
-                                            <p class="mb-0">Vendor Payout: {{ amt($item->weekly_rate - ($item->weekly_rate * ($commission_rate[$item->id] ?? 0) / 100)) }}</p>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <h5>Simulated Monthly Rentals</h5>
-                                            <p class="mb-0">Price: {{ amt($item->monthly_rate) }}</p>
-                                            <p class="mb-0">Commission: {{ amt($item->monthly_rate * ($commission_rate[$item->id] ?? 0) / 100) }}</p>
-                                            <p class="mb-0">Vendor Payout: {{ amt($item->monthly_rate - ($item->monthly_rate * ($commission_rate[$item->id] ?? 0) / 100)) }}</p>
+                                        <div class="col-md-7">
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <h5>Simulated Daily Rentals</h5>
+                                                    <p class="mb-0">Price: {{ amt($item->daily_rate) }}</p>
+                                                    <p class="mb-0">Commission: {{ amt($item->daily_rate * ($commission_rate[$item->id] ?? 0) / 100) }}</p>
+                                                    <p class="mb-0">Vendor Payout: {{ amt($item->daily_rate - ($item->daily_rate * ($commission_rate[$item->id] ?? 0) / 100)) }}</p>
+                                                    
+                                                    @if($item->extras)
+                                                    <table class="table table-bordered table-bordered-c">
+                                                        <tr>
+                                                            <th colspan="3">Extra(s)</th>
+                                                        </tr>
+                                                        @foreach($item->extras as $index => $extra)
+                                                            @php
+                                                                $price = 0;
+                                                                switch($extra['interval'] ?? 'daily'){
+                                                                    case 'daily':
+                                                                        $price = $extra['price'];
+                                                                        break;
+                                                                    case 'weekly':
+                                                                        $price = round($extra['price'] / 7, 2);
+                                                                        break;
+                                                                    case 'monthly':
+                                                                        $price = round($extra['price'] / 30, 2);
+                                                                        break;
+                                                                }
+                                                            @endphp
+                                                        <tr wire:key="{{ $index }}">
+                                                            <th>
+                                                                {{ $extra['title'] }}
+                                                            </th>
+                                                            <td>
+                                                                {{ amt($extra['price'] ?? 0) }}
+                                                            </td>
+                                                            <td>
+                                                                {{ amt(($extra['price'] ?? 0) * ($commission_rate[$item->id] ?? 0) / 100) }}
+                                                            </td>
+                                                        </tr>
+                                                        @endforeach
+                                                    </table>
+                                                    @endif
+                                                    
+                                                    @if($item->insurance_coverage)
+                                                    <table class="table table-bordered table-bordered-c">
+                                                        <tr>
+                                                            <th colspan="3">Insurance Coverage</th>
+                                                        </tr>
+                                                        @foreach($item->insurance_coverage as $index => $insurance_coverage)
+                                                        <tr wire:key="{{ $index }}">
+                                                            <th>
+                                                                {{ ucfirst($insurance_coverage['level'] ?? 'N/A') }}
+                                                            </th>
+                                                            <td>
+                                                                {{ amt($insurance_coverage['daily_price'] ?? 0) }}
+                                                            </td>
+                                                            <td>
+                                                                {{ amt(($insurance_coverage['daily_price'] ?? 0) * ($commission_rate[$item->id] ?? 0) / 100) }}
+                                                            </td>
+                                                        </tr>
+                                                        @endforeach
+                                                    </table>
+                                                    @endif
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <h5>Simulated Weekly Rentals</h5>
+                                                    <p class="mb-0">Price: {{ amt($item->weekly_rate) }}</p>
+                                                    <p class="mb-0">Commission: {{ amt($item->weekly_rate * ($commission_rate[$item->id] ?? 0) / 100) }}</p>
+                                                    <p class="mb-0">Vendor Payout: {{ amt($item->weekly_rate - ($item->weekly_rate * ($commission_rate[$item->id] ?? 0) / 100)) }}</p>
+                                                    @if($item->extras)
+                                                    <table class="table table-bordered table-bordered-c">
+                                                        <tr>
+                                                            <th colspan="3">Extra(s)</th>
+                                                        </tr>
+                                                        @foreach($item->extras as $index => $extra)
+                                                            @php
+                                                                $price = 0;
+                                                                switch($extra['interval'] ?? 'daily'){
+                                                                    case 'daily':
+                                                                        $price = $extra['price'];
+                                                                        break;
+                                                                    case 'weekly':
+                                                                        $price = round($extra['price'] / 7, 2);
+                                                                        break;
+                                                                    case 'monthly':
+                                                                        $price = round($extra['price'] / 30, 2);
+                                                                        break;
+                                                                }
+                                                            @endphp
+                                                        <tr wire:key="{{ $index }}">
+                                                            <th>
+                                                                {{ $extra['title'] }}
+                                                            </th>
+                                                            <td>
+                                                                {{ amt($price * 7) }}
+                                                            </td>
+                                                            <td>
+                                                                {{ amt($price * 7 * ($commission_rate[$item->id] ?? 0) / 100) }}
+                                                            </td>
+                                                        </tr>
+                                                        @endforeach
+                                                    </table>
+                                                    @endif
+                                                    
+                                                    @if($item->insurance_coverage)
+                                                    <table class="table table-bordered table-bordered-c">
+                                                        <tr>
+                                                            <th colspan="3">Insurance Coverage</th>
+                                                        </tr>
+                                                        @foreach($item->insurance_coverage as $index => $insurance_coverage)
+                                                        <tr wire:key="{{ $index }}">
+                                                            <th>
+                                                                {{ ucfirst($insurance_coverage['level'] ?? 'N/A') }}
+                                                            </th>
+                                                            <td>
+                                                                {{ amt(($insurance_coverage['daily_price'] ?? 0) * 7) }}
+                                                            </td>
+                                                            <td>
+                                                                {{ amt(($insurance_coverage['daily_price'] ?? 0) * 7 * ($commission_rate[$item->id] ?? 0) / 100) }}
+                                                            </td>
+                                                        </tr>
+                                                        @endforeach
+                                                    </table>
+                                                    @endif
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <h5>Simulated Monthly Rentals</h5>
+                                                    <p class="mb-0">Price: {{ amt($item->monthly_rate) }}</p>
+                                                    <p class="mb-0">Commission: {{ amt($item->monthly_rate * ($commission_rate[$item->id] ?? 0) / 100) }}</p>
+                                                    <p class="mb-0">Vendor Payout: {{ amt($item->monthly_rate - ($item->monthly_rate * ($commission_rate[$item->id] ?? 0) / 100)) }}</p>
+                                                    @if($item->extras)
+                                                    <table class="table table-bordered table-bordered-c">
+                                                        <tr>
+                                                            <th colspan="3">Extra(s)</th>
+                                                        </tr>
+                                                        @foreach($item->extras as $index => $extra)
+                                                            @php
+                                                                $price = 0;
+                                                                switch($extra['interval'] ?? 'daily'){
+                                                                    case 'daily':
+                                                                        $price = $extra['price'];
+                                                                        break;
+                                                                    case 'weekly':
+                                                                        $price = round($extra['price'] / 7, 2);
+                                                                        break;
+                                                                    case 'monthly':
+                                                                        $price = round($extra['price'] / 30, 2);
+                                                                        break;
+                                                                }
+                                                            @endphp
+                                                        <tr wire:key="{{ $index }}">
+                                                            <th>
+                                                                {{ $extra['title'] }}
+                                                            </th>
+                                                            <td>
+                                                                {{ amt($price * 30) }}
+                                                            </td>
+                                                            <td>
+                                                                {{ amt($price * 30 * ($commission_rate[$item->id] ?? 0) / 100) }}
+                                                            </td>
+                                                        </tr>
+                                                        @endforeach
+                                                    </table>
+                                                    @endif
+                                                    
+                                                    @if($item->insurance_coverage)
+                                                    <table class="table table-bordered table-bordered-c">
+                                                        <tr>
+                                                            <th colspan="3">Insurance Coverage</th>
+                                                        </tr>
+                                                        @foreach($item->insurance_coverage as $index => $insurance_coverage)
+                                                        <tr wire:key="{{ $index }}">
+                                                            <th>
+                                                                {{ ucfirst($insurance_coverage['level'] ?? 'N/A') }}
+                                                            </th>
+                                                            <td>
+                                                                {{ amt(($insurance_coverage['daily_price'] ?? 0) * 30) }}
+                                                            </td>
+                                                            <td>
+                                                                {{ amt(($insurance_coverage['daily_price'] ?? 0) * 30 * ($commission_rate[$item->id] ?? 0) / 100) }}
+                                                            </td>
+                                                        </tr>
+                                                        @endforeach
+                                                    </table>
+                                                    @endif
+                                                </div>
+                                            </div>
                                         </div>
                                         <div class="col-md-3">
                                             <h5>Calendar & Rules</h5>
-                                            <p class="mb-0">Availability: {{ $item->availabilities->count() }} rules</p>
-                                            <p class="mb-0">Blackout: {{ $item->blackouts->count() }} rules</p>
-                                            <p class="mb-0">Pricing: {{ count($item->dynamic_pricings ?? []) }} rules</p>
-                                            <div>
+                                            @if($item->availabilities->count())
+                                            <table class="table table-bordered table-bordered-c">
+                                                <tr>
+                                                    <th colspan="2">Availability</th>
+                                                </tr>
+                                                @foreach($item->availabilities as $index => $availability)
+                                                <tr wire:key="{{ $index }}">
+                                                    <th>
+                                                        {{ $availability->day_of_week }}<br>
+                                                        Pickup: {{ $availability->pickup_hours_start . ' to ' . $availability->pickup_hours_end }}<br>
+                                                        Return: {{ $availability->return_hours_start . ' to ' . $availability->return_hours_end }}
+                                                    </th>
+                                                    <td>
+                                                        @if($availability->status == '0')
+                                                        <button type="button" wire:key="{{ $availability->id }}" wire:click="applyApprovalSub('availability', '{{ $item->id }}', '{{ $availability->id }}', 1)" class="btn btn-sm btn-primary">
+                                                            Approve
+                                                        </button>
+                                                        <button type="button" wire:key="{{ $availability->id }}" wire:click="applyApprovalSub('availability', '{{ $item->id }}', '{{ $availability->id }}', -1)" class="btn btn-sm btn-danger">
+                                                            Reject
+                                                        </button>
+                                                        @elseif($availability->status == '1')
+                                                            Approved
+                                                        @else 
+                                                            Rejected
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                                @endforeach
+                                            </table>
+                                            @endif
+                                            @if($item->blackouts->count())
+                                            <table class="table table-bordered table-bordered-c">
+                                                <tr>
+                                                    <th colspan="2">Blackouts</th>
+                                                </tr>
+                                                @foreach($item->blackouts as $index => $blackout)
+                                                <tr wire:key="{{ $index }}">
+                                                    <th>
+                                                        {{ $blackout->reason }}<br>
+                                                        Pickup: {{ $blackout->start_date_time . ' to ' . $blackout->end_date_time }}
+                                                    </th>
+                                                    <td>
+                                                        @if($blackout->status == '0')
+                                                        <button type="button" wire:key="{{ $blackout->id }}" wire:click="applyApprovalSub('blackout', '{{ $item->id }}', '{{ $blackout->id }}', 1)" class="btn btn-sm btn-primary">
+                                                            Approve
+                                                        </button>
+                                                        <button type="button" wire:key="{{ $blackout->id }}" wire:click="applyApprovalSub('blackout', '{{ $item->id }}', '{{ $blackout->id }}', -1)" class="btn btn-sm btn-danger">
+                                                            Reject
+                                                        </button>
+                                                        @elseif($blackout->status == '1')
+                                                            Approved
+                                                        @else 
+                                                            Rejected
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                                @endforeach
+                                            </table>
+                                            @endif
+                                            @if(count($item->dynamic_pricings ?? []))
+                                            <table class="table table-bordered table-bordered-c">
+                                                <tr>
+                                                    <th colspan="2">Dynamic Pricing</th>
+                                                </tr>
+                                                @foreach(($item->dynamic_pricings ?? []) as $index => $dpricing)
+                                                <tr wire:key="{{ $index }}">
+                                                    <th>
+                                                        {{ $dpricing['rule_name'] }}<br>
+                                                        Adjustment: {{ $dpricing['adjustment_type'] == '' ? '%' : settings('currency_symbol', '$') }}<br>
+                                                        Period: {{ $dpricing['start_date'] . ' to ' . $dpricing['end_date'] }}
+                                                    </th>
+                                                    <td>
+                                                        @if(!isset($dpricing['status']) || empty($dpricing['status']))
+                                                        <button type="button" wire:click="applyApprovalSub('dpricing', '{{ $item->id }}', '{{ $index }}', 1)" class="btn btn-sm btn-primary">
+                                                            Approve
+                                                        </button>
+                                                        <button type="button" wire:click="applyApprovalSub('dpricing', '{{ $item->id }}', '{{ $index }}', -1)" class="btn btn-sm btn-danger">
+                                                            Reject
+                                                        </button>
+                                                        @elseif($dpricing['status'] == '1')
+                                                            Approved
+                                                        @else 
+                                                            Rejected
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                                @endforeach
+                                            </table>
+                                            @endif
+                                            
+                                            <div class="mt-2">
                                                 <button type="button" wire:key="{{ $item->id }}" wire:click="applyApproval('{{ $item->id }}', 1)" class="btn btn-sm btn-primary">
                                                     Approve
                                                 </button>
@@ -184,4 +449,9 @@
             </div>
         </div>
     </div>
+    <style>
+        .table-bordered-c th, .table-bordered-c td {
+            padding:0.5em !important;
+        }
+    </style>
 </div>

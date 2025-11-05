@@ -21,6 +21,7 @@ class Booking extends Model
 
     protected $casts = [
         'extras' => 'array',
+        'billing_details' => 'array',
     ];
 
     public function __construct(array $attributes = [])

@@ -21,8 +21,6 @@ class Form extends Component
     use WithFileUploads;
 
     protected $listeners = [
-        'deleteAvailability' => 'deleteAvailability',
-        'deleteBlackout' => 'deleteBlackout',
         'removeExtra' => 'removeExtra',
         'removeDynamicPricing' => 'removeDynamicPricing',
     ];
@@ -59,8 +57,11 @@ class Form extends Component
     public ?string $engine_size;
     public ?string $body_type = "convertible";
     public ?string $daily_rate;
+    public bool $daily_rate_tax_incl = true;
     public ?string $weekly_rate;
+    public bool $weekly_rate_tax_incl = true;
     public ?string $monthly_rate;
+    public bool $monthly_rate_tax_incl = true;
 
     public ?array $dynamic_pricings = [];
     public ?string $dynamic_pricing_rule_name;
@@ -73,9 +74,9 @@ class Form extends Component
     public ?array $insurance_coverage = ['title' => '', 'value' => ''];
 
     public ?string $mileage_policy = '';
-    public ?string $mileage_limit;
-    public ?string $excess_mileage_rate;
-    public ?string $cancellation_policy;
+    public ?string $mileage_limit  = '';
+    public ?string $excess_mileage_rate  = '';
+    public ?string $cancellation_policy = '';
 
 //    TAX
     public ?string $is_taxed = "1";
@@ -85,6 +86,11 @@ class Form extends Component
 
     public ?array $photos_input = [];
     public ?array $vehicle_photos = [];
+    
+    public bool $free_cancellation = false;
+    public bool $collision_damage_waiver = false;
+    public bool $theft_protection = false;
+    public bool $unlimited_mileage = false;
 
     public array $service = [
         'last_service_date' => '',
@@ -151,7 +157,6 @@ class Form extends Component
         'Vehicle',
         'Pricing',
         'Transmission',
-        'Specifications',
         'MOT',
         'Road Tax',
         'Service',
@@ -225,6 +230,9 @@ class Form extends Component
     public bool $rent_to_buy_maintenance_included = false;
     public bool $rent_to_buy_ev_incentive_included = false;
     public $rent_to_buy_ownership_transfer_notes = "";
+    
+    public bool $top_pick = false;
+    public bool $ideal_for_family = false;
     
     public function updatePrivateHire($checked)
     {
@@ -345,7 +353,6 @@ class Form extends Component
         'pickup_hours_end' => '',
         'return_hours_start' => '',
         'return_hours_end' => '',
-        'status' => 'Active',
     ];
 
     public $blackout = [
@@ -354,7 +361,6 @@ class Form extends Component
         'reason' => '',
         'hard_block' => '0',
         'notes' => '',
-        'status' => 'Active',
     ];
 
     #[Computed]
@@ -522,89 +528,94 @@ class Form extends Component
             $this->successMsg();
             return;
         }
-
-        if ($this->step == 4) {
-            $this->saveSpec();
-            return $this->step++;
+        
+        if($this->step == 3){
+            $this->step++;
+            $this->successMsg();
+            return;
         }
 
-        if ($this->step == 5) {
+        if ($this->step == 4) {
             // MOT step - just move to next step without validation
             $this->step++;
             $this->successMsg();
             return;
         }
 
-        if ($this->step == 6) {
+        if ($this->step == 5) {
             $this->saveTax();
             return $this->step++;
         }
 
-        if ($this->step == 7) {
+        if ($this->step == 6) {
             // Service step - just move to next step without validation
             $this->step++;
             $this->successMsg();
             return;
         }
 
-        if ($this->step == 8) {
+        if ($this->step == 7) {
             $this->saveDriver();
             return $this->step++;
         }
 
-        if ($this->step == 9) {
+        if ($this->step == 8) {
             return $this->step++;
         }
 
-        if ($this->step == 10) {
-            // Booking Information step - just move to next step without validation
-            $this->step++;
-            $this->successMsg();
-            return;
+        if ($this->step == 9) {
+            $this->updateBookingInfo();
+            return $this->step++;;
         }
 
-        if ($this->step == 11) {
+        if ($this->step == 10) {
             // Documents step - just move to next step without validation
             $this->step++;
             $this->successMsg();
             return;
         }
 
-        if ($this->step == 12) {
+        if ($this->step == 11) {
             $this->updateFinance();
             return $this->step++;
         }
 
-        if ($this->step == 13) {
+        if ($this->step == 12) {
             // Damage History step - just move to next step without validation
             $this->step++;
             $this->successMsg();
             return;
         }
 
-        if ($this->step == 14) {
+        if ($this->step == 13) {
             // Add repair step - just move to next step without validation
             $this->step++;
             $this->successMsg();
             return;
         }
 
-        if ($this->step == 15) {
+        if ($this->step == 14) {
             // PCN Listing step - just move to next step without validation
             $this->step++;
             $this->successMsg();
             return;
         }
 
-        if ($this->step == 16) {
+        if ($this->step == 15) {
             // Reports step - just increment step for now
             $this->step++;
             $this->successMsg();
             return;
         }
 
-        if ($this->step == 17) {
+        if ($this->step == 16) {
             // Subscriptions step - just move to next step without validation
+            $this->step++;
+            $this->successMsg();
+            return;
+        }
+
+        if ($this->step == 17) {
             $this->step++;
             $this->successMsg();
             return;
@@ -617,17 +628,11 @@ class Form extends Component
         }
 
         if ($this->step == 19) {
-            $this->step++;
-            $this->successMsg();
-            return;
-        }
-
-        if ($this->step == 20) {
             $this->validate([
-                'mileage_policy' => ['required', 'string'],
+                'mileage_policy' => ['nullable', 'string'],
                 'mileage_limit' => ['nullable', 'numeric'],
                 'excess_mileage_rate' => ['nullable', 'numeric'],
-                'cancellation_policy' => ['required', 'string'],
+                'cancellation_policy' => ['nullable', 'string'],
             ]);
 
             $this->car->update([
@@ -638,10 +643,11 @@ class Form extends Component
             ]);
 
             $this->successMsg();
+            $this->step++;
             return;
         }
 
-        if ($this->step == 21) {
+        if ($this->step == 20) {
             $this->validate([
                 'photos_input' => ['nullable', 'array'],
                 'photos_input.*' => ['required', 'image', 'max:2048'],
@@ -680,11 +686,20 @@ class Form extends Component
 //            'year' => ['required', 'string'],
             'registration_number' => ['required', 'string'],
             'license_no' => ['required', 'string'],
-            'tracker_no' => ['required', 'string'],
             'vehicle_no' => ['required', 'string'],
             'description' => ['required', 'string'],
             'region_id' => ['nullable'],
             'mileage' => ['required', 'string'],
+            'free_cancellation' => ['nullable', 'boolean'],
+            'collision_damage_waiver' => ['nullable', 'boolean'],
+            'theft_protection' => ['nullable', 'boolean'],
+            'unlimited_mileage' => ['nullable', 'boolean'],
+        
+            'top_pick' => ['nullable', 'boolean'],
+            'ideal_for_family' => ['nullable', 'boolean'],
+            
+            
+          
         ]);
 
         $this->car->update($validated);
@@ -815,6 +830,9 @@ class Form extends Component
             'daily_rate' => $this->daily_rate,
             'weekly_rate' => $this->weekly_rate,
             'monthly_rate' => $this->monthly_rate,
+            'daily_rate_tax_incl' => $this->daily_rate_tax_incl,
+            'weekly_rate_tax_incl' => $this->weekly_rate_tax_incl,
+            'monthly_rate_tax_incl' => $this->monthly_rate_tax_incl,
             'dynamic_pricings' => $this->dynamic_pricings ?? []
         ]);
     }
@@ -1030,27 +1048,27 @@ class Form extends Component
     public function updateFinance(): bool
     {
         $this->validate([
-            'finance.finance_type' => ['required', 'string'],
-            'finance.purchase_price' => ['required', 'string'],
-            'finance.agreement_number' => ['required', 'string'],
-            'finance.funder_name' => ['required', 'string'],
-            'finance.agreement_start_date' => ['required', 'string'],
-            'finance.agreement_end_date' => ['required', 'string'],
-            'finance.loan_amount' => ['required', 'string'],
-            'finance.repayment_frequency' => ['required', 'string'],
-            'finance.amount' => ['required', 'string'],
+            'finance.finance_type' => ['nullable', 'string'],
+            'finance.purchase_price' => ['nullable', 'string'],
+            'finance.agreement_number' => ['nullable', 'string'],
+            'finance.funder_name' => ['nullable', 'string'],
+            'finance.agreement_start_date' => ['nullable', 'string'],
+            'finance.agreement_end_date' => ['nullable', 'string'],
+            'finance.loan_amount' => ['nullable', 'string'],
+            'finance.repayment_frequency' => ['nullable', 'string'],
+            'finance.amount' => ['nullable', 'string'],
         ]);
 
         $newData = [
-            'finance_type' => $this->finance['finance_type'],
-            'purchase_price' => $this->finance['purchase_price'],
-            'agreement_number' => $this->finance['agreement_number'],
-            'funder_name' => $this->finance['funder_name'],
-            'agreement_start_date' => $this->finance['agreement_start_date'],
-            'agreement_end_date' => $this->finance['agreement_end_date'],
-            'loan_amount' => $this->finance['loan_amount'],
-            'repayment_frequency' => $this->finance['repayment_frequency'],
-            'amount' => $this->finance['amount'],
+            'finance_type' => $this->finance['finance_type'] ?? '',
+            'purchase_price' => $this->finance['purchase_price'] ?? '',
+            'agreement_number' => $this->finance['agreement_number'] ?? '',
+            'funder_name' => $this->finance['funder_name'] ?? '',
+            'agreement_start_date' => $this->finance['agreement_start_date'] ?? '',
+            'agreement_end_date' => $this->finance['agreement_end_date'] ?? '',
+            'loan_amount' => $this->finance['loan_amount'] ?? '',
+            'repayment_frequency' => $this->finance['repayment_frequency'] ?? '',
+            'amount' => $this->finance['amount'] ?? '',
         ];
 
         $carExtra = $this->car->carExtra;
@@ -1094,10 +1112,10 @@ class Form extends Component
     public function saveTax()
     {
         $this->validate([
-            'is_taxed' => ['required'],
-            'tax_amount' => ['required_if:is_taxed,1'],
-            'tax_type' => ['required_if:is_taxed,1'],
-            'tax_expiry_date' => ['required_if:is_taxed,1'],
+            'is_taxed' => ['nullable'],
+            'tax_amount' => ['nullable'],
+            'tax_type' => ['nullable'],
+            'tax_expiry_date' => 'nullable|date_format:Y-m-d|after_or_equal:today',
         ]);
 
 
@@ -1167,7 +1185,7 @@ class Form extends Component
         $data[] = $newData;
         $this->car->update(['extras' => $data]);
 
-        $this->successMsg();
+        session()->flash('success', 'Addon added successfully!');
 
         $this->extras = [
             'title' => '',
@@ -1182,6 +1200,7 @@ class Form extends Component
         $this->validate([
             'insurance_coverage.level' => ['required'],
             'insurance_coverage.cover' => ['required'],
+            'insurance_coverage.cover_descr' => ['required'],
             'insurance_coverage.daily_price' => ['required', 'numeric'],
             'insurance_coverage.excess' => ['required', 'numeric'],
         ]);
@@ -1189,6 +1208,7 @@ class Form extends Component
         $newData = [
             'level' => $this->insurance_coverage['level'],
             'cover' => $this->insurance_coverage['cover'],
+            'cover_descr' => $this->insurance_coverage['cover_descr'],
             'daily_price' => $this->insurance_coverage['daily_price'],
             'excess' => $this->insurance_coverage['excess'],
         ];
@@ -1203,9 +1223,12 @@ class Form extends Component
         $this->insurance_coverage = [
             'level' => '',
             'cover' => '',
+            'cover_descr' => '',
             'daily_price' => '',
             'excess' => '',
         ];
+        
+        $this->dispatch('clear-summernotes');
     }
 
     public function addMOT()
@@ -1296,7 +1319,7 @@ class Form extends Component
         $extras = $this->car->extras;
         array_splice($extras, $index, 1);
         $this->car->update(['extras' => $extras]);
-        $this->successMsg();
+        session()->flash('success', 'Addon removed successfully!');
     }
 
     public function removeInsuranceCoverage($index)
@@ -1340,17 +1363,23 @@ class Form extends Component
 
     public function addDynamicPricing()
     {
-        if($this->dynamic_pricing_rule_name && $this->dynamic_pricing_adjustment_type && $this->dynamic_pricing_adjustment_value && $this->dynamic_pricing_start_date && $this->dynamic_pricing_end_date){
-            $this->dynamic_pricings[] = [
-                'rule_name' => $this->dynamic_pricing_rule_name,
-                'adjustment_type' => $this->dynamic_pricing_adjustment_type,
-                'adjustment_value' => $this->dynamic_pricing_adjustment_value,
-                'start_date' => $this->dynamic_pricing_start_date,
-                'end_date' => $this->dynamic_pricing_end_date,
-            ];
+        $this->validate([
+            'dynamic_pricing_rule_name' => 'required',
+            'dynamic_pricing_adjustment_type' => 'required',
+            'dynamic_pricing_adjustment_value' => 'required',
+            'dynamic_pricing_start_date' => 'required|date|after_or_equal:today',
+            'dynamic_pricing_end_date' => 'required|date|after_or_equal:dynamic_pricing_start_date',
+        ]);
+        
+        $this->dynamic_pricings[] = [
+            'rule_name' => $this->dynamic_pricing_rule_name,
+            'adjustment_type' => $this->dynamic_pricing_adjustment_type,
+            'adjustment_value' => $this->dynamic_pricing_adjustment_value,
+            'start_date' => $this->dynamic_pricing_start_date,
+            'end_date' => $this->dynamic_pricing_end_date,
+        ];
 
-            $this->resetDynamicPricing();
-        }
+        $this->resetDynamicPricing();
     }
 
     private function resetDynamicPricing()
@@ -1390,13 +1419,12 @@ class Form extends Component
             'pickup_hours_end' => '',
             'return_hours_start' => '',
             'return_hours_end' => '',
-            'status' => 'Active',
         ];
     }
 
     public function removeAvailability($id)
     {
-        $this->car->availabilities->where('id', $id)->delete();
+        $this->car->availabilities()->where('id', $id)->delete();
         $this->availabilities = $this->car->availabilities;
     }
 
@@ -1409,8 +1437,16 @@ class Form extends Component
     public function saveBlackout()
     {
         $this->validate([
-            'blackout.start_date_time' => 'required',
-            'blackout.end_date_time' => 'required',
+            'blackout.start_date_time' => [
+                'required',
+                'date_format:Y-m-d H:i',
+                'after_or_equal:' . now()->format('Y-m-d H:i'),
+            ],
+            'blackout.end_date_time' => [
+                'required',
+                'date_format:Y-m-d H:i',
+                'after_or_equal:' . now()->format('Y-m-d H:i'),
+            ],
             'blackout.reason' => 'required',
             'blackout.hard_block' => 'required',
             'blackout.notes' => 'required',
@@ -1432,9 +1468,9 @@ class Form extends Component
         ];
     }
 
-    public function removeBlackout($id)
+    public function deleteBlackout($id)
     {
-        $this->car->blackouts->where('id', $id)->delete();
+        $this->car->blackouts()->where('id', $id)->delete();
         $this->blackouts = $this->car->blackouts;
     }
 }

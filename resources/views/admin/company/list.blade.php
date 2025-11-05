@@ -75,13 +75,15 @@
                                                                 <a href="{{ route('admin.companies.change-status', $item->id) }}?status=inactive" class="btn btn-success">Active</a>
                                                             @else
                                                                 <a href="{{ route('admin.companies.change-status', $item->id) }}?status=active" class="btn btn-danger">Inactive</a>
-                                                            @endif
+                                                            @endif 
                                                         </td>
 
                                                         <td>
+                                                            @if($item->company)
                                                             <a class="btn btn-primary" href="{{ route('admin.companies.view', $item->company->id) }}">View</a>
                                                             <a class="btn btn-warning" href="{{ route('admin.companies.edit', $item->company->id) }}">Edit</a>
                                                             <a class="btn btn-danger" href="{{ route('admin.companies.delete', $item->company->id) }}" onclick="return confirm('Are you sure you want to delete this company?')">Delete</a>
+                                                            @endif
                                                         </td>
                                                     </tr>
                                                 @endforeach
