@@ -110,7 +110,6 @@
                                                                 </button>
                                                                 @if( isset($coverage['cover_descr']) )
                                                                 <div class="dropdown-menu dropdown-menu-start" style="min-width: 400px; max-height:400px; overflow-y:auto; padding: 10px;">
-                                                                    {!! $coverage['cover_descr'] !!}
                                                                 </div>
                                                                 @endif
                                                             </div>
@@ -118,9 +117,6 @@
                                                     </div>
                                                     <div class="col-2 text-center">
                                                         <p style="margin-top:5px;">{{ amt($coverage['daily_price']) }}</p>
-                                                    </div>
-                                                    <div class="col-2 text-center">
-                                                        <p style="margin-top:5px;">{{ amt($coverage['excess']) }}</p>
                                                     </div>
                                                     <div class="col-2">
                                                         <a href="{{ url('checkout') }}?{{ http_build_query(['book_type' => 'with_full_protection', 'insurance_id' => $index] + request()->query()) }}" class="cmn__btn" style="padding:5px 14px; font-size:16px;">
