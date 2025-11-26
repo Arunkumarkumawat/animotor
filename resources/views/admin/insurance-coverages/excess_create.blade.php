@@ -846,7 +846,7 @@
             </div>
             @endif
 
-            <div class="panel-header" onclick="togglePanel()">
+            <div class="panel-header">
                 <div class="panel-header-left">
                     <div class="panel-icon">🔰</div>
                     <div class="panel-title-group">
@@ -854,17 +854,6 @@
                         <div class="panel-subtitle">
                             Reduces or eliminates the renter's payable excess in case of damage
                         </div>
-                    </div>
-                </div>
-                <div class="panel-header-right">
-                    <div class="status-badge active">Active</div>
-                    <div class="insurer-logo-thumb" xrole="logoUpload">
-                        <span class="text-muted text-small">Upload Insurer Logo</span>
-                    </div>
-                    <div class="expand-icon">
-                        <svg fill="none" viewBox="0 0 24 24" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                        </svg>
                     </div>
                 </div>
             </div>
