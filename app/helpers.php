@@ -8,75 +8,94 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Str;
 
-function convertRouteToPermission($routeName): string
-{
-    $permission = str_replace('admin.', '', $routeName);
-    $permission = str_replace('.', '-', $permission);
-    return '@permission(' . $permission . ')';
-}
-
-function isOwner(): bool
-{
-    if(auth()->user()->hasRole('owner|manager')){
-        return true;
+if (!function_exists('convertRouteToPermission')) {
+    function convertRouteToPermission($routeName): string
+    {
+        $permission = str_replace('admin.', '', $routeName);
+        $permission = str_replace('.', '-', $permission);
+        return '@permission(' . $permission . ')';
     }
-    return false;
 }
 
-function isAdmin(): bool
-{
-    if(auth()->user()->hasRole('superadmin|admin')){
-        return true;
+if (!function_exists('isOwner')) {
+    function isOwner(): bool
+    {
+        if (auth()->user()->hasRole('owner|manager')) {
+            return true;
+        }
+        return false;
     }
-    return false;
 }
-
-function canViewUserBookings(): bool
-{
-    if(auth()->user()->hasRole('superadmin|admin')){
-        return true;
+if (!function_exists('isAdmin')) {
+    function isAdmin(): bool
+    {
+        if (auth()->user()->hasRole('superadmin|admin')) {
+            return true;
+        }
+        return false;
     }
-    return false;
+}
+if (!function_exists('canViewUserBookings')) {
+    function canViewUserBookings(): bool
+    {
+        if (auth()->user()->hasRole('superadmin|admin')) {
+            return true;
+        }
+        return false;
+    }
+}
+if (!function_exists('companyId')) {
+    function companyId(): string
+    {
+        return auth()?->user()?->company_id;
+    }
+}
+if (!function_exists('hasTrips')) {
+    function hasTrips(): bool
+    {
+        return settings('enable_instant_ride') == 'yes';
+    }
+}
+if (!function_exists('hasSpecialPlaces')) {
+    function hasSpecialPlaces(): bool
+    {
+        return settings('enable_special_places') == 'yes';
+    }
+}
+if (!function_exists('hasWallet')) {
+
+    function hasWallet(): bool
+    {
+        return settings('enable_wallet_system') == 'yes';
+    }
+}
+if (!function_exists('hasMonify')) {
+    function hasMonify(): bool
+    {
+        return env('HAS_MONIFY', false);
+    }
+}
+if (!function_exists('hasFleet')) {
+    function hasFleet(): bool
+    {
+        return settings('enable_fleet') == 'yes';
+    }
 }
 
-function companyId(): string
-{
-   return auth()?->user()?->company_id;
+if (!function_exists('hasRental')) {
+    function hasRental(): bool
+    {
+        return settings('enable_rental') == 'yes';
+    }
 }
 
-function hasTrips(): bool
-{
-   return settings('enable_instant_ride') == 'yes';
-}
-function hasSpecialPlaces(): bool
-{
-   return settings('enable_special_places') == 'yes';
+if (!function_exists('hasBooking')) {
+    function hasBooking(): bool
+    {
+        return settings('enable_booking') == 'yes';
+    }
 }
 
-function hasWallet(): bool
-{
-   return settings('enable_wallet_system') == 'yes';
-}
-
-function hasMonify(): bool
-{
-   return env('HAS_MONIFY', false);
-}
-
-function hasFleet(): bool
-{
-   return settings('enable_fleet') == 'yes';
-}
-
-function hasRental(): bool
-{
-   return settings('enable_rental') == 'yes';
-}
-
-function hasBooking(): bool
-{
-   return settings('enable_booking') == 'yes';
-}
 
 if (!function_exists('dynamic_include')) {
     function dynamic_include($view)
@@ -91,7 +110,7 @@ if (!function_exists('dynamic_include')) {
     }
 }
 
-if(!function_exists('format_coordiantes')){
+if (!function_exists('format_coordiantes')) {
     function format_coordiantes($coordinates): array
     {
         $data = [];
@@ -102,20 +121,19 @@ if(!function_exists('format_coordiantes')){
     }
 }
 
-if(!function_exists('show_item')){
+if (!function_exists('show_item')) {
     function show_item($item): int
     {
 
-        if(is_int($item)){
+        if (is_int($item)) {
             return $item;
-        }else{
+        } else {
             return 0;
         }
-
     }
 }
 
-if(!function_exists('log_activity')){
+if (!function_exists('log_activity')) {
     function log_activity($title, $info): void
     {
 
@@ -123,11 +141,10 @@ if(!function_exists('log_activity')){
             'title' => $title,
             'info' => $info,
         ]);
-
     }
 }
 
-if(!function_exists('format_phone')){
+if (!function_exists('format_phone')) {
     function format_phone($number)
     {
         if (str_starts_with($number, '0')) {
@@ -137,80 +154,92 @@ if(!function_exists('format_phone')){
     }
 }
 
-function convertToWord($input): string
-{
-    return ucwords(str_replace('_', ' ', $input));
+
+if (!function_exists('convertToWord')) {
+    function convertToWord($input): string
+    {
+        return ucwords(str_replace('_', ' ', $input));
+    }
 }
 
-function isApiSet(): bool
-{
-    if(strlen(env('FIREBASE_API_KEY')) > 3 && strlen(env('MAP_API_KEY')) > 3 && strlen(env('FIREBASE_PROJECT_ID')) > 3){
-        return true;
-    }else{
+if (!function_exists('isApiSet')) {
+    function isApiSet(): bool
+    {
+        if (strlen(env('FIREBASE_API_KEY')) > 3 && strlen(env('MAP_API_KEY')) > 3 && strlen(env('FIREBASE_PROJECT_ID')) > 3) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
+if (!function_exists('isPaymentMethodSet')) {
+
+    function isPaymentMethodSet(): bool
+    {
+        $active_methods = settings('active_methods', 'none');
+
+        if (strlen($active_methods) > 3) {
+            return true;
+        }
+
         return false;
     }
 }
 
-function isPaymentMethodSet(): bool
-{
-    $active_methods = settings('active_methods', 'none');
-
-    if(strlen($active_methods) > 3){
-        return true;
-    }
-
-    return false;
-
-}
-
-function removeDuplicatePhotos($photos_array, $new): string
-{
-    if(!$photos_array){
-        return '';
-    }
-    if(count($photos_array) < 1){
-        return $new;
-    }
-    $new_array = explode(',', $new);
-
-    $all_photos = array_unique(array_merge($photos_array, $new_array));
-
-    return implode(',', $all_photos);
-
-}
-
-function listTime($show = false): array
-{
-
-    $time = Carbon::createFromTime(0, 0, 0);
-
-    $endTime = Carbon::createFromTime(23, 30, 0);
-
-    $timeStrings = [];
-
-    while ($time <= $endTime) {
-        if($show){
-            $timeStrings[$time->format('H:i')] = $time->format('h:i A');
-        } else {
-            $timeStrings[] = $time->format('H:i');
+if (!function_exists('removeDuplicatePhotos')) {
+    function removeDuplicatePhotos($photos_array, $new): string
+    {
+        if (!$photos_array) {
+            return '';
         }
-        $time->addMinutes(30);
+        if (count($photos_array) < 1) {
+            return $new;
+        }
+        $new_array = explode(',', $new);
+
+        $all_photos = array_unique(array_merge($photos_array, $new_array));
+
+        return implode(',', $all_photos);
     }
-
-    return $timeStrings;
-
 }
 
-function amt($amt): string
-{
-    // Cast $amt to a float before formatting
-    return settings('currency_symbol', '$') . number_format((float)$amt, 2);
+if (!function_exists('listTime')) {
+    function listTime($show = false): array
+    {
+
+        $time = Carbon::createFromTime(0, 0, 0);
+
+        $endTime = Carbon::createFromTime(23, 30, 0);
+
+        $timeStrings = [];
+
+        while ($time <= $endTime) {
+            if ($show) {
+                $timeStrings[$time->format('H:i')] = $time->format('h:i A');
+            } else {
+                $timeStrings[] = $time->format('H:i');
+            }
+            $time->addMinutes(30);
+        }
+
+        return $timeStrings;
+    }
 }
 
+
+if (!function_exists('amt')) {
+    function amt($amt): string
+    {
+        // Cast $amt to a float before formatting
+        return settings('currency_symbol', '$') . number_format((float)$amt, 2);
+    }
+}
 
 
 if (!function_exists('menus')) {
-    function menus($slug) {
+    function menus($slug)
+    {
         return Cache::remember('menu_items_' . $slug, now()->addHours(1), function () use ($slug) {
             $menu = Menu::where('slug', $slug)->first();
             return $menu ? $menu->items : [];
@@ -219,76 +248,86 @@ if (!function_exists('menus')) {
 }
 
 if (!function_exists('payment_methods')) {
-    function payment_methods() {
-        return json_decode(settings('active_methods','none'), true);
+    function payment_methods()
+    {
+        return json_decode(settings('active_methods', 'none'), true);
     }
 }
 
 if (!function_exists('payment_method_icon')) {
-    function payment_method_icon($icon) {
+    function payment_method_icon($icon)
+    {
         return asset("default/payment_methods/$icon-logo.png");
     }
 }
 
+if (!function_exists('getUniqueBookingNumber')) {
+    function getUniqueBookingNumber(): float|int|string
+    {
+        $currentTimestamp = now()->timestamp;
+        $milliseconds = round(microtime(true) * 10);
 
-function getUniqueBookingNumber(): float|int|string
-{
-    $currentTimestamp = now()->timestamp;
-    $milliseconds = round(microtime(true) * 10);
-
-    return $currentTimestamp + $milliseconds;
-}
-function getUniqueBookingConfirmationNo(): float|int|string
-{
-    $currentTimestamp = now()->timestamp;
-    $milliseconds = round(microtime(true) * 10);
-
-    return $currentTimestamp + $milliseconds;
-}
-
-function getUniqueReferenceCode(): string
-{
-    return substr(settings('site_name', 'TRIP'), 0, 4).'-BOOKING-'.date('Hm').'-'.mt_rand(100,999);
-
-}
-
-function menuItems(){
-    $menu_items = settings('frontpage_menu','default');
-    if(is_string($menu_items)){
-        $menus = json_decode(settings('frontpage_menu','default'), true);
-    }else{
-        $menus = [];
-    }
-    return $menus;
-}
-
-function is_app(): bool
-{
-    if (request()->has('app') || session('is_webview')){
-        return true;
-    }else{
-        return false;
+        return $currentTimestamp + $milliseconds;
     }
 }
+if (!function_exists('getUniqueBookingConfirmationNo')) {
+    function getUniqueBookingConfirmationNo(): float|int|string
+    {
+        $currentTimestamp = now()->timestamp;
+        $milliseconds = round(microtime(true) * 10);
 
-function imageStringArray($images): array
-{
-    if(!$images){
-        return [];
+        return $currentTimestamp + $milliseconds;
     }
-    return explode(',', $images);
 }
+if (!function_exists('getUniqueReferenceCode')) {
+    function getUniqueReferenceCode(): string
+    {
+        return substr(settings('site_name', 'TRIP'), 0, 4) . '-BOOKING-' . date('Hm') . '-' . mt_rand(100, 999);
+    }
+}
+if (!function_exists('menuItems')) {
+    function menuItems()
+    {
+        $menu_items = settings('frontpage_menu', 'default');
+        if (is_string($menu_items)) {
+            $menus = json_decode(settings('frontpage_menu', 'default'), true);
+        } else {
+            $menus = [];
+        }
+        return $menus;
+    }
+}
+if (!function_exists('is_app')) {
+    function is_app(): bool
+    {
+        if (request()->has('app') || session('is_webview')) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+if (!function_exists('imageStringArray')) {
+    function imageStringArray($images): array
+    {
+        if (!$images) {
+            return [];
+        }
+        return explode(',', $images);
+    }
+}
+if (!function_exists('customRound')) {
+    function customRound($number): int
+    {
+        $remainder = $number % 100;
 
-function customRound($number): int
-{
-    $remainder = $number % 100;
-
-    if ($remainder > 50) {
-        // Round up to the nearest hundred
-        return $number + (100 - $remainder);
-    } else {
-        // Round down to the nearest hundred
-        return $number - $remainder;
+        if ($remainder > 50) {
+            // Round up to the nearest hundred
+            return $number + (100 - $remainder);
+        } else {
+            // Round down to the nearest hundred
+            return $number - $remainder;
+        }
     }
 }
 
@@ -306,9 +345,10 @@ if (!function_exists('formatArrayError')) {
     }
 }
 
+if (!function_exists('default_footer')) {
     function default_footer(): string
-{
-    return <<<HTML
+    {
+        return <<<HTML
     <footer class="footer__section bg_section pt-120">
     <div class="container">
         <div class="footer__wrapper">
@@ -449,4 +489,5 @@ if (!function_exists('formatArrayError')) {
     </div>
 </footer>
 HTML;
+    }
 }

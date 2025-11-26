@@ -379,9 +379,11 @@
                             <div class="carferrari__content">
                                 <p class="mt-2"><img class="me-3" src="/assets/img/icons/card.svg" />Request proof of purchase</p>
                                 <p class="mt-2"><img class="me-3" src="/assets/img/icons/card-edit.png" />Amend Booking</p>
-                                <p class="mt-2"><img class="me-3" src="/assets/img/icons/cancel.png" />Cancel Booking</p>
-
-
+                                @if($booking->cancelled == "0")
+                                    <p class="mt-2"><img class="me-3" src="/assets/img/icons/cancel.png" />
+                                        <a href="{{ route('booking.cancel', $booking->id) }}">Cancel Booking</a>
+                                    </p>
+                                @endif
                             </div>
                         </div>
 

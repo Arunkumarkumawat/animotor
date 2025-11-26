@@ -14,20 +14,6 @@ class BookingController extends Controller
 {
     public function index()
     {
-
-//        if($status == 'pending'){
-//            $data = Booking::where('completed', false)->where('cancelled',false)->paginate(100);
-//        } elseif($status == 'completed'){
-//            $data = Booking::where('completed', true)->paginate(100);
-//        }elseif($status == 'cancelled'){
-//            $data = Booking::where('cancelled', true)->paginate(100);
-//        }else{
-//
-//            $title = "All bookings requests";
-//
-//            $data = Booking::paginate(100);
-//        }
-
         return view('admin.bookings.list');
     }
 
@@ -38,7 +24,6 @@ class BookingController extends Controller
 
     public function updateStatus(Request $request)
     {
-
         $id = $request->input('id');
         $notify = $request->input('notify_customer') == 'yes';
         $booking = Booking::findOrFail($id);
@@ -56,7 +41,6 @@ class BookingController extends Controller
             $booking->save();
 
             if($notify){
-//            return $booking->customer;
                 if($booking->customer){
                     $user = $booking->customer;
 
@@ -88,7 +72,6 @@ class BookingController extends Controller
             ]);
 
             if($notify){
-//            return $booking->customer;
                 if($booking->customer){
                     $user = $booking->customer;
 
@@ -114,7 +97,6 @@ class BookingController extends Controller
         $booking->save();
 
         if($notify){
-//            return $booking->customer;
             if($booking->customer){
                 $user = $booking->customer;
 

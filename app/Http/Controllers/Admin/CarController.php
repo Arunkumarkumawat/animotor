@@ -108,7 +108,7 @@ class CarController extends Controller
     public function create(){
         $car_makes = VehicleMake::all();
         $car_types = VehicleType::all();
-        $regions = Region::withoutAirport()->select('id','name')->get();
+        $regions = Region::select('id','name')->get();
         $car_models = [];
         return view('admin.cars.create', compact('regions','car_types','car_models','car_makes'));
     }

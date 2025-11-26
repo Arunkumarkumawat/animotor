@@ -2,13 +2,16 @@
 
 namespace App\Livewire;
 
-use App\Models\Booking;
 use App\Models\Car;
-use App\Models\Country;
 use App\Models\Role;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Booking;
+use App\Models\Country;
 use Livewire\Component;
+use App\Mail\EmailOtpMail;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 class Checkout extends Component
 {
@@ -28,6 +31,7 @@ class Checkout extends Component
     
     public $email;
     public $password;
+    public $otp;
     public $booking_type;
 
     public $countries;
@@ -53,7 +57,7 @@ class Checkout extends Component
             'country' => 'required',
             'city' => 'required',
             'zipcode' => 'required',
-            'phone' => 'required|unique:users,phone,'.$this->id,
+            'phone' => 'required',
             'billing.first_name' => 'required',
             'billing.last_name' => 'required',
             'billing.address' => 'required',
@@ -66,29 +70,51 @@ class Checkout extends Component
         if(!auth()->check()){
             $this->validate([
                 'password' => 'required',
-                'email' => 'required|unique:users',
-                'phone' => 'required|unique:users',
+                'email' => 'required',
+                'phone' => 'required',
             ]);
 
-            $validated['password'] = $this->password;
-            $validated['email'] = $this->email;
+            $user = User::where('email', $this->email)->first();
 
-            $user = User::create([
-                'first_name' => $validated['first_name'],
-                'last_name' => $validated['last_name'],
-                'address' => $validated['address'],
-                'country' => $validated['country'],
-                'city' => $validated['city'],
-                'phone' => $validated['phone'],
-                'email' => $validated['email'],
-                'password' => $validated['password'],
-            ]);
-            $role = Role::where('name', 'rider')->first();
-            $user->addRole($role);
+            if($user){
+                if(session()->has('verify_otp')){
+                    if(session()->get('verify_otp') != $user->email_otp){
+                        $this->js("NioApp.Toast('Invalid OTP', 'error', { position: 'top-right' });");
+                    } else {
+                        $user->email_otp = null;
+                        $user->email_otp_expires_at = null;
+                        $user->email_verified_at = now();
+                        $user->save();
+                        session()->forget('verify_otp');
 
-            Auth::login($user);
+                        Auth::login($user);
+
+                        $this->js("NioApp.Toast('User successfully logged in', 'success', { position: 'top-right' });");
+                    }
+                } else {
+                    $this->sendOtp($user);
+                    return;
+                }
+            } else {
+                $user = User::create([
+                    'first_name' => $validated['first_name'],
+                    'last_name' => $validated['last_name'],
+                    'address' => $validated['address'],
+                    'country' => $validated['country'],
+                    'city' => $validated['city'],
+                    'phone' => $validated['phone'],
+                    'email' => $this->email,
+                    'password' => Hash::make($this->password),
+                ]);
+
+                $role = Role::where('name', 'rider')->first();
+                $user->addRole($role);
+                $this->sendOtp($user);
+                return;
+            }            
         } else {
             $user = auth()->user();
+
             $user->update([
                 'first_name' => $validated['first_name'],
                 'last_name' => $validated['last_name'],
@@ -120,7 +146,7 @@ class Checkout extends Component
         }
 
         $total0 = $price * $booking_day / $days_count;
-        $tax = 0;//$total0 * settings('tax',0.075);
+        $tax = 0;
         $total = $total0 + $tax;
 
         $extras = [];
@@ -135,7 +161,7 @@ class Checkout extends Component
                 $extra_fee0 = $this->car->extras[$index]['price'] * $extra * $booking_day * $days_count / 7;
             }elseif($this->car->extras[$index]['interval'] == 'monthly'){
                 $extra_fee0 = $this->car->extras[$index]['price'] * $extra * $booking_day * $days_count / 30;
-            } else {
+            }else{
                 $extra_fee0 = $this->car->extras[$index]['price'] * $extra;
             }
 
@@ -149,6 +175,7 @@ class Checkout extends Component
                 'paid' => $extra_fee0,
             ];
         }
+        
         $total += $extra_fee;
         
         $insurance_fee = 0;
@@ -207,7 +234,19 @@ class Checkout extends Component
         return redirect()->route('booking_successful', ['id' => $booking->id])->with('success','Booking successfully submitted, please proceed to payment');
     }
 
+    public function sendOtp($user){
+        $user->email_otp = rand(100000, 999999);
+        $user->email_otp_expires_at = now()->addMinutes(10);
+        $user->save();
+
+        session()->put('verify_otp', $user->email_otp);
+        Mail::to($this->email)->send(new EmailOtpMail($user->email_otp));
+        $this->js("NioApp.Toast('OTP sent successfully', 'success', { position: 'top-right' });");
+    }
+    
     public function mount(){
+        session()->forget('verify_otp');
+
         if(auth()->check()){
             $user = auth()->user();
             $this->fill([
@@ -245,5 +284,13 @@ class Checkout extends Component
         }
 
         return view('livewire.checkout', compact('user'));
+    }
+
+    public function updateCountryValue($value){
+        $this->country = $value;
+    }
+
+    public function updateBillingCountryValue($value){
+        $this->billing['country'] = $value;
     }
 }

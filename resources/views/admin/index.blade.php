@@ -13,7 +13,7 @@
                                 <h3 class="nk-block-title page-title">Hi, {{ auth()->user()->name }}</h3>
                                 <div class="nk-block-des text-soft">
                                     <p>Welcome to
-                                        {{ isOwner() ? auth()->user()->company->name : settings('site_name', env('APP_NAME')) }} dashboard
+                                        {{ isOwner() ? auth()->user()->company->name : settings('site_name', env('APP_NAME')) }} dashboard  <span class="text-danger {{ isOwner() && auth()->user()->onboarding_status !='approved' ? '' : 'd-none'}}"> <I> Your account is under review.</I></span> <a href="{{ url('admin/company-profile') }}" class="text-primary link {{ isOwner() && auth()->user()->onboarding_status !='approved' ? '' : 'd-none'}}">Account details</a>
                                     </p>
                                 </div>
                             </div><!-- .nk-block-head-content -->
@@ -58,8 +58,8 @@
                     </div>
 
 
-                    <div class="nk-block">
-                        <div class="row g-gs">
+                    <div class="nk-block ">
+                        <div class="row g-gs {{ isOwner() && auth()->user()->onboarding_status !='approved' ? 'd-none' : ''}}">
                             <div class="col">
                                 <div class="card card-bordered card-full">
                                     <div class="card-inner-group">
@@ -152,7 +152,7 @@
 
                         </div><!-- .row -->
 
-                        <div class="row g-gs mt-4">
+                        <div class="row g-gs mt-4 {{ isOwner() && auth()->user()->onboarding_status !='approved' ? 'd-none' : ''}}">
                             @if(hasTrips())
                             <div class="col">
                                 <div class="card card-bordered card-full">

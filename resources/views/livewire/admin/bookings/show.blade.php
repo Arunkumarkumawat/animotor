@@ -15,17 +15,36 @@
                         <p class="text-success"><strong>{{ __('admin.booking_confirmed') }}</strong></p>
                         <p class="text-success"><strong>{{ __('admin.confirmation_no') }} :
                                 {{ $booking->confirmation_no }}</strong></p>
+                    @elseif ($booking->cancelled == '1')
+                        <p class="text-danger"><strong>{{ __('admin.cancellation_requested') }}</strong></p>
+                    @elseif ($booking->cancelled == '2')
+                        <p class="text-danger"><strong>{{ __('admin.cancellation_confirmed') }}</strong></p>
+                    @elseif ($booking->cancelled == '3')
+                        <p class="text-danger"><strong>{{ __('admin.cancellation_denied') }}</strong></p>
                     @else
                         <p class="text-danger">{{ __('admin.booking_not_confirmed_please_confirm_booking') }}</p>
                     @endif
                 </div>
             </div>
             <div class="nk-block-head-content">
-                @if (!$booking->is_confirmed)
+                @if ($booking->cancelled == '1')
+                <div class="dropdown">
+                    <button class="btn btn-outline-light bg-white dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        Take Action
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <li><a href="#" class="dropdown-item" wire:click="acceptCancellation">Accept Cancellation</a></li>
+                        <li><a href="#" class="dropdown-item" wire:click="denyCancellation">Deny Cancellation</a></li>
+                    </ul>
+                </div> 
+                @elseif($booking->cancelled == 2)
+                    <button class="btn btn-success">Booking Cancelled</button>
+                @elseif($booking->cancelled == 3)
+                    <button class="btn btn-danger">Booking Cancellation Denied</button>
+                @elseif (!$booking->is_confirmed)
                     <a data-bs-toggle="modal" href="#{{ 'delete_' . $booking->id }}" class="btn btn-danger">Confirm
                         Booking</a>
-                @endif
-                @if ($booking->is_confirmed)
+                @else
                     <button class="btn btn-success">Booking Confirmed</button>
                 @endif
                 <a wire:navigate
@@ -36,9 +55,6 @@
                     href="{{ request()->has('back_url') ? request()->get('back_url') : route('admin.bookings.index') }}"
                     class="btn btn-icon btn-outline-light bg-white d-inline-flex d-sm-none"><em
                         class="icon ni ni-arrow-left"></em></a>
-
-
-
             </div>
         </div>
     </div><!-- .nk-block-head -->

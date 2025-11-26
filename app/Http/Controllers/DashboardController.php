@@ -11,6 +11,9 @@ use Illuminate\Http\Request;
 class DashboardController extends Controller
 {
     public function dashboard(){
+        if(isOwner() || isAdmin()){
+            return redirect('/admin/dashboard');
+        }
         $user_id = auth()->id();
 
         $commonConditions = function ($query) use ($user_id) {

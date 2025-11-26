@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -20,6 +21,9 @@
     <link rel="stylesheet" href="/vendor/sweetalert/sweetalert.css">
 
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" />
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+
     @yield('style')
 
     <style>
@@ -27,13 +31,15 @@
             /*height: 40px;*/
             width: 100%;
         }
+
         /*#e7323c*/
 
         .cmn__btn:hover {
-            background-color: #6a1d1d!important;
+            background-color: #6a1d1d !important;
         }
+
         .outline__btn:hover {
-            background-color: #6a1d1d!important;
+            background-color: #6a1d1d !important;
         }
 
         .cmn__btn::before {
@@ -43,12 +49,14 @@
             left: 50%;
             background: #a31313;
         }
+
         .password-toggle {
             position: relative;
         }
 
         .password-toggle input[type="password"] {
-            padding-right: 30px; /* Make room for the toggle button */
+            padding-right: 30px;
+            /* Make room for the toggle button */
         }
 
         .password-toggle .toggle-btn {
@@ -57,6 +65,30 @@
             right: 10px;
             transform: translateY(-50%);
             cursor: pointer;
+        }
+
+        /* Make Select2 match form-control height and styling */
+        .select2-container .select2-selection--single {
+            height: 38px !important;
+            padding: 6px 12px;
+            border: 1px solid #ced4da !important;
+            border-radius: 4px !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 28px !important;
+            font-size: 14px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 36px !important;
+            right: 8px !important;
+        }
+
+        .select2-container--default .select2-selection--single:focus,
+        .select2-container--default .select2-selection--single:active {
+            border-color: #86b7fe !important;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, .25);
         }
     </style>
 
@@ -67,77 +99,78 @@
 
 <body>
 
-{{--@include('partials.loader')--}}
+    {{-- @include('partials.loader') --}}
 
 
-@yield('content')
+    @yield('content')
 
 
-@if(!request()->has('app'))
-    @include('frontpage.partials.layout.footer')
-@endif
+    @if (!request()->has('app'))
+        @include('frontpage.partials.layout.footer')
+    @endif
 
 
-<script src="{{ asset('/assets/js/jquery-3.6.0.min.js') }}"></script>
+    <script src="{{ asset('/assets/js/jquery-3.6.0.min.js') }}"></script>
 
-<script src="{{ asset('/assets/js/bootstrap.bundle.min.js') }}"></script>
-<!--Viewport Jquery Js-->
-<script src="{{ asset('/assets/js/viewport.jquery.js') }}"></script>
-<!--Odometer min Js-->
-<script src="{{ asset('/assets/js/odometer.min.js') }}"></script>
-<!--date picker Js-->
-<script src="{{ asset('/assets/js/bootstrap-datepicker.js') }}"></script>
-<!--Magnifiw Popup Js-->
-<script src="{{ asset('/assets/js/jquery.magnific-popup.min.js') }}"></script>
-<!--nice select Js-->
-{{--<script src="{{ asset('/assets/js/jquery.nice-select.min.js') }}"></script>--}}
-<!--Wow min Js-->
-<script src="{{ asset('/assets/js/wow.min.js') }}"></script>
-<!--Owl carousel min Js-->
-<script src="{{ asset('/assets/js/owl.carousel.min.js') }}"></script>
-<!--Prijm Js-->
-<script src="{{ asset('/assets/js/prism.js') }}"></script>
-<!--main Js-->
-<script src="{{ asset('/assets/js/main.js') }}"></script>
+    <script src="{{ asset('/assets/js/bootstrap.bundle.min.js') }}"></script>
+    <!--Viewport Jquery Js-->
+    <script src="{{ asset('/assets/js/viewport.jquery.js') }}"></script>
+    <!--Odometer min Js-->
+    <script src="{{ asset('/assets/js/odometer.min.js') }}"></script>
+    <!--date picker Js-->
+    <script src="{{ asset('/assets/js/bootstrap-datepicker.js') }}"></script>
+    <!--Magnifiw Popup Js-->
+    <script src="{{ asset('/assets/js/jquery.magnific-popup.min.js') }}"></script>
+    <!--nice select Js-->
+    {{-- <script src="{{ asset('/assets/js/jquery.nice-select.min.js') }}"></script> --}}
+    <!--Wow min Js-->
+    <script src="{{ asset('/assets/js/wow.min.js') }}"></script>
+    <!--Owl carousel min Js-->
+    <script src="{{ asset('/assets/js/owl.carousel.min.js') }}"></script>
+    <!--Prijm Js-->
+    <script src="{{ asset('/assets/js/prism.js') }}"></script>
+    <!--main Js-->
+    <script src="{{ asset('/assets/js/main.js') }}"></script>
 
-<script src="/vendor/sweetalert/sweetalert.min.js"></script>
-
-
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyACF6bkjbHGX_apTFV60dxGQh98DGKyNhg&libraries=places"></script>
+    <script src="/vendor/sweetalert/sweetalert.min.js"></script>
 
 
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyACF6bkjbHGX_apTFV60dxGQh98DGKyNhg&libraries=places">
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
 
-@livewireScripts
+
+    @livewireScripts
 
 
-@include('partials.alerts')
+    @include('partials.alerts')
 
 
-<script>
-    // document.addEventListener('livewire:navigated', function () {
-    //     setTimeout(function(){
-    //         $('.preloader__wrap').fadeOut();
-    //     }, 1000);
-    // });
+    <script>
+        // document.addEventListener('livewire:navigated', function () {
+        //     setTimeout(function(){
+        //         $('.preloader__wrap').fadeOut();
+        //     }, 1000);
+        // });
+    </script>
 
-</script>
 
+    <script>
+        const togglePassword = document.querySelector('#togglePassword');
+        const passwordInput = document.querySelector('#password');
 
-<script>
-    const togglePassword = document.querySelector('#togglePassword');
-    const passwordInput = document.querySelector('#password');
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
 
-    togglePassword.addEventListener('click', function () {
-        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-        passwordInput.setAttribute('type', type);
-
-        // Toggle eye icon
-        const eyeIcon = this.querySelector('i');
-        eyeIcon.classList.toggle('fa-eye');
-        eyeIcon.classList.toggle('fa-eye-slash');
-    });
-</script>
+            // Toggle eye icon
+            const eyeIcon = this.querySelector('i');
+            eyeIcon.classList.toggle('fa-eye');
+            eyeIcon.classList.toggle('fa-eye-slash');
+        });
+    </script>
 </body>
 
 </html>

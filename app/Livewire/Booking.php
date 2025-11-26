@@ -22,7 +22,7 @@ class Booking extends Component
     public $booking_day;
     public bool $aged;
     public string $age;
-
+    public bool $diff_location = false;
 
 
 
@@ -86,7 +86,7 @@ class Booking extends Component
 
         if (!empty($this->search)) {
 
-            $this->records = Region::withoutAirport()->orderby('name', 'asc')
+            $this->records = Region::orderby('name', 'asc')
                 ->select('*')
                 ->where('name', 'like', '%' . $this->search . '%')
                 ->limit(5)
@@ -120,46 +120,95 @@ class Booking extends Component
 
     public function fetchLocations($type)
     {
-        $response = Http::get('https://maps.googleapis.com/maps/api/place/autocomplete/json', [
-            'input' => $type == 'pick_up' ? $this->pick_up_location : $this->drop_off_location,
-            'components' => 'country:gb',
-            'key' => env('GOOGLE_MAPS_API_KEY'),
-        ]);
+        $locks = [];
+        if ($type == 'pick_up') {
+            $mergedRegions = [];
 
-        if ($response->successful() && env('GOOGLE_MAPS_API_KEY')) {
-            $filtered_predictions = $response->json()['predictions'];
+            $regions = Region::orderby('name', 'asc')
+                ->where('name', 'like', '%' . $this->pick_up_location . '%')
+                ->with('regions')
+                ->limit(5)
+                ->get();
 
-            if ($type == 'pick_up') {
-                $this->pickup_locations = $filtered_predictions;
-            } else {
-                $this->drop_off_locations = $filtered_predictions;
+            foreach($regions as $region){
+                if(!in_array($region->id, $locks)){
+                    $mergedRegions[] = [
+                        'place_id' => $region->id,
+                        'description' => $region->name,
+                        'type' => $region->type,
+                    ];
+
+                    $locks[] = $region->id;
+                }
+
+                foreach($region->regions as $subregion){
+                    if(!in_array($subregion->id, $locks)){
+                        $mergedRegions[] = [
+                            'place_id' => $subregion->id,
+                            'description' => $subregion->name,
+                            'type' => $subregion->type,
+                        ];
+
+                        $locks[] = $subregion->id;
+                    }
+                }
             }
+
+            $this->pickup_locations = $mergedRegions;
         } else {
-            if ($type == 'pick_up') {
-                $this->pickup_locations = Region::withoutAirport()->orderby('name', 'asc')
-                    ->selectRaw('id AS place_id, name AS description')
-                    ->where('name', 'like', '%' . $this->pick_up_location . '%')
-                    ->limit(5)
-                    ->get();
-            } else {
-                $this->drop_off_locations = Region::withoutAirport()->orderby('name', 'asc')
-                    ->selectRaw('id AS place_id, name AS description')
-                    ->where('name', 'like', '%' . $this->drop_off_location . '%')
-                    ->limit(5)
-                    ->get();
+            $mergedRegions = [];
+
+            $regions = Region::orderby('name', 'asc')
+                ->where('name', 'like', '%' . $this->drop_off_location . '%')
+                ->with('regions')
+                ->limit(5)
+                ->get();
+
+            foreach($regions as $region){
+                if(!in_array($region->id, $locks)){
+                    $mergedRegions[] = [
+                        'place_id' => $region->id,
+                        'description' => $region->name,
+                        'type' => $region->type,
+                    ];
+
+                    $locks[] = $region->id;
+                }
+
+                foreach($region->regions as $subregion){
+                    if(!in_array($subregion->id, $locks)){
+                        $mergedRegions[] = [
+                            'place_id' => $subregion->id,
+                            'description' => $subregion->name,
+                            'type' => $subregion->type,
+                        ];
+
+                        $locks[] = $subregion->id;
+                    }
+                }
             }
+
+            $this->drop_off_locations = $mergedRegions;
         }
     }
 
     public function selectLocation($place_id, $place, $type)
     {
-        if ($type == 'drop_off') {
+        if($this->diff_location){
+            if ($type == 'drop_off') {
+                $this->drop_off_location = $place;
+                $this->drop_off_locations = [];
+            } else {
+                $this->pick_up_location = $place;
+                $this->pickup_locations = [];
+            }
+        } else {
             $this->drop_off_location = $place;
             $this->drop_off_locations = [];
-        } else {
             $this->pick_up_location = $place;
             $this->pickup_locations = [];
         }
+        
         $this->fetchPlaceDetails($place_id, $type);
     }
 
@@ -187,7 +236,7 @@ class Booking extends Component
                 }
             }
 
-            $region = Region::withoutAirport()->orderby('name', 'asc')
+            $region = Region::orderby('name', 'asc')
                 ->where('name', 'like', '%' . $this->city . '%')
                 ->orWhere('cities', 'like', '%' . $this->city . '%')
                 ->first();
@@ -260,6 +309,10 @@ class Booking extends Component
     
     public function updateAged($val){
         $this->aged = $val;
+    }
+
+    public function updateDiffLocation($val){
+        $this->diff_location = $val;
     }
 
     public function render()

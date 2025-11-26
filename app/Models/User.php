@@ -17,18 +17,16 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Support\Collection;
 use Laratrust\Contracts\LaratrustUser;
 
 use Laratrust\Traits\HasRolesAndPermissions;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable implements LaratrustUser, Wallet
+class User extends Authenticatable implements LaratrustUser, Wallet, MustVerifyEmail
 {
-
     use HasRolesAndPermissions, HasWallet, HasApiTokens, HasFactory, Notifiable, SoftDeletes, HasUuids, FillableTraits;
-
 
     protected $fillable = [];
 

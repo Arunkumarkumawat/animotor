@@ -2,28 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Booking;
 use App\Models\Car;
 use App\Models\Page;
 use App\Models\User;
-use App\Services\PaymentService;
-use App\Services\WalletService;
+use App\Models\Booking;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Carbon;
+use App\Services\WalletService;
+use App\Services\PaymentService;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Cache;
 use Laravel\Sanctum\PersonalAccessToken;
 
 class FrontPageController extends Controller
 {
-
-
-//    public function __construct()
-//    {
-////        if (env('disable_front', false)) {
-//            return redirect('/admin/dashboard');
-////        }
-//    }
-
     public function sendQuote(Request $request)
     {
         $request->validate([
@@ -155,8 +148,42 @@ class FrontPageController extends Controller
 
     public function voucher($id){
         $booking = Booking::findOrFail($id);
-
         return view('frontpage.booking_voucher', compact('booking'));
+    }
+
+    public function cancelBooking(Request $request, $id){
+        $booking = Booking::findOrFail($id);
+
+        if($booking->car->free_cancellation){
+            $diffNeeded = 24;
+        } else {
+            $diffNeeded = $booking->car->cancellation_policy;
+        }
+
+        $diff = Carbon::parse($booking->pick_up_date . ' ' . $booking->pick_up_time . ':00')->diffInHours(now());
+        $fullRefund = $diff > $diffNeeded;
+
+        if($booking->car->cancellation_policy == 0){
+            $fullRefund = false;
+        }
+
+        if(!$booking->cancelled && $request->isMethod('post') && $fullRefund){
+            $booking->cancelled = 1;
+            $booking->cancelled_by = 'customer';
+            $booking->cancellation_reason = $request->input('cancel_comment', $request->input('cancel_reason'));
+            $booking->save();
+
+            $notificationService = new NotificationService();
+
+            $admins = User::role('admin')->get();
+            foreach($admins as $admin){
+                $notificationService->notify('A Booking Cancellation Requested for booking ('.$booking->reference.')','notification','Booking Cancellation Requested', $admin);
+            }
+
+            return redirect()->back()->with('success','Booking cancelled successfully');
+        }
+
+        return view('frontpage.booking_cancel', compact('booking'));
     }
 
     public function builder2(){

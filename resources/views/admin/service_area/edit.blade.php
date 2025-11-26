@@ -43,20 +43,22 @@
                                                     </div>
                                                 @endif
 
-
                                                 <div class="row gy-4">
 
-                                                    @include('admin.partials.form.text', ['attributes' => 'required', 'colSize' => 'col-md-4', 'value' => $region->name, 'fieldName' => 'name','title' => 'Name'])
-{{--                                                    @include('admin.partials.form.text', ['attributes' => 'required', 'colSize' => 'col-md-4', 'value' => $region->timezone,  'fieldName' => 'timezone','title' => 'Timezone'])--}}
+                                                    @include('admin.partials.form.text', ['attributes' => 'required', 'colSize' => 'col-md-6', 'value' => $region->name, 'fieldName' => 'name','title' => 'Name'])
+{{--                                                    @include('admin.partials.form.text', ['attributes' => 'required', 'colSize' => 'col-md-6', 'value' => $region->timezone,  'fieldName' => 'timezone','title' => 'Timezone'])--}}
 
                                                     @if($region->type == 'region')
-                                                        @include('admin.partials.form.select_array', ['attributes' => 'required', 'key' => true ,'colSize' => 'col-md-4', 'fieldName' => 'timezone', 'value' => $region->timezone, 'title' => 'Timezone','options' => $timezones])
-                                                        @include('admin.partials.form.text', ['attributes' => 'required', 'colSize' => 'col-md-4', 'value' => $region->currency_symbol, 'fieldName' => 'currency_symbol','title' => 'Currency Symbol'])
-                                                        @include('admin.partials.form.text', ['attributes' => 'required', 'colSize' => 'col-md-4', 'value' => $region->currency_code,  'fieldName' => 'currency_code','title' => 'Currency code'])
+                                                        @include('admin.partials.form.select_array', ['attributes' => 'required', 'key' => true ,'colSize' => 'col-md-6', 'fieldName' => 'timezone', 'value' => $region->timezone, 'title' => 'Timezone','options' => $timezones])
+                                                        @include('admin.partials.form.text', ['attributes' => 'required', 'colSize' => 'col-md-6', 'value' => $region->currency_symbol, 'fieldName' => 'currency_symbol','title' => 'Currency Symbol'])
+                                                        @include('admin.partials.form.text', ['attributes' => 'required', 'colSize' => 'col-md-6', 'value' => $region->currency_code,  'fieldName' => 'currency_code','title' => 'Currency code'])
 
-                                                        @include('admin.partials.form.select_w_object', ['attributes' => 'required' ,'colSize' => 'col-md-4', 'fieldName' => 'country_id', 'value' => $region->country_id, 'title' => 'Country','options' => $countries])
+                                                        @include('admin.partials.form.text', ['attributes' => 'required' ,'colSize' => 'col-md-6', 'fieldName' => 'country', 'title' => 'Country', 'value' => $region->country])
+                                                        @include('admin.partials.form.text', ['attributes' => 'required' ,'colSize' => 'col-md-6', 'fieldName' => 'state', 'title' => 'State', 'value' => $region->state])
+                                                        @include('admin.partials.form.text', ['attributes' => 'required' ,'colSize' => 'col-md-6', 'fieldName' => 'city', 'title' => 'City', 'value' => $region->city])
+                                                        @include('admin.partials.form.text', ['attributes' => 'required' ,'colSize' => 'col-md-6', 'fieldName' => 'area', 'title' => 'Area', 'value' => $region->area])
 
-                                                        @include('admin.partials.form.select_w_object', ['colSize' => 'col-md-4', 'fieldName' => 'parent_id', 'value' => $region->parent_id, 'title' => 'Region','options' => $regions])
+                                                        @include('admin.partials.form.select_w_object', ['colSize' => 'col-md-4', 'fieldName' => 'parent_id', 'value' => $region->parent_id, 'title' => 'Parent Region','options' => $regions])
                                                         @include('admin.partials.image-upload',['field' => 'image', 'colSize' => 'col-md-12','image' => $region->image, 'id' => 'image','title' => 'Image'])
 
                                                     @endif
@@ -331,6 +333,33 @@
                         bounds.union(place.geometry.viewport);
                     } else {
                         bounds.extend(place.geometry.location);
+                    }
+
+                    $('#country, #state, #city, #area').val('');
+                    
+                    for(var addressItem of place.address_components)
+                    {
+                        if(addressItem.types.includes('country'))
+                        {
+                            $('#country').val(addressItem.long_name);
+                        }
+                        
+                        if(addressItem.types.includes('administrative_area_level_1'))
+                        {
+                            $('#state').val(addressItem.long_name);
+                        }
+                        
+                        if(addressItem.types.includes('administrative_area_level_3'))
+                        {
+                            $('#city').val(addressItem.long_name);
+                        } else if(addressItem.types.includes('administrative_area_level_2')){
+                            $('#city').val(addressItem.long_name);
+                        }
+                        
+                        if(addressItem.types.includes('locality'))
+                        {
+                            $('#area').val(addressItem.long_name);
+                        }
                     }
                 });
                 map.fitBounds(bounds);

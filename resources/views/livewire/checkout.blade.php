@@ -152,10 +152,11 @@
                         <div class="error"><span class="text-danger">{{ $message }}</span></div>
                     @enderror
                 </div>
-                <div class="col-xl-6 col-lg-6 col-md-6">
+                <div class="col-xl-6 col-lg-6 col-md-6" wire:ignore>
                     <div class="input__grp">
                         <label>Country</label>
-                        <select wire:model="country" class="form-control form-control-lg">
+                        <select onchange="@this.call('updateCountryValue', this.value)" class="form-control form-control-lg" id="country" data-search="on">
+                            <option value="">Select Country</option>
                             @foreach ($countries as $item)
                                 <option value="{{ $item->name }}">{{ $item->name }}</option>
                             @endforeach
@@ -235,10 +236,11 @@
                         <div class="error"><span class="text-danger">{{ $message }}</span></div>
                     @enderror
                 </div>
-                <div class="col-xl-6 col-lg-6 col-md-6">
+                <div class="col-xl-6 col-lg-6 col-md-6" wire:ignore>
                     <div class="input__grp">
                         <label>Country</label>
-                        <select wire:model="billing.country" class="form-control form-control-lg">
+                        <select onchange="@this.call('updateBillingCountryValue', this.value)" class="form-control form-control-lg" id="billing_country" data-search="on" >
+                            <option value="">Select Country</option>
                             @foreach ($countries as $item)
                                 <option value="{{ $item->name }}">{{ $item->name }}</option>
                             @endforeach
@@ -291,7 +293,25 @@
                 </div>
             </div>
 
-            @guest()
+            @guest
+                @if(session()->has('verify_otp') && $this->email && $this->password)
+                <div class="row mt-5">
+                    <div class="col-12 mb-3">
+                        <p class="text-heading">Enter OTP</p>
+                        <p>enter OTP sent to your email</p>
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6">
+                        <div class="input__grp">
+                            <label for="otp">OTP</label>
+                            <input class="form-control form-control-lg" wire:model="otp" type="text" id="otp"
+                                placeholder="Enter OTP">
+                        </div>
+                        @error('otp')
+                            <div class="error"><span class="text-danger">{{ $message }}</span></div>
+                        @enderror
+                    </div>
+                </div>
+                @else
                 <div class="row mt-5">
                     <div class="col-12 mb-3">
                         <p class="text-heading">Create an account</p>
@@ -318,6 +338,7 @@
                         @enderror
                     </div>
                 </div>
+                @endif
             @endguest
 
             <div class="row">
@@ -357,7 +378,6 @@
                 </div>
             </div>
 
-
             <div class="justify-content-end d-flex mt-3">
                 <button type="submit" class="cmn__btn">
                     <span>
@@ -365,7 +385,6 @@
                     </span>
                 </button>
             </div>
-
         </form>
     </div>
 

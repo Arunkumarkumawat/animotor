@@ -12,25 +12,23 @@ use MatanYadaev\EloquentSpatial\Traits\HasSpatial;
 class Region extends Model
 {
     use HasFactory;
-    use HasUuids;
     use HasSpatial;
-
+    use HasUuids;
 
     protected $fillable = [
         'name',
+        'type',
+        'is_active',
         'currency_code',
         'currency_symbol',
+        'country',
+        'state',
+        'city',
+        'area',
         'timezone',
-        'is_active',
-        'parent_id',
-        'country_id',
         'coordinates',
-        'image',
-
-        'type',
-        'airport_amount',
-        'airport_fee_type',
-        'airport_fee_mode',
+        'parent_id',
+        'image',        
     ];
 
     protected $casts = [
@@ -38,23 +36,9 @@ class Region extends Model
         'coordinates' => Polygon::class,
     ];
 
-    public function scopeWithoutAirport($query, $type = 'region')
+    public function regions()
     {
-        return $query->where('type', $type);
-    }
-    public function scopeWithAirport($query, $type = 'airport')
-    {
-        return $query->where('type', $type);
-    }
-
-    protected $with = ['country'];
-
-    public function regions(){
-        return $this->hasMany(Region::class, 'parent_id')->where('type', 'region');
-    }
-
-    public function airports(){
-        return $this->hasMany(Region::class, 'parent_id')->where('type', 'airport');
+        return $this->hasMany(Region::class, 'parent_id');
     }
 
     public function parent()
@@ -72,13 +56,11 @@ class Region extends Model
         return $this->hasMany(Booking::class);
     }
 
-    public function scopeContains($query,$abc){
+    public function scopeContains($query, $abc)
+    {
         return $query->whereRaw("ST_Distance_Sphere(coordinates, POINT({$abc}))");
     }
 
-    public function country(){
-        return $this->belongsTo(Country::class, 'country_id');
-    }
     public function scopeByParentId($query, $regionId)
     {
         return $query->where('parent_id', $regionId);
@@ -89,18 +71,12 @@ class Region extends Model
         return $query->where('is_active', '=', true);
     }
 
-
     public function getImageAttribute($value): string
     {
-        if(!$value) {
+        if (! $value) {
             return asset('default/404.png');
         }
+
         return $value;
     }
-
-    public function scopeByCountryId($query, $countryId)
-    {
-        return $query->where('country_id', $countryId);
-    }
-
 }

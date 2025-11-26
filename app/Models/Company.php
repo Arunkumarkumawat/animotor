@@ -27,6 +27,19 @@ class Company extends Model
         'contact_phone',
         'contact_email',
         'logo',
+        'trading_name',
+        'registration_no',
+        'incorporation_date',
+        'company_type',
+        'business_email',
+        'timezone',
+        'operating_license',
+        'finance_contact_name',
+        'finance_contact_email',
+        'finance_contact_phone',
+        'support_contact_name',
+        'support_contact_email',
+        'support_contact_phone',
     ];
 
     public function getLogoAttribute($value): string
@@ -55,5 +68,26 @@ class Company extends Model
     public function user(): HasOne
     {
         return $this->hasOne(User::class, 'company_id');
+    }
+
+    public function users()
+    {
+        return $this->hasMany(User::class, 'company_id');
+    }
+
+     /**
+     * Get the branches for the company.
+     */
+    public function branches(): HasMany
+    {
+        return $this->hasMany(CompanyBranch::class);
+    }
+
+    /**
+     * Get the finance info for the company.
+     */
+    public function financeInfo(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(CompanyFinanceInfo::class);
     }
 }

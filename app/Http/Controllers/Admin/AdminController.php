@@ -29,6 +29,7 @@ class AdminController extends Controller
 {
     public function dashboard()
     {
+        
         $statisticsService = new StatisticsService();
         $tripsStatistics = $statisticsService->getTripsStatistics();
         $bookingsStatistics = $statisticsService->getBookingsStatistics();
@@ -47,6 +48,17 @@ class AdminController extends Controller
 
 
         } else {
+            if (auth()->user()->hasRole('owner')) {
+                if (auth()->user()->onboarding_step != '7') {
+                    $countries = Country::where('is_active', true)->get();
+                    $user = auth()->user();
+                    $company = $user->company;
+                    $branches = $company ? $company->branches : collect([]);
+                    $financeInfo = $company ? $company->financeInfo : null;
+                    $chauffeurs = $company ? User::where('company_id', $company->id)->whereHasRole('driver')->get() : collect([]);
+                    return view('admin.onboarding', compact('countries', 'company', 'branches', 'financeInfo', 'chauffeurs'));
+                }
+            }
             $users = User::where('company_id', companyId())->whereHasRole(['user', 'customer'])->latest()->paginate(10);
 
             $riders_count = User::where('company_id', companyId())->whereHasRole(['rider'])->count();

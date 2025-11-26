@@ -1,13 +1,17 @@
 <?php
 
+use App\Models\User;
+use App\Models\Booking;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FrontPageController;
-use App\Http\Controllers\Payment\FlutterwavePaymentController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Payment\StripeController;
 use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\Payment\PaystackPaymentController;
-use App\Http\Controllers\Payment\StripeController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\CompanyRegistrationController;
+use App\Http\Controllers\Payment\FlutterwavePaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,7 +24,18 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('test-email', function () {
+    return view('front_page.booking_voucher', [
+        'booking' => Booking::latest()->first()
+    ]);
+})->name('test-email');
+
 Auth::routes();
+Route::match(['get', 'post'], '/register/verify', [RegisterController::class, 'verify'])->name('register.verify');
+Route::post('/register/resend', [RegisterController::class, 'resend'])->name('register.resend');
+
+Route::get('/company-signup', [CompanyRegistrationController::class, 'signup'])->name('company.signup');
+Route::post('/company-signup', [CompanyRegistrationController::class, 'store'])->name('company.store');
 
 Route::group(['middleware' => ['auto_login']], function () {
     Route::get('/', [FrontPageController::class, 'home']);
@@ -51,6 +66,7 @@ Route::group(['middleware' => ['auto_login_required']], function () {
         Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
         Route::get('/bookings', [DashboardController::class, 'bookings'])->name('bookings');
         Route::get('/booking/view/{id}', [DashboardController::class, 'bookingView'])->name('booking.view');
+        Route::match(['get', 'post'], '/booking/cancel/{id}', [FrontPageController::class, 'cancelBooking'])->name('booking.cancel');
         Route::get('/return', [DashboardController::class, 'return'])->name('return');
         Route::get('/profile', [DashboardController::class, 'profile'])->name('profile');
         Route::get('/edit/profile', [DashboardController::class, 'editProfile'])->name('edit.profile');

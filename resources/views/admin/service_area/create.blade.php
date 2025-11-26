@@ -10,16 +10,20 @@
                         <div class="nk-block nk-block-lg">
                             <div class="nk-block-between g-3">
                                 <div class="nk-block-head-content">
-                                    @if($is_airport)
-                                        <h4 class="title nk-block-title">Add new special area for {{ $region->name }}</h4>
+                                    @if ($region)
+                                        <h4 class="title nk-block-title">Add new sub-area for {{ $region->name }}</h4>
                                     @else
                                         <h4 class="title nk-block-title">Add new service area</h4>
                                     @endif
                                 </div>
 
                                 <div class="nk-block-head-content">
-                                    <a href="{{ route('admin.regions.index') }}" wire:navigate class="btn btn-outline-light bg-white d-none d-sm-inline-flex"><em class="icon ni ni-arrow-left"></em><span>Back</span></a>
-                                    <a href="{{ route('admin.regions.index') }}"  wire:navigate class="btn btn-icon btn-outline-light bg-white d-inline-flex d-sm-none"><em class="icon ni ni-arrow-left"></em></a>
+                                    <a href="{{ route('admin.regions.index') }}" wire:navigate
+                                        class="btn btn-outline-light bg-white d-none d-sm-inline-flex"><em
+                                            class="icon ni ni-arrow-left"></em><span>Back</span></a>
+                                    <a href="{{ route('admin.regions.index') }}" wire:navigate
+                                        class="btn btn-icon btn-outline-light bg-white d-inline-flex d-sm-none"><em
+                                            class="icon ni ni-arrow-left"></em></a>
                                 </div>
                             </div>
 
@@ -29,7 +33,8 @@
                                     <div class="card card-bordered h-100">
                                         <div class="card-inner">
 
-                                            <form action="{{ route('admin.regions.store') }}" method="POST" enctype="multipart/form-data">
+                                            <form action="{{ route('admin.regions.store') }}" method="POST"
+                                                enctype="multipart/form-data">
                                                 @csrf
                                                 @if ($errors->any())
                                                     <div class="alert alert-danger">
@@ -40,60 +45,111 @@
                                                         </ul>
                                                     </div>
                                                 @endif
-                                                @if(session()->has('success'))
+                                                @if (session()->has('success'))
                                                     <div class="alert alert-success">
                                                         {{ session()->get('success') }}
                                                     </div>
                                                 @endif
 
-
                                                 <div class="row">
                                                     <div class="col">
                                                         <div class="row gy-4">
 
-                                                            @include('admin.partials.form.text', ['attributes' => 'required', 'colSize' => 'col-md-3', 'fieldName' => 'name','title' => 'Name'])
+                                                            @include('admin.partials.form.text', [
+                                                                'attributes' => 'required',
+                                                                'colSize' => 'col-md-6',
+                                                                'fieldName' => 'name',
+                                                                'title' => 'Name',
+                                                            ])
 
-                                                            @if($is_airport)
-                                                                <input type="hidden" name="parent_id" value="{{ $region->id }}" />
-                                                                <input type="hidden" name="type" value="airport" />
-                                                                @include('admin.partials.form.text', ['attributes' => 'required', 'colSize' => 'col-md-3', 'fieldName' => 'airport_amount','title' => 'Amount'])
-                                                                @include('admin.partials.form.select_array', ['attributes' => 'required', 'colSize' => 'col-md-3', 'fieldName' => 'airport_fee_type', 'title' => 'Amount Type','options' => ['percent','flat']])
-                                                                @include('admin.partials.form.select_array', ['attributes' => 'required', 'colSize' => 'col-md-3', 'fieldName' => 'airport_fee_mode', 'title' => 'Amount Mode','options' => ['increment','decrement']])
+                                                            @include(
+                                                                'admin.partials.form.select_array',
+                                                                [
+                                                                    'attributes' => 'required data-search="on"',
+                                                                    'key' => true,
+                                                                    'colSize' => 'col-md-6',
+                                                                    'fieldName' => 'type',
+                                                                    'title' => 'Type',
+                                                                    'options' => [
+                                                                        [
+                                                                            'id' => 'region',
+                                                                            'name' => 'Region',
+                                                                        ],
+                                                                        [
+                                                                            'id' => 'city',
+                                                                            'name' => 'City',
+                                                                        ],
+                                                                        [
+                                                                            'id' => 'airport',
+                                                                            'name' => 'Airport',
+                                                                        ],
+                                                                    ],
+                                                                ]
+                                                            )
 
-                                                            @else
-                                                                <input type="hidden" name="type" value="region">
+                                                            @include('admin.partials.form.text', [
+                                                                'attributes' => 'required',
+                                                                'colSize' => 'col-md-6',
+                                                                'fieldName' => 'country',
+                                                                'title' => 'Country',
+                                                            ])
+                                                            @include('admin.partials.form.text', [
+                                                                'attributes' => 'required',
+                                                                'colSize' => 'col-md-6',
+                                                                'fieldName' => 'state',
+                                                                'title' => 'State',
+                                                            ])
+                                                            @include('admin.partials.form.text', [
+                                                                'attributes' => 'required',
+                                                                'colSize' => 'col-md-6',
+                                                                'fieldName' => 'city',
+                                                                'title' => 'City',
+                                                            ])
+                                                            @include('admin.partials.form.text', [
+                                                                'attributes' => 'required',
+                                                                'colSize' => 'col-md-6',
+                                                                'fieldName' => 'area',
+                                                                'title' => 'Area',
+                                                            ])
 
-                                                                @include('admin.partials.form.select_w_object', ['attributes' => 'required' ,'colSize' => 'col-md-6', 'fieldName' => 'country_id', 'title' => 'Country','options' => $countries])
-                                                                @include('admin.partials.form.select_array', ['attributes' => 'required', 'key' => true ,'colSize' => 'col-md-6', 'fieldName' => 'timezone', 'title' => 'Timezone','options' => $timezones])
-
-                                                                @include('admin.partials.form.select_w_object', ['colSize' => 'col-md-6', 'fieldName' => 'parent_id', 'title' => 'Region','options' => $regions])
-
-                                                            @endif
-
-                                                            {{--                                                    @include('admin.partials.form.text', ['attributes' => 'required', 'colSize' => 'col-md-4',  'fieldName' => 'timezone','title' => 'Timezone'])--}}
-                                                            {{--                                                    @include('admin.partials.form.text', [ 'colSize' => 'col-md-4', 'fieldName' => 'currency_symbol','title' => 'Currency Symbol'])--}}
-                                                            {{--                                                    @include('admin.partials.form.text', [ 'colSize' => 'col-md-4', 'fieldName' => 'currency_code','title' => 'Currency code'])--}}
-                                                            {{--                                                    @include('admin.partials.form.text', ['attributes' => 'required', 'colSize' => 'col-md-4', 'fieldName' => 'coordinates','title' => 'Coordinates'])--}}
-
-                                                            {{--                                                    @include('admin.partials.form.select', ['attributes' => 'required' ,'colSize' => 'col-md-4', 'fieldName' => 'is_active', 'title' => 'Status','options' => '--}}
-                                                            {{--                        <option value="1">Active</option>--}}
-                                                            {{--                        <option value="0">Disabled</option>--}}
-                                                            {{--                        '])--}}
-
+                                                            @include(
+                                                                'admin.partials.form.select_array',
+                                                                [
+                                                                    'attributes' =>
+                                                                        'required data-search="on"',
+                                                                    'key' => true,
+                                                                    'colSize' => 'col-md-6',
+                                                                    'fieldName' => 'timezone',
+                                                                    'title' => 'Timezone',
+                                                                    'options' => $timezones,
+                                                                ]
+                                                            )
+                                                            
+                                                            @include(
+                                                                'admin.partials.form.select_w_object',
+                                                                [
+                                                                    'colSize' => 'col-md-6',
+                                                                    'fieldName' => 'parent_id',
+                                                                    'title' => 'Parent Region',
+                                                                    'options' => $regions,
+                                                                ]
+                                                            )
 
                                                         </div>
                                                     </div>
 
-                                                    @if(!$is_airport)
-                                                        <div class="col-5">
-                                                            <div class="row gy-4">
+                                                    <div class="col-5">
+                                                        <div class="row gy-4">
 
-                                                                @include('admin.partials.image-upload',['field' => 'image', 'colSize' => 'col-md-12','id' => 'image','title' => 'Image'])
+                                                            @include('admin.partials.image-upload', [
+                                                                'field' => 'image',
+                                                                'colSize' => 'col-md-12',
+                                                                'id' => 'image',
+                                                                'title' => 'Image',
+                                                            ])
 
-                                                            </div>
                                                         </div>
-                                                    @endif
-
+                                                    </div>
                                                 </div>
 
                                                 <div class="row mt-5">
@@ -102,7 +158,8 @@
                                                             <div class="zone-setup-top">
                                                                 <h5>Instructions</h5>
                                                                 <p class="mt-3">
-                                                                    Create zone by click on map and connect the dots together
+                                                                    Create zone by click on map and connect the dots
+                                                                    together
                                                                 </p>
                                                             </div>
                                                             <div class="zone-setup-item">
@@ -118,11 +175,13 @@
                                                                     <i class="tio-voice-line"></i>
                                                                 </div>
                                                                 <div class="info">
-                                                                    Click this icon to start pin points in the map and connect them to draw a zone . Minimum 3 points required
+                                                                    Click this icon to start pin points in the map and
+                                                                    connect them to draw a zone . Minimum 3 points required
                                                                 </div>
                                                             </div>
                                                             <div class="instructions-image mt-4">
-                                                                <img src={{asset('admin/assets/images/instructions.gif')}} alt="instructions">
+                                                                <img src={{ asset('admin/assets/images/instructions.gif') }}
+                                                                    alt="instructions">
                                                             </div>
                                                         </div>
                                                     </div>
@@ -131,13 +190,17 @@
 
                                                         <div class="form-group mb-3 d-none">
                                                             <label class="input-label"
-                                                                   for="exampleFormControlInput1">Coordinates<span
-                                                                    class="input-label-secondary" title="draw_your_zone_on_the_map">draw your zone on the map</span></label>
-                                                            <textarea  type="text" name="coordinates"  id="coordinates"  class="form-control" readonly></textarea>
+                                                                for="exampleFormControlInput1">Coordinates<span
+                                                                    class="input-label-secondary"
+                                                                    title="draw_your_zone_on_the_map">draw your zone on the
+                                                                    map</span></label>
+                                                            <textarea type="text" name="coordinates" id="coordinates" class="form-control" readonly></textarea>
                                                         </div>
 
                                                         <div class="map-warper rounded mt-0">
-                                                            <input id="pac-input" class="controls rounded" title="search_your_location_here" type="text" placeholder="search_here"/>
+                                                            <input id="pac-input" class="controls rounded"
+                                                                title="search_your_location_here" type="text"
+                                                                placeholder="search_here" />
                                                             <div id="map-canvas" class="rounded"></div>
                                                         </div>
                                                     </div>
@@ -146,9 +209,11 @@
 
 
                                                 <div class="form-group mt-3">
-                                                    <button id="reset_btn" type="reset" class="btn btn-lg btn-warning">Reset</button>
+                                                    <button id="reset_btn" type="reset"
+                                                        class="btn btn-lg btn-warning">Reset</button>
 
-                                                    <button type="submit" class="btn btn-lg btn-primary">Save record </button>
+                                                    <button type="submit" class="btn btn-lg btn-primary">Save record
+                                                    </button>
                                                 </div>
                                             </form>
                                         </div>
@@ -168,19 +233,21 @@
 
 @section('js')
     <script>
-        $(".popover-wrapper").click(function(){
+        $(".popover-wrapper").click(function() {
             $(".popover-wrapper").removeClass("active");
         });
         auto_grow();
+
         function auto_grow() {
             let element = document.getElementById("coordinates");
             element.style.height = "5px";
-            element.style.height = (element.scrollHeight)+"px";
+            element.style.height = (element.scrollHeight) + "px";
         }
-
     </script>
 
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key={{ env('MAP_API_KEY') }}&callback=initialize&libraries=drawing,places&v=3.49"></script>
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key={{ env('MAP_API_KEY') }}&callback=initialize&libraries=drawing,places&v=3.49">
+    </script>
 
     <script>
         var map; // Global declaration of the map
@@ -221,7 +288,10 @@
 
         function initialize() {
 
-            var myLatlng = { lat: {{ '23.757989' }}, lng: {{ '90.360587' }} };
+            var myLatlng = {
+                lat: {{ '23.757989' }},
+                lng: {{ '90.360587' }}
+            };
 
 
             var myOptions = {
@@ -260,8 +330,7 @@
             }
 
             drawingManager.addListener("overlaycomplete", function(event) {
-                if(lastpolygon)
-                {
+                if (lastpolygon) {
                     lastpolygon.setMap(null);
                 }
                 $('#coordinates').val(event.overlay.getPath().getArray());
@@ -325,6 +394,28 @@
                     } else {
                         bounds.extend(place.geometry.location);
                     }
+
+                    $('#country, #state, #city, #area').val('');
+
+                    for (var addressItem of place.address_components) {
+                        if (addressItem.types.includes('country')) {
+                            $('#country').val(addressItem.long_name);
+                        }
+
+                        if (addressItem.types.includes('administrative_area_level_1')) {
+                            $('#state').val(addressItem.long_name);
+                        }
+
+                        if (addressItem.types.includes('administrative_area_level_3')) {
+                            $('#city').val(addressItem.long_name);
+                        } else if (addressItem.types.includes('administrative_area_level_2')) {
+                            $('#city').val(addressItem.long_name);
+                        }
+
+                        if (addressItem.types.includes('locality')) {
+                            $('#area').val(addressItem.long_name);
+                        }
+                    }
                 });
                 map.fitBounds(bounds);
             });
@@ -333,14 +424,12 @@
         // initialize();
 
 
-        function set_all_zones()
-        {
+        function set_all_zones() {
             $.get({
-                url: '{{route('admin.regions.all_coordinates')}}',
+                url: '{{ route('admin.regions.all_coordinates') }}',
                 dataType: 'json',
-                success: function (data) {
-                    for(var i=0; i<data.length;i++)
-                    {
+                success: function(data) {
+                    for (var i = 0; i < data.length; i++) {
                         polygons.push(new google.maps.Polygon({
                             paths: data[i],
                             strokeColor: "#FF0000",
@@ -355,13 +444,12 @@
                 },
             });
         }
-        $(document).on('ready', function(){
+        $(document).on('ready', function() {
             // set_all_zones();
         });
-
     </script>
     <script>
-        $('#search-form').on('submit', function () {
+        $('#search-form').on('submit', function() {
             var formData = new FormData(this);
             $.ajaxSetup({
                 headers: {
@@ -369,20 +457,20 @@
                 }
             });
             $.post({
-                url: '{{route('admin.regions.search')}}',
+                url: '{{ route('admin.regions.search') }}',
                 data: formData,
                 cache: false,
                 contentType: false,
                 processData: false,
-                beforeSend: function () {
+                beforeSend: function() {
                     $('#loading').show();
                 },
-                success: function (data) {
+                success: function(data) {
                     $('#set-rows').html(data.view);
                     $('#itemCount').html(data.total);
                     $('.page-area').hide();
                 },
-                complete: function () {
+                complete: function() {
                     $('#loading').hide();
                 },
             });

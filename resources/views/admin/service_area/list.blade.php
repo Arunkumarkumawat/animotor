@@ -19,10 +19,10 @@
                                             <div class="toggle-expand-content" data-content="pageMenu">
                                                 <ul class="nk-block-tools g-3">
                                                     <li class="nk-block-tools-opt d-none d-sm-block">
-                                                        <a class="btn btn-primary" wire:navigate href="{{ route('admin.regions.create') }}"><em class="icon ni ni-plus"></em><span>Add New Area</span></a>
+                                                        <a class="btn btn-primary" wire:navigate href="{{ route('admin.regions.create') }}{{ request()->input('region_id') ? '?region_id=' . request()->input('region_id') : '' }}"><em class="icon ni ni-plus"></em><span>Add New Area</span></a>
                                                     </li>
                                                     <li class="nk-block-tools-opt d-block d-sm-none">
-                                                        <a class="btn btn-icon btn-primary"  wire:navigate  href="{{ route('admin.regions.create') }}"><em class="icon ni ni-plus"></em></a>
+                                                        <a class="btn btn-icon btn-primary"  wire:navigate  href="{{ route('admin.regions.create') }}{{ request()->input('region_id') ? '?region_id=' . request()->input('region_id') : '' }}"><em class="icon ni ni-plus"></em></a>
                                                     </li>
                                                 </ul>
                                             </div>
@@ -41,18 +41,13 @@
                                                 <thead>
                                                 <tr>
                                                     <th>S/N</th>
-                                                    <th>Image</th>
+                                                    <th>Type</th>
                                                     <th>Name</th>
-                                                    <th>Cities / Towns</th>
-                                                    <th>Currency</th>
-                                                    <th>Timezone</th>
                                                     <th>Country</th>
-                                                    @if(!request()->has('region_id'))
-                                                    <th>Sub regions</th>
-                                                    @endif
-                                                    @if(hasSpecialPlaces())
-                                                        <th>Special Places</th>
-                                                    @endif
+                                                    <th>State</th>
+                                                    <th>City</th>
+                                                    <th>Area</th>
+                                                    <th>Subregions</th>
                                                     <th>Status</th>
                                                     <th>Action</th>
                                                 </tr>
@@ -62,38 +57,24 @@
                                                 @foreach($data as $item)
                                                     <tr>
                                                         <td>{{ $loop->index + 1 }}</td>
-                                                        <td><img src="{{ $item->image }}" style="height: 40px;" /></td>
+                                                        <td>{{ ucfirst($item->type) }}</td>
                                                         <td>{{ $item->name }}</td>
-                                                        <td>{{ $item->cities }}</td>
-                                                        <td>{{ $item->currency_symbol }}</td>
-                                                        <td>{{ $item->timezone }}</td>
-                                                        <td>{{ $item?->country?->name ?? 'None' }}</td>
-                                                        @if(!request()->has('region_id'))
-                                                        <td><a wire:navigate href="{{ route('admin.regions.index') }}?region_id={{ $item->id }}"> {{ $item->regions->count() }}</a></td>
-                                                        @endif
-
-                                                        @if(hasSpecialPlaces())
-                                                        <td><a wire:navigate href="{{ route('admin.regions.airports', $item->id) }}"> {{ $item->airports->count() }}</a></td>
-                                                        @endif
-
-
+                                                        <td>{{ $item->country }}</td>
+                                                        <td>{{ $item->state }}</td>
+                                                        <td>{{ $item->city }}</td>
+                                                        <td>{{ $item->area }}</td>
+                                                        <td>
+                                                            @if(!$item->parent_id)
+                                                                <a wire:navigate href="{{ route('admin.regions.index') }}?region_id={{ $item->id }}"> {{ $item->regions()->count() }}</a>
+                                                            @endif
+                                                        </td>
                                                         <td>
                                                             @include('admin.components.toggle-switch', ['model' => "Region", 'item' => $item, 'checked' => $item->is_active, 'field' => 'is_active'])
-
-{{--                                                        @if($item->is_active)--}}
-{{--                                                                <span class="badge badge-dim bg-success">Active</span>--}}
-{{--                                                            @else--}}
-{{--                                                                <span class="badge badge-dim bg-danger">Inactive</span>--}}
-{{--                                                            @endif--}}
                                                         </td>
-
                                                         <td>
                                                             <a class="btn btn-warning" href="{{ route('admin.regions.edit', $item->id) }}">Edit</a>
-
-                                                            <a  data-bs-toggle="modal" href="#{{ 'delete_'.$item->id }}"  class="btn btn-danger">Delete</a>
-
+                                                            <a data-bs-toggle="modal" href="#{{ 'delete_'.$item->id }}"  class="btn btn-danger">Delete</a>
                                                         </td>
-
                                                     </tr>
                                                 @endforeach
                                                 </tbody>
@@ -112,13 +93,12 @@
     </div>
 
     @foreach($data as $item)
-
         @component('admin.components.delete_modal', [
-       'modalId' => 'delete_'.$item->id,
-       'title' => 'Do you really want to delete this?',
-       'action' => route('admin.regions.destroy', $item->id), // Form action URL for the delete action
-       'message' => 'Deleting this region will delete all associated data.', // Message to display in the modal
-   ])
+            'modalId' => 'delete_'.$item->id,
+            'title' => 'Do you really want to delete this?',
+            'action' => route('admin.regions.destroy', $item->id), // Form action URL for the delete action
+            'message' => 'Deleting this region will delete all associated data.', // Message to display in the modal
+        ])
     @endcomponent
 
     @endforeach

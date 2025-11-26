@@ -477,8 +477,6 @@ class BookingController extends Controller
             $driver = User::find($trip->driver_id);
             $trip->status = $request['status'];
 
-
-
             if($request['status'] == 'cancelled_by_driver' || $request['status'] == 'cancelled_by_booker'){
                 $trip->cancelled = true;
                 $trip->cancelled_by = $request['status'];

@@ -1,49 +1,50 @@
 <?php
 
 
-use App\Http\Controllers\Admin\AdminController;
+use Illuminate\Support\Facades\Route;
 
 //use App\Http\Controllers\Admin\Appointment;
-use App\Http\Controllers\Admin\BookingController;
-use App\Http\Controllers\Admin\CancellationReasonController;
 use App\Http\Controllers\Admin\CarController;
+use App\Http\Controllers\Admin\PCNController;
+use App\Http\Controllers\Admin\FaqsController;
+use App\Http\Controllers\Admin\MenuController;
+use App\Http\Controllers\Admin\NoteController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\RolesController;
+use App\Http\Controllers\Admin\RegionController;
+use App\Http\Controllers\Admin\RentalController;
+use App\Http\Controllers\Admin\BookingController;
 use App\Http\Controllers\Admin\CompanyController;
-use App\Http\Controllers\Admin\ComplaintsController;
-use App\Http\Controllers\Admin\CountriesController;
+use App\Http\Controllers\Admin\DriversController;
+use App\Http\Controllers\Admin\MessageController;
+use App\Http\Controllers\Admin\PaymentController;
+use App\Http\Controllers\Admin\ServiceController;
+use App\Http\Controllers\Admin\VehicleController;
 use App\Http\Controllers\Admin\CurrencyController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DocumentController;
-use App\Http\Controllers\Admin\DriverFormController;
-use App\Http\Controllers\Admin\DriverPcnController;
-use App\Http\Controllers\Admin\DriversController;
-use App\Http\Controllers\Admin\FaqsController;
-use App\Http\Controllers\Admin\FleetEventController;
-use App\Http\Controllers\Admin\MailTrackerController;
-use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\MenuItemController;
-use App\Http\Controllers\Admin\MessageController;
-use App\Http\Controllers\Admin\NoteController;
-use App\Http\Controllers\Admin\OtherVehicleController;
-use App\Http\Controllers\Admin\PaymentController;
-use App\Http\Controllers\Admin\PCNController;
-use App\Http\Controllers\Admin\RegionController;
-use App\Http\Controllers\Admin\RentalController;
-use App\Http\Controllers\Admin\ReportIncidentController;
-use App\Http\Controllers\Admin\RolesController;
-use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\SettingsController;
-use App\Http\Controllers\Admin\TripRequestController;
-use App\Http\Controllers\Admin\UserController;
-
-
-use App\Http\Controllers\Admin\VehicleController;
-use App\Http\Controllers\Admin\VehicleMakeController;
-use App\Http\Controllers\Admin\VehicleModelController;
-use App\Http\Controllers\Admin\VehicleTypeController;
 use App\Http\Controllers\Admin\WorkshopController;
-use Illuminate\Support\Facades\Route;
-use Modules\AdvanceRental\Http\Controllers\IncidentController;
+use App\Http\Controllers\Admin\CountriesController;
+use App\Http\Controllers\Admin\DriverPcnController;
+use App\Http\Controllers\Admin\ComplaintsController;
+use App\Http\Controllers\Admin\DriverFormController;
+use App\Http\Controllers\Admin\FleetEventController;
+use App\Http\Controllers\Admin\OnboardingController;
+use App\Http\Controllers\Admin\MailTrackerController;
 
+
+use App\Http\Controllers\Admin\TripRequestController;
+use App\Http\Controllers\Admin\VehicleMakeController;
+use App\Http\Controllers\Admin\VehicleTypeController;
+use App\Http\Controllers\Admin\OtherVehicleController;
+use App\Http\Controllers\Admin\VehicleModelController;
+use App\Http\Controllers\Admin\ReportIncidentController;
+use App\Http\Controllers\Admin\InsuranceCoverageController;
+use App\Http\Controllers\Admin\CancellationReasonController;
+use Modules\AdvanceRental\Http\Controllers\IncidentController;
 /*
 |--------------------------------------------------------------------------
 | Admin Routes
@@ -55,11 +56,24 @@ use Modules\AdvanceRental\Http\Controllers\IncidentController;
 |
 */
 
-
 Route::group(['middleware' => ['auth', 'role:admin|superadmin|owner|manager'], 'prefix' => 'admin', 'as' => 'admin.'], function () {
 
     Route::get('dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('backup-manager', [AdminController::class, 'backupManager'])->name('backup-manager')->middleware('surd_core');
+
+    // Onboarding routes
+    Route::get('onboarding', [OnboardingController::class, 'index'])->name('onboarding');
+    Route::post('onboarding/store', [OnboardingController::class, 'store'])->name('onboarding.store');
+    Route::post('onboarding/save-draft', [OnboardingController::class, 'saveDraft'])->name('onboarding.save-draft');
+    Route::post('onboarding/complete', [OnboardingController::class, 'complete'])->name('onboarding.complete');
+    Route::get('onboarding/chauffeurs/template', [OnboardingController::class, 'downloadTemplate'])->name('onboarding.chauffeurs.template');
+    Route::post('onboarding/chauffeurs/import', [OnboardingController::class, 'importChauffeurs'])->name('onboarding.chauffeurs.import');
+    
+    // Company Profile routes (owner only)
+    Route::middleware('role:owner')->group(function () {
+        Route::get('company-profile', [CompanyController::class, 'profile'])->name('company.profile');
+        Route::post('company-profile', [CompanyController::class, 'updateProfile'])->name('company.profile.update');
+    });
 
     Route::get('testquery', [AdminController::class, 'testQuery'])->name('test');
     Route::get('activity/logs', [AdminController::class, 'activityLog'])->name('activity.log');
@@ -95,11 +109,18 @@ Route::group(['middleware' => ['auth', 'role:admin|superadmin|owner|manager'], '
     Route::resource('cars', CarController::class);
     Route::get('car/{id}/extras', [CarController::class, 'extras'])->name('car.extras');
 
+    Route::get('insurance-coverages', [InsuranceCoverageController::class, 'index'])->name('insurance-coverages.index');
+    Route::get('insurance-coverages/create', [InsuranceCoverageController::class, 'create'])->name('insurance-coverages.create');
+    Route::post('insurance-coverages/store', [InsuranceCoverageController::class, 'store'])->name('insurance-coverages.store');
+    Route::get('insurance-coverages/edit/{id}', [InsuranceCoverageController::class, 'edit'])->name('insurance-coverages.edit');
+    Route::put('insurance-coverages/update/{id}', [InsuranceCoverageController::class, 'update'])->name('insurance-coverages.update');
+    Route::delete('insurance-coverages/destroy/{id}', [InsuranceCoverageController::class, 'destroy'])->name('insurance-coverages.destroy');
+    Route::get('insurance-coverages/download/{id}', [InsuranceCoverageController::class, 'download'])->name('insurance-coverages.download');
+    Route::get('insurance-coverages/show/{id}', [InsuranceCoverageController::class, 'show'])->name('insurance-coverages.show');
 
     Route::resource('rental', RentalController::class);
 
     Route::resource('regions', RegionController::class);
-    Route::get('region/{id}/airports', [RegionController::class, 'airports'])->name('regions.airports');
     Route::get('region/all_zones/{id?}', [RegionController::class, 'getAllZoneCordinates'])->name('regions.all_coordinates');
     Route::get('region/region/search', [RegionController::class, 'search'])->name('regions.search');
 
@@ -125,6 +146,7 @@ Route::group(['middleware' => ['auth', 'role:admin|superadmin|owner|manager'], '
     Route::get('companies/{id}/delete', [CompanyController::class, 'delete'])->name('companies.delete');
     Route::get('companies/{id}/view', [CompanyController::class, 'view'])->name('companies.view');
     Route::get('companies/{id}/change-status', [CompanyController::class, 'changeStatus'])->name('companies.change-status');
+    Route::post('companies/update-onboarding-status', [CompanyController::class, 'updateOnboardingStatus'])->name('companies.update-onboarding-status');
 
     Route::get('bookings', [BookingController::class, 'index'])->name('bookings.index');
     Route::get('bookings/show/{id}', [BookingController::class, 'show'])->name('bookings.show');

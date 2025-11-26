@@ -111,17 +111,6 @@ class TripRequestController extends Controller
 
                 $type->grand_total = $type->fee + $type->tax;
 
-
-
-                if($region->airports->count() > 0){
-                    info('booking has special place ' . $region->airports->count());
-                    $special_fee = $tripRequestService->getSpecialPlaceFee($d_lat, $d_lng, $type->grand_total);
-                    info('special place fee' . $special_fee);
-                    if($special_fee != 0){
-                        $type->grand_total = $special_fee + $type->grand_total;
-                    }
-                }
-
                 $type->discounted_fee = $type->discounted($type->grand_total);
             } else {
                 return $this->errorResponse('Distance is not set');
@@ -202,15 +191,6 @@ class TripRequestController extends Controller
             $data['tax'] = ($data['fee'] * $tax_percent);
 
             $grand_total = $data['fee'] + $data['tax'];
-
-            if($region->airports->count() > 0){
-                info('Trip booking has special place ' . $region->airports->count());
-                $special_fee = $tripRequestService->getSpecialPlaceFee($data['destination_lat'], $data['destination_lng'], $grand_total);
-                info('Trip special place fee' . $special_fee);
-                if($special_fee != 0){
-                    $grand_total = $special_fee + $grand_total;
-                }
-            }
 
             $data['discount'] = $service->discount;
             $data['grand_total'] = $service->discounted($grand_total);

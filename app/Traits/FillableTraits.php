@@ -242,6 +242,13 @@ trait FillableTraits
         'phone_number',
         'email_address',
         'relationship',
+        'onboarding_step',
+        'license_number',
+        'onboarding_status',
+        'onboarding_rejection_reason',
+
+        'email_otp',
+        'email_otp_expires_at',
     ];
 
     protected array $trip_request = [
