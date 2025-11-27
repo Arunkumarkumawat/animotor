@@ -53,6 +53,10 @@ class InsuranceCoverageController extends Controller
                 return view('admin.insurance-coverages.cdw_create');
             case 'excess_protection':
                 return view('admin.insurance-coverages.excess_create');
+            case 'theft_protection':
+                return view('admin.insurance-coverages.theft_create');
+            case 'addons':
+                return view('admin.insurance-coverages.addons_create');
             default:
                 return view('admin.insurance-coverages.create', compact('type'));
         }
@@ -126,6 +130,10 @@ class InsuranceCoverageController extends Controller
                 return view('admin.insurance-coverages.cdw_edit', compact('policy'));
             case 'Excess':
                 return view('admin.insurance-coverages.excess_edit', compact('policy'));
+            case 'Theft':
+                return view('admin.insurance-coverages.theft_edit', compact('policy'));
+            case 'Addons':
+                return view('admin.insurance-coverages.addons_edit', compact('policy'));
             default:
                 return view('admin.insurance-coverages.edit', compact('policy'));
         }

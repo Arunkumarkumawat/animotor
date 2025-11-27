@@ -823,8 +823,9 @@
 </head>
 <body>
     <div class="container">
-        <form action="{{ route('admin.insurance-coverages.store') }}" method="POST" class="insurance-panel" id="excessPanel" enctype="multipart/form-data">
+        <form action="{{ route('admin.insurance-coverages.update', $policy->id) }}" method="POST" class="insurance-panel" id="excessPanel" enctype="multipart/form-data">
             @csrf
+            @method('PUT')
             <input type="hidden" name="policy_type" value="Excess">
             <input type="hidden" name="status" id="policyStatus" value="draft">
 
@@ -877,7 +878,7 @@
                                 Policy Number
                                 <span class="info-icon" data-tooltip="Unique Excess Protection policy identifier">i</span>
                             </label>
-                            <input type="text" class="form-input" placeholder="e.g., EP-2025-000123" name="policy_number" value="{{ old('policy_number') }}">
+                            <input type="text" class="form-input" placeholder="e.g., EP-2025-000123" name="policy_number" value="{{ $policy->policy_number }}">
                             @error('policy_number')
                                 <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
                             @enderror
@@ -887,7 +888,7 @@
                                 Insurer Name
                                 <span class="info-icon" data-tooltip="Excess Protection insurance provider">i</span>
                             </label>
-                            <input type="text" class="form-input" placeholder="e.g., Aviva / AXA / Zurich" name="insurer_name" value="{{ old('insurer_name') }}">
+                            <input type="text" class="form-input" placeholder="e.g., Aviva / AXA / Zurich" name="insurer_name" value="{{ $policy->insurer_name }}">
                             @error('insurer_name')
                                 <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
                             @enderror
@@ -897,7 +898,7 @@
                                 Policy Start Date
                                 <span class="info-icon" data-tooltip="Excess Protection coverage begins">i</span>
                             </label>
-                            <input type="date" class="form-input" name="policy_start_date" value="{{ old('policy_start_date') }}">
+                            <input type="date" class="form-input" name="policy_start_date" value="{{ $policy->policy_start_date }}">
                             @error('policy_start_date')
                                 <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
                             @enderror
@@ -907,13 +908,13 @@
                                 Policy Expiry Date
                                 <span class="info-icon" data-tooltip="Excess Protection coverage ends">i</span>
                             </label>
-                            <input type="date" class="form-input" name="policy_end_date" value="{{ old('policy_end_date') }}">
+                            <input type="date" class="form-input" name="policy_end_date" value="{{ $policy->policy_end_date }}">
                             @error('policy_end_date')
                                 <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
                             @enderror
                         </div>
                         @php
-                            $vehicleClasses = old('vehicle_classes', []);
+                            $vehicleClasses = json_decode($policy->vehicle_classes ?? '[]', true);
                         @endphp
                         <div class="form-group">
                             <label class="form-label">
@@ -955,14 +956,14 @@
 
                 <div class="section">
                     <div class="section-header">
-                        <div class="section-icon purple">🏢</div>
+                        <div class="section-icon blue">🏢</div>
                         <div>
                             <div class="section-title">Insurer Logo</div>
-                            <div class="section-hint">Upload Excess Protection provider logo (PNG/JPG only)</div>
+                            <div class="section-hint">Upload official company logo (PNG/JPG only)</div>
                         </div>
                     </div>
-                    <div class="file-upload-area" xrole="logoUpload">
-                        <input type="file" name="insurer_logo" accept=".png,.jpg,.jpeg">
+                    <div class="file-upload-area d-none" xrole="logoUpload">
+                        <input type="file" accept=".png,.jpg,.jpeg" name="insurer_logo" id="insurerLogo">
                         <div class="upload-icon">📷</div>
                         <div class="upload-text">Click to upload or drag and drop</div>
                         <div class="upload-hint">PNG or JPG (max 2MB)</div>
@@ -970,10 +971,16 @@
                     @error('insurer_logo')
                         <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
                     @enderror
-                    <div class="file-preview" id="logoPreview">
-                        <div class="file-preview-icon">🖼️</div>
+                    <div class="file-preview active" id="logoPreview">
+                        <div class="file-preview-icon">
+                            @if($policy->insurer_logo)
+                                <img src="{{ asset('storage/' . $policy->insurer_logo) }}" alt="Insurer Logo" style="width:100%; height: auto;">
+                            @else
+                                🖼️
+                            @endif
+                        </div>
                         <div class="file-preview-info">
-                            <div class="file-preview-name" xrole="file-name"></div>
+                            <div class="file-preview-name" xrole="file-name">File Uploaded</div>
                             <div class="file-preview-size" xrole="file-size"></div>
                         </div>
                         <div class="file-preview-actions">
@@ -991,171 +998,174 @@
                             <div class="section-hint">What excess amounts are covered or reduced</div>
                         </div>
                     </div>
+                    @php
+                        $coverageMatrix = json_decode($policy->coverage_matrix ?? '[]', true);
+                    @endphp
                     <div class="coverage-grid">
                         <div class="coverage-card">
                             <div class="coverage-card-header">
                                 <input type="hidden" name="coverage_matrix[0][name]" value="Excess Reduction">
-                                <input type="hidden" name="coverage_matrix[0][status]" class="coverage-item-status" value="{{ old('coverage_matrix.0.status', 'covered') }}">
+                                <input type="hidden" name="coverage_matrix[0][status]" class="coverage-item-status" value="{{ isset($coverageMatrix[0]['status']) ? $coverageMatrix[0]['status'] : 'covered' }}">
                                 <div class="coverage-name">Excess Reduction</div>
                                 <div class="toggle-3state">
-                                    <span class="toggle-option covered {{ old('coverage_matrix.0.status', 'covered') === 'covered' ? 'active' : '' }}" onclick="selectToggle(this, 'covered')">Covered</span>
-                                    <span class="toggle-option partial {{ old('coverage_matrix.0.status') === 'partial' ? 'active' : '' }}" onclick="selectToggle(this, 'partial')">Partial</span>
-                                    <span class="toggle-option not-covered {{ old('coverage_matrix.0.status') === 'not' ? 'active' : '' }}" onclick="selectToggle(this, 'not')">Not</span>
+                                    <span class="toggle-option covered {{ (isset($coverageMatrix[0]['status']) ? $coverageMatrix[0]['status'] : 'covered') === 'covered' ? 'active' : '' }}" onclick="selectToggle(this, 'covered')">Covered</span>
+                                    <span class="toggle-option partial {{ (isset($coverageMatrix[0]['status']) ? $coverageMatrix[0]['status'] : '') === 'partial' ? 'active' : '' }}" onclick="selectToggle(this, 'partial')">Partial</span>
+                                    <span class="toggle-option not-covered {{ (isset($coverageMatrix[0]['status']) ? $coverageMatrix[0]['status'] : '') === 'not' ? 'active' : '' }}" onclick="selectToggle(this, 'not')">Not</span>
                                 </div>
                             </div>
-                            <div class="partial-notes {{ old('coverage_matrix.0.status') === 'partial' ? 'active' : '' }}">
-                                <input type="text" class="form-input" name="coverage_matrix[0][partial_notes]" placeholder="e.g., Reduces excess from £1200 → £250" value="{{ old('coverage_matrix.0.partial_notes') }}">
+                            <div class="partial-notes {{ (isset($coverageMatrix[0]['status']) ? $coverageMatrix[0]['status'] : '') === 'partial' ? 'active' : '' }}">
+                                <input type="text" class="form-input" name="coverage_matrix[0][partial_notes]" placeholder="e.g., Reduces excess from £1200 → £250" value="{{ isset($coverageMatrix[0]['partial_notes']) ? $coverageMatrix[0]['partial_notes'] : '' }}">
                             </div>
                         </div>
 
                         <div class="coverage-card">
                             <div class="coverage-card-header">
                                 <input type="hidden" name="coverage_matrix[1][name]" value="Full Excess Waiver">
-                                <input type="hidden" name="coverage_matrix[1][status]" class="coverage-item-status" value="{{ old('coverage_matrix.1.status', 'covered') }}">
+                                <input type="hidden" name="coverage_matrix[1][status]" class="coverage-item-status" value="{{ isset($coverageMatrix[1]['status']) ? $coverageMatrix[1]['status'] : 'covered' }}">
                                 <div class="coverage-name">Full Excess Waiver</div>
                                 <div class="toggle-3state">
-                                    <span class="toggle-option covered {{ old('coverage_matrix.1.status', 'covered') === 'covered' ? 'active' : '' }}" onclick="selectToggle(this, 'covered')">Covered</span>
-                                    <span class="toggle-option partial {{ old('coverage_matrix.1.status') === 'partial' ? 'active' : '' }}" onclick="selectToggle(this, 'partial')">Partial</span>
-                                    <span class="toggle-option not-covered {{ old('coverage_matrix.1.status') === 'not' ? 'active' : '' }}" onclick="selectToggle(this, 'not')">Not</span>
+                                    <span class="toggle-option covered {{ (isset($coverageMatrix[1]['status']) ? $coverageMatrix[1]['status'] : 'covered') === 'covered' ? 'active' : '' }}" onclick="selectToggle(this, 'covered')">Covered</span>
+                                    <span class="toggle-option partial {{ (isset($coverageMatrix[1]['status']) ? $coverageMatrix[1]['status'] : '') === 'partial' ? 'active' : '' }}" onclick="selectToggle(this, 'partial')">Partial</span>
+                                    <span class="toggle-option not-covered {{ (isset($coverageMatrix[1]['status']) ? $coverageMatrix[1]['status'] : '') === 'not' ? 'active' : '' }}" onclick="selectToggle(this, 'not')">Not</span>
                                 </div>
                             </div>
-                            <div class="partial-notes {{ old('coverage_matrix.1.status') === 'partial' ? 'active' : '' }}">
-                                <input type="text" class="form-input" name="coverage_matrix[1][partial_notes]" placeholder="e.g., Removes entire excess" value="{{ old('coverage_matrix.1.partial_notes') }}">
+                            <div class="partial-notes {{ (isset($coverageMatrix[1]['status']) ? $coverageMatrix[1]['status'] : '') === 'partial' ? 'active' : '' }}">
+                                <input type="text" class="form-input" name="coverage_matrix[1][partial_notes]" placeholder="e.g., Removes entire excess" value="{{ isset($coverageMatrix[1]['partial_notes']) ? $coverageMatrix[1]['partial_notes'] : '' }}">
                             </div>
                         </div>
 
                         <div class="coverage-card">
                             <div class="coverage-card-header">
                                 <input type="hidden" name="coverage_matrix[2][name]" value="Single Incident Excess Cover">
-                                <input type="hidden" name="coverage_matrix[2][status]" class="coverage-item-status" value="{{ old('coverage_matrix.2.status', 'covered') }}">
+                                <input type="hidden" name="coverage_matrix[2][status]" class="coverage-item-status" value="{{ isset($coverageMatrix[2]['status']) ? $coverageMatrix[2]['status'] : 'covered' }}">
                                 <div class="coverage-name">Single Incident Excess Cover</div>
                                 <div class="toggle-3state">
-                                    <span class="toggle-option covered {{ old('coverage_matrix.2.status', 'covered') === 'covered' ? 'active' : '' }}" onclick="selectToggle(this, 'covered')">Covered</span>
-                                    <span class="toggle-option partial {{ old('coverage_matrix.2.status') === 'partial' ? 'active' : '' }}" onclick="selectToggle(this, 'partial')">Partial</span>
-                                    <span class="toggle-option not-covered {{ old('coverage_matrix.2.status') === 'not' ? 'active' : '' }}" onclick="selectToggle(this, 'not')">Not</span>
+                                    <span class="toggle-option covered {{ (isset($coverageMatrix[2]['status']) ? $coverageMatrix[2]['status'] : 'covered') === 'covered' ? 'active' : '' }}" onclick="selectToggle(this, 'covered')">Covered</span>
+                                    <span class="toggle-option partial {{ (isset($coverageMatrix[2]['status']) ? $coverageMatrix[2]['status'] : '') === 'partial' ? 'active' : '' }}" onclick="selectToggle(this, 'partial')">Partial</span>
+                                    <span class="toggle-option not-covered {{ (isset($coverageMatrix[2]['status']) ? $coverageMatrix[2]['status'] : '') === 'not' ? 'active' : '' }}" onclick="selectToggle(this, 'not')">Not</span>
                                 </div>
                             </div>
-                            <div class="partial-notes {{ old('coverage_matrix.2.status') === 'partial' ? 'active' : '' }}">
-                                <input type="text" class="form-input" name="coverage_matrix[2][partial_notes]" placeholder="e.g., Up to £2500" value="{{ old('coverage_matrix.2.partial_notes') }}">
+                            <div class="partial-notes {{ (isset($coverageMatrix[2]['status']) ? $coverageMatrix[2]['status'] : '') === 'partial' ? 'active' : '' }}">
+                                <input type="text" class="form-input" name="coverage_matrix[2][partial_notes]" placeholder="e.g., Up to £2500" value="{{ isset($coverageMatrix[2]['partial_notes']) ? $coverageMatrix[2]['partial_notes'] : '' }}">
                             </div>
                         </div>
 
                         <div class="coverage-card">
                             <div class="coverage-card-header">
                                 <input type="hidden" name="coverage_matrix[3][name]" value="Multiple Incidents Cover">
-                                <input type="hidden" name="coverage_matrix[3][status]" class="coverage-item-status" value="{{ old('coverage_matrix.3.status', 'covered') }}">
+                                <input type="hidden" name="coverage_matrix[3][status]" class="coverage-item-status" value="{{ isset($coverageMatrix[3]['status']) ? $coverageMatrix[3]['status'] : 'covered' }}">
                                 <div class="coverage-name">Multiple Incidents Cover</div>
                                 <div class="toggle-3state">
-                                    <span class="toggle-option covered {{ old('coverage_matrix.3.status', 'covered') === 'covered' ? 'active' : '' }}" onclick="selectToggle(this, 'covered')">Covered</span>
-                                    <span class="toggle-option partial {{ old('coverage_matrix.3.status') === 'partial' ? 'active' : '' }}" onclick="selectToggle(this, 'partial')">Partial</span>
-                                    <span class="toggle-option not-covered {{ old('coverage_matrix.3.status') === 'not' ? 'active' : '' }}" onclick="selectToggle(this, 'not')">Not</span>
-                                </div>
+                                    <span class="toggle-option covered {{ (isset($coverageMatrix[3]['status']) ? $coverageMatrix[3]['status'] : 'covered') === 'covered' ? 'active' : '' }}" onclick="selectToggle(this, 'covered')">Covered</span>
+                                    <span class="toggle-option partial {{ (isset($coverageMatrix[3]['status']) ? $coverageMatrix[3]['status'] : '') === 'partial' ? 'active' : '' }}" onclick="selectToggle(this, 'partial')">Partial</span>
+                                    <span class="toggle-option not-covered {{ (isset($coverageMatrix[3]['status']) ? $coverageMatrix[3]['status'] : '') === 'not' ? 'active' : '' }}" onclick="selectToggle(this, 'not')">Not</span>
+                                </div>  
                             </div>
-                            <div class="partial-notes {{ old('coverage_matrix.3.status', '') === 'partial' ? 'active' : '' }}">
-                                <input type="text" class="form-input" name="coverage_matrix[3][partial_notes]" placeholder="Maximum 2 incidents per rental period" value="{{ old('coverage_matrix.3.partial_notes') }}">
+                            <div class="partial-notes {{ (isset($coverageMatrix[3]['status']) ? $coverageMatrix[3]['status'] : '') === 'partial' ? 'active' : '' }}">
+                                <input type="text" class="form-input" name="coverage_matrix[3][partial_notes]" placeholder="Maximum 2 incidents per rental period" value="{{ isset($coverageMatrix[3]['partial_notes']) ? $coverageMatrix[3]['partial_notes'] : '' }}">
                             </div>
                         </div>
 
                         <div class="coverage-card">
                             <div class="coverage-card-header">
                                 <input type="hidden" name="coverage_matrix[4][name]" value="Requires CDW Active?">
-                                <input type="hidden" name="coverage_matrix[4][status]" class="coverage-item-status" value="{{ old('coverage_matrix.4.status', 'covered') }}">
+                                <input type="hidden" name="coverage_matrix[4][status]" class="coverage-item-status" value="{{ isset($coverageMatrix[4]['status']) ? $coverageMatrix[4]['status'] : 'covered' }}">
                                 <div class="coverage-name">Requires CDW Active?</div>
                                 <div class="toggle-3state">
-                                    <span class="toggle-option covered {{ old('coverage_matrix.4.status', 'covered') === 'covered' ? 'active' : '' }}" onclick="selectToggle(this, 'covered')">Yes</span>
-                                    <span class="toggle-option partial {{ old('coverage_matrix.4.status') === 'partial' ? 'active' : '' }}" onclick="selectToggle(this, 'partial')">Optional</span>
-                                    <span class="toggle-option not-covered {{ old('coverage_matrix.4.status') === 'not' ? 'active' : '' }}" onclick="selectToggle(this, 'not')">No</span>
+                                    <span class="toggle-option covered {{ (isset($coverageMatrix[4]['status']) ? $coverageMatrix[4]['status'] : 'covered') === 'covered' ? 'active' : '' }}" onclick="selectToggle(this, 'covered')">Yes</span>
+                                    <span class="toggle-option partial {{ (isset($coverageMatrix[4]['status']) ? $coverageMatrix[4]['status'] : '') === 'partial' ? 'active' : '' }}" onclick="selectToggle(this, 'partial')">Optional</span>
+                                    <span class="toggle-option not-covered {{ (isset($coverageMatrix[4]['status']) ? $coverageMatrix[4]['status'] : '') === 'not' ? 'active' : '' }}" onclick="selectToggle(this, 'not')">No</span>
                                 </div>
                             </div>
-                            <div class="partial-notes {{ old('coverage_matrix.4.status') === 'partial' ? 'active' : '' }}">
-                                <input type="text" class="form-input" name="coverage_matrix[4][partial_notes]" placeholder="e.g., Must be combined with CDW" value="{{ old('coverage_matrix.4.partial_notes') }}">
+                            <div class="partial-notes {{ (isset($coverageMatrix[4]['status']) ? $coverageMatrix[4]['status'] : '') === 'partial' ? 'active' : '' }}">
+                                <input type="text" class="form-input" name="coverage_matrix[4][partial_notes]" placeholder="e.g., Must be combined with CDW" value="{{ isset($coverageMatrix[4]['partial_notes']) ? $coverageMatrix[4]['partial_notes'] : '' }}">
                             </div>
                         </div>
 
                         <div class="coverage-card">
                             <div class="coverage-card-header">
                                 <input type="hidden" name="coverage_matrix[5][name]" value="Collision Excess Coverage">
-                                <input type="hidden" name="coverage_matrix[5][status]" class="coverage-item-status" value="{{ old('coverage_matrix.5.status', 'covered') }}">
+                                <input type="hidden" name="coverage_matrix[5][status]" class="coverage-item-status" value="{{ isset($coverageMatrix[5]['status']) ? $coverageMatrix[5]['status'] : 'covered' }}">
                                 <div class="coverage-name">Collision Excess Coverage</div>
                                 <div class="toggle-3state">
-                                    <span class="toggle-option covered {{ old('coverage_matrix.5.status', 'covered') === 'covered' ? 'active' : '' }}" onclick="selectToggle(this, 'covered')">Covered</span>
-                                    <span class="toggle-option partial {{ old('coverage_matrix.5.status') === 'partial' ? 'active' : '' }}" onclick="selectToggle(this, 'partial')">Partial</span>
-                                    <span class="toggle-option not-covered {{ old('coverage_matrix.5.status') === 'not' ? 'active' : '' }}" onclick="selectToggle(this, 'not')">Not</span>
+                                    <span class="toggle-option covered {{ (isset($coverageMatrix[5]['status']) ? $coverageMatrix[5]['status'] : 'covered') === 'covered' ? 'active' : '' }}" onclick="selectToggle(this, 'covered')">Covered</span>
+                                    <span class="toggle-option partial {{ (isset($coverageMatrix[5]['status']) ? $coverageMatrix[5]['status'] : '') === 'partial' ? 'active' : '' }}" onclick="selectToggle(this, 'partial')">Partial</span>
+                                    <span class="toggle-option not-covered {{ (isset($coverageMatrix[5]['status']) ? $coverageMatrix[5]['status'] : '') === 'not' ? 'active' : '' }}" onclick="selectToggle(this, 'not')">Not</span>
                                 </div>
                             </div>
-                            <div class="partial-notes {{ old('coverage_matrix.5.status') === 'partial' ? 'active' : '' }}">
-                                <input type="text" class="form-input" name="coverage_matrix[5][partial_notes]" placeholder="Covers excess on collision claims" value="{{ old('coverage_matrix.5.partial_notes') }}">
+                            <div class="partial-notes {{ (isset($coverageMatrix[5]['status']) ? $coverageMatrix[5]['status'] : '') === 'partial' ? 'active' : '' }}">
+                                <input type="text" class="form-input" name="coverage_matrix[5][partial_notes]" placeholder="Covers excess on collision claims" value="{{ isset($coverageMatrix[5]['partial_notes']) ? $coverageMatrix[5]['partial_notes'] : '' }}">
                             </div>
                         </div>
 
                         <div class="coverage-card">
                             <div class="coverage-card-header">
                                 <input type="hidden" name="coverage_matrix[6][name]" value="Theft Excess Coverage">
-                                <input type="hidden" name="coverage_matrix[6][status]" class="coverage-item-status" value="{{ old('coverage_matrix.6.status', 'covered') }}">
+                                <input type="hidden" name="coverage_matrix[6][status]" class="coverage-item-status" value="{{ isset($coverageMatrix[6]['status']) ? $coverageMatrix[6]['status'] : 'covered' }}">
                                 <div class="coverage-name">Theft Excess Coverage</div>
                                 <div class="toggle-3state">
-                                    <span class="toggle-option covered {{ old('coverage_matrix.6.status', 'covered') === 'covered' ? 'active' : '' }}" onclick="selectToggle(this, 'covered')">Covered</span>
-                                    <span class="toggle-option partial {{ old('coverage_matrix.6.status') === 'partial' ? 'active' : '' }}" onclick="selectToggle(this, 'partial')">Partial</span>
-                                    <span class="toggle-option not-covered {{ old('coverage_matrix.6.status') === 'not' ? 'active' : '' }}" onclick="selectToggle(this, 'not')">Not</span>
+                                    <span class="toggle-option covered {{ (isset($coverageMatrix[6]['status']) ? $coverageMatrix[6]['status'] : 'covered') === 'covered' ? 'active' : '' }}" onclick="selectToggle(this, 'covered')">Covered</span>
+                                    <span class="toggle-option partial {{ (isset($coverageMatrix[6]['status']) ? $coverageMatrix[6]['status'] : '') === 'partial' ? 'active' : '' }}" onclick="selectToggle(this, 'partial')">Partial</span>
+                                    <span class="toggle-option not-covered {{ (isset($coverageMatrix[6]['status']) ? $coverageMatrix[6]['status'] : '') === 'not' ? 'active' : '' }}" onclick="selectToggle(this, 'not')">Not</span>
                                 </div>
                             </div>
-                            <div class="partial-notes {{ old('coverage_matrix.6.status') === 'partial' ? 'active' : '' }}">
-                                <input type="text" class="form-input" name="coverage_matrix[6][partial_notes]" placeholder="Covers excess on theft claims" value="{{ old('coverage_matrix.6.partial_notes') }}">
+                            <div class="partial-notes {{ (isset($coverageMatrix[6]['status']) ? $coverageMatrix[6]['status'] : '') === 'partial' ? 'active' : '' }}">
+                                <input type="text" class="form-input" name="coverage_matrix[6][partial_notes]" placeholder="Covers excess on theft claims" value="{{ isset($coverageMatrix[6]['partial_notes']) ? $coverageMatrix[6]['partial_notes'] : '' }}">
                             </div>
                         </div>
 
                         <div class="coverage-card">
                             <div class="coverage-card-header">
                                 <input type="hidden" name="coverage_matrix[7][name]" value="Windscreen Excess Coverage">
-                                <input type="hidden" name="coverage_matrix[7][status]" class="coverage-item-status" value="{{ old('coverage_matrix.7.status', 'covered') }}">
+                                <input type="hidden" name="coverage_matrix[7][status]" class="coverage-item-status" value="{{ isset($coverageMatrix[7]['status']) ? $coverageMatrix[7]['status'] : 'covered' }}">
                                 <div class="coverage-name">Windscreen Excess Coverage</div>
                                 <div class="toggle-3state">
-                                    <span class="toggle-option covered {{ old('coverage_matrix.7.status', 'covered') === 'covered' ? 'active' : '' }}" onclick="selectToggle(this, 'covered')">Covered</span>
-                                    <span class="toggle-option partial {{ old('coverage_matrix.7.status') === 'partial' ? 'active' : '' }}" onclick="selectToggle(this, 'partial')">Partial</span>
-                                    <span class="toggle-option not-covered {{ old('coverage_matrix.7.status') === 'not' ? 'active' : '' }}" onclick="selectToggle(this, 'not')">Not</span>
+                                    <span class="toggle-option covered {{ (isset($coverageMatrix[7]['status']) ? $coverageMatrix[7]['status'] : 'covered') === 'covered' ? 'active' : '' }}" onclick="selectToggle(this, 'covered')">Covered</span>
+                                    <span class="toggle-option partial {{ (isset($coverageMatrix[7]['status']) ? $coverageMatrix[7]['status'] : '') === 'partial' ? 'active' : '' }}" onclick="selectToggle(this, 'partial')">Partial</span>
+                                    <span class="toggle-option not-covered {{ (isset($coverageMatrix[7]['status']) ? $coverageMatrix[7]['status'] : '') === 'not' ? 'active' : '' }}" onclick="selectToggle(this, 'not')">Not</span>
                                 </div>
                             </div>
-                            <div class="partial-notes {{ old('coverage_matrix.7.status', '') === 'partial' ? 'active' : '' }}">
-                                <input type="text" class="form-input" name="coverage_matrix[7][partial_notes]" placeholder="Up to £150 excess covered" value="{{ old('coverage_matrix.7.partial_notes') }}">
+                            <div class="partial-notes {{ (isset($coverageMatrix[7]['status']) ? $coverageMatrix[7]['status'] : '') === 'partial' ? 'active' : '' }}">
+                                <input type="text" class="form-input" name="coverage_matrix[7][partial_notes]" placeholder="Up to £150 excess covered" value="{{ isset($coverageMatrix[7]['partial_notes']) ? $coverageMatrix[7]['partial_notes'] : '' }}">
                             </div>
                         </div>
 
                         <div class="coverage-card">
                             <div class="coverage-card-header">
                                 <input type="hidden" name="coverage_matrix[8][name]" value="Tyre Damage Excess">
-                                <input type="hidden" name="coverage_matrix[8][status]" class="coverage-item-status" value="{{ old('coverage_matrix.8.status', 'covered') }}">
+                                <input type="hidden" name="coverage_matrix[8][status]" class="coverage-item-status" value="{{ isset($coverageMatrix[8]['status']) ? $coverageMatrix[8]['status'] : 'covered' }}">
                                 <div class="coverage-name">Tyre Damage Excess</div>
                                 <div class="toggle-3state">
-                                    <span class="toggle-option covered {{ old('coverage_matrix.8.status', 'covered') === 'covered' ? 'active' : '' }}" onclick="selectToggle(this, 'covered')">Covered</span>
-                                    <span class="toggle-option partial {{ old('coverage_matrix.8.status') === 'partial' ? 'active' : '' }}" onclick="selectToggle(this, 'partial')">Partial</span>
-                                    <span class="toggle-option not-covered {{ old('coverage_matrix.8.status') === 'not' ? 'active' : '' }}" onclick="selectToggle(this, 'not')">Not</span>
+                                    <span class="toggle-option covered {{ (isset($coverageMatrix[8]['status']) ? $coverageMatrix[8]['status'] : 'covered') === 'covered' ? 'active' : '' }}" onclick="selectToggle(this, 'covered')">Covered</span>
+                                    <span class="toggle-option partial {{ (isset($coverageMatrix[8]['status']) ? $coverageMatrix[8]['status'] : '') === 'partial' ? 'active' : '' }}" onclick="selectToggle(this, 'partial')">Partial</span>
+                                    <span class="toggle-option not-covered {{ (isset($coverageMatrix[8]['status']) ? $coverageMatrix[8]['status'] : '') === 'not' ? 'active' : '' }}" onclick="selectToggle(this, 'not')">Not</span>
                                 </div>
                             </div>
-                            <div class="partial-notes {{ old('coverage_matrix.8.status', '') === 'partial' ? 'active' : '' }}">
-                                <input type="text" class="form-input" name="coverage_matrix[8][partial_notes]" placeholder="Up to £100 per tyre" value="{{ old('coverage_matrix.8.partial_notes') }}">
+                            <div class="partial-notes {{ (isset($coverageMatrix[8]['status']) ? $coverageMatrix[8]['status'] : '') === 'partial' ? 'active' : '' }}">
+                                <input type="text" class="form-input" name="coverage_matrix[8][partial_notes]" placeholder="Up to £100 per tyre" value="{{ isset($coverageMatrix[8]['partial_notes']) ? $coverageMatrix[8]['partial_notes'] : '' }}">
                             </div>
                         </div>
 
                         <div class="coverage-card">
                             <div class="coverage-card-header">
                                 <input type="hidden" name="coverage_matrix[9][name]" value="Admin Fee Waiver">
-                                <input type="hidden" name="coverage_matrix[9][status]" class="coverage-item-status" value="{{ old('coverage_matrix.9.status', 'covered') }}">
+                                <input type="hidden" name="coverage_matrix[9][status]" class="coverage-item-status" value="{{ isset($coverageMatrix[9]['status']) ? $coverageMatrix[9]['status'] : 'covered' }}">
                                 <div class="coverage-name">Admin Fee Waiver</div>
                                 <div class="toggle-3state">
-                                    <span class="toggle-option covered {{ old('coverage_matrix.9.status', 'covered') === 'covered' ? 'active' : '' }}" onclick="selectToggle(this, 'covered')">Covered</span>
-                                    <span class="toggle-option partial {{ old('coverage_matrix.9.status') === 'partial' ? 'active' : '' }}" onclick="selectToggle(this, 'partial')">Partial</span>
-                                    <span class="toggle-option not-covered {{ old('coverage_matrix.9.status') === 'not' ? 'active' : '' }}" onclick="selectToggle(this, 'not')">Not</span>
+                                    <span class="toggle-option covered {{ (isset($coverageMatrix[9]['status']) ? $coverageMatrix[9]['status'] : 'covered') === 'covered' ? 'active' : '' }}" onclick="selectToggle(this, 'covered')">Covered</span>
+                                    <span class="toggle-option partial {{ (isset($coverageMatrix[9]['status']) ? $coverageMatrix[9]['status'] : '') === 'partial' ? 'active' : '' }}" onclick="selectToggle(this, 'partial')">Partial</span>
+                                    <span class="toggle-option not-covered {{ (isset($coverageMatrix[9]['status']) ? $coverageMatrix[9]['status'] : '') === 'not' ? 'active' : '' }}" onclick="selectToggle(this, 'not')">Not</span>
                                 </div>
                             </div>
-                            <div class="partial-notes {{ old('coverage_matrix.9.status') === 'partial' ? 'active' : '' }}">
-                                <input type="text" class="form-input" name="coverage_matrix[9][partial_notes]" placeholder="All admin fees waived on claims" value="{{ old('coverage_matrix.9.partial_notes') }}">
+                            <div class="partial-notes {{ (isset($coverageMatrix[9]['status']) ? $coverageMatrix[9]['status'] : '') === 'partial' ? 'active' : '' }}">
+                                <input type="text" class="form-input" name="coverage_matrix[9][partial_notes]" placeholder="All admin fees waived on claims" value="{{ isset($coverageMatrix[9]['partial_notes']) ? $coverageMatrix[9]['partial_notes'] : '' }}">
                             </div>
                         </div>
                     </div>
                 </div>
 
                 @php
-                    $whatNotCovered = old('what_not_covered', []);
+                    $whatNotCovered = json_decode($policy->what_not_covered ?? '[]', true);
                 @endphp
                 <div class="section">
                     <div class="section-header">
@@ -1220,7 +1230,7 @@
                             <div class="section-hint">These exclusions appear on customer certificates</div>
                         </div>
                     </div>
-                    <textarea class="form-textarea" name="key_exclusions" placeholder="Excess Protection exclusions wording for certificates...">{{ old('key_exclusions') }}</textarea>
+                    <textarea class="form-textarea" name="key_exclusions" placeholder="Excess Protection exclusions wording for certificates...">{{ $policy->key_exclusions }}</textarea>
                     @error('key_exclusions')
                         <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
                     @enderror
@@ -1239,9 +1249,9 @@
                             <div class="financial-label">Excess After Protection</div>
                             <div class="financial-value">
                                 <span class="currency-symbol">£</span>
-                                <input type="number" class="financial-input" name="excess_amount" min="0" id="excessAfter" value="{{ old('excess_amount') }}">
+                                <input type="number" class="financial-input" name="excess_amount" min="0" id="excessAfter" value="{{ $policy->excess_amount }}">
                             </div>
-                            <div class="mt-2" id="noExcessBadge" style="display: {{ old('excess_amount') == 0 ? 'block' : 'none' }};">
+                            <div class="mt-2" id="noExcessBadge" style="display: {{ $policy->excess_amount == 0 ? 'block' : 'none' }};">
                                 <span class="no-excess-badge">NO EXCESS</span>
                             </div>
                             @error('excess_amount')
@@ -1252,7 +1262,7 @@
                             <div class="financial-label">Max Payable Excess</div>
                             <div class="financial-value">
                                 <span class="currency-symbol">£</span>
-                                <input type="number" class="financial-input" name="max_claim_limit" min="0" value="{{ old('max_claim_limit') }}">
+                                <input type="number" class="financial-input" name="max_claim_limit" min="0" value="{{ $policy->max_claim_limit }}">
                             </div>
                             @error('max_claim_limit')
                                 <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
@@ -1262,7 +1272,7 @@
                             <div class="financial-label">Daily Rate</div>
                             <div class="financial-value">
                                 <span class="currency-symbol">£</span>
-                                <input type="number" class="financial-input" name="daily_rate" min="0" step="0.01" value="{{ old('daily_rate') }}">
+                                <input type="number" class="financial-input" name="daily_rate" min="0" step="0.01" value="{{ $policy->daily_rate }}">
                             </div>
                             @error('daily_rate')
                                 <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
@@ -1271,6 +1281,9 @@
                     </div>
                 </div>
 
+                @php 
+                    $documents = json_decode($policy->documents ?? '[]', true);
+                @endphp
                 <div class="section">
                     <div class="section-header">
                         <div class="section-icon purple">📄</div>
@@ -1282,73 +1295,85 @@
                     <div class="documents-list">
                         <div class="document-item">
                             <input type="file" name="documents[policy_schedule]" accept=".pdf,.doc,.docx" class="d-none" id="policySchedule">
-                            <div class="document-icon">📋</div>
+                            <div class="document-icon">
+                                @if(isset($documents['policy_schedule']))
+                                    <a href="{{ asset('storage/' . $documents['policy_schedule']) }}" target="_blank">📋</a>
+                                @else
+                                    📋
+                                @endif
+                            </div>
                             <div class="document-info">
                                 <div class="document-name">Policy Schedule</div>
                                 <div class="document-status">
-                                    <span class="status-dot missing"></span>
-                                    <span class="document-status-text">Upload</span>
+                                    <span class="status-dot {{ isset($documents['policy_schedule']) ? 'uploaded' : 'missing' }}"></span>
+                                    <span class="document-status-text">{{ isset($documents['policy_schedule']) ? 'Uploaded' : 'Upload' }}</span>
                                 </div>
-                                @error('documents.policy_schedule')
-                                    <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
-                                @enderror
                             </div>
                             <div class="document-actions">
-                                <button class="btn btn-small btn-secondary" type="button" onclick="updateDoc('#policySchedule', this)">Upload</button>
+                                <button class="btn btn-small btn-secondary" type="button" onclick="updateDoc('#policySchedule', this)">{{ isset($documents['policy_schedule']) ? 'Replace' : 'Upload' }}</button>
                             </div>
                         </div>
 
                         <div class="document-item">
                             <input type="file" name="documents[terms_and_conditions]" accept=".pdf,.doc,.docx" class="d-none" id="termsAndConditions">
-                            <div class="document-icon">📑</div>
+                            <div class="document-icon">
+                                @if(isset($documents['terms_and_conditions']))
+                                    <a href="{{ asset('storage/' . $documents['terms_and_conditions']) }}" target="_blank">📑</a>
+                                @else
+                                    📑
+                                @endif
+                            </div>
                             <div class="document-info">
                                 <div class="document-name">Terms & Conditions</div>
                                 <div class="document-status">
-                                    <span class="status-dot missing"></span>
-                                    <span class="document-status-text">Upload</span>
+                                    <span class="status-dot {{ isset($documents['terms_and_conditions']) ? 'uploaded' : 'missing' }}"></span>
+                                    <span class="document-status-text">{{ isset($documents['terms_and_conditions']) ? 'Uploaded' : 'Upload' }}</span>
                                 </div>
-                                @error('documents.terms_and_conditions')
-                                    <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
-                                @enderror
                             </div>
                             <div class="document-actions">
-                                <button class="btn btn-small btn-secondary" type="button" onclick="updateDoc('#termsAndConditions', this)">Upload</button>
+                                <button class="btn btn-small btn-secondary" type="button" onclick="updateDoc('#termsAndConditions', this)">{{ isset($documents['terms_and_conditions']) ? 'Replace' : 'Upload' }}</button>
                             </div>
                         </div>
 
                         <div class="document-item">
                             <input type="file" name="documents[ipid]" accept=".pdf,.doc,.docx" class="d-none" id="ipid">
-                            <div class="document-icon">📄</div>
+                            <div class="document-icon">
+                                @if(isset($documents['ipid']))
+                                    <a href="{{ asset('storage/' . $documents['ipid']) }}" target="_blank">📄</a>
+                                @else
+                                    📄
+                                @endif
+                            </div>
                             <div class="document-info">
                                 <div class="document-name">IPID (Insurance Product Information Document)</div>
                                 <div class="document-status">
-                                    <span class="status-dot missing"></span>
-                                    <span class="document-status-text">Upload</span>
+                                    <span class="status-dot {{ isset($documents['ipid']) ? 'uploaded' : 'missing' }}"></span>
+                                    <span class="document-status-text">{{ isset($documents['ipid']) ? 'Uploaded' : 'Upload' }}</span>
                                 </div>
-                                @error('documents.ipid')
-                                    <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
-                                @enderror
                             </div>
                             <div class="document-actions">
-                                <button class="btn btn-small btn-secondary" type="button" onclick="updateDoc('#ipid', this)">Upload</button>
+                                <button class="btn btn-small btn-secondary" type="button" onclick="updateDoc('#ipid', this)">{{ isset($documents['ipid']) ? 'Replace' : 'Upload' }}</button>
                             </div>
                         </div>
 
                         <div class="document-item">
                             <input type="file" name="documents[insurer_certificate]" accept=".pdf,.doc,.docx" class="d-none" id="insurerCertificate">
-                            <div class="document-icon">🏢</div>
+                            <div class="document-icon">
+                                @if(isset($documents['insurer_certificate']))
+                                    <a href="{{ asset('storage/' . $documents['insurer_certificate']) }}" target="_blank">🏢</a>
+                                @else
+                                    🏢
+                                @endif
+                            </div>
                             <div class="document-info">
                                 <div class="document-name">Insurer Certificate</div>
                                 <div class="document-status">
-                                    <span class="status-dot missing"></span>
-                                    <span class="document-status-text">Upload</span>
+                                    <span class="status-dot {{ isset($documents['insurer_certificate']) ? 'uploaded' : 'missing' }}"></span>
+                                    <span class="document-status-text">{{ isset($documents['insurer_certificate']) ? 'Uploaded' : 'Upload' }}</span>
                                 </div>
-                                @error('documents.insurer_certificate')
-                                    <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
-                                @enderror
                             </div>
                             <div class="document-actions">
-                                <button class="btn btn-small btn-secondary" type="button" onclick="updateDoc('#insurerCertificate', this)">Upload</button>
+                                <button class="btn btn-small btn-secondary" type="button" onclick="updateDoc('#insurerCertificate', this)">{{ isset($documents['insurer_certificate']) ? 'Replace' : 'Upload' }}</button>
                             </div>
                         </div>
                     </div>
@@ -1369,38 +1394,42 @@
                     </div>
 
                     <div class="tab-content active" id="tab-instructions">
-                        <textarea class="form-textarea" name="customer_instruction" placeholder="Enter step-by-step claims instructions for customers...">{{ old('customer_instruction') }}</textarea>
+                        <textarea class="form-textarea" name="customer_instruction" placeholder="Enter step-by-step claims instructions for customers...">{{ $policy->customer_instruction }}</textarea>
                         @error('customer_instruction')
                             <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
                         @enderror
                     </div>
 
+                    @php
+                        $claims_contact = json_decode($policy->claims_contact ?? '[]', true);
+                    @endphp
+
                     <div class="tab-content" id="tab-contact">
                         <div class="form-grid">
                             <div class="form-group">
                                 <label class="form-label">Excess Protection Claims Email</label>
-                                <input type="email" class="form-input" name="claims_contact[email]" value="{{ old('claims_contact.email') }}">
+                                <input type="email" class="form-input" name="claims_contact[email]" value="{{ isset($claims_contact['email']) ? $claims_contact['email'] : old('claims_contact.email') }}">
                                 @error('claims_contact.email')
                                     <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
                                 @enderror
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Claims Phone</label>
-                                <input type="tel" class="form-input" name="claims_contact[phone]" value="{{ old('claims_contact.phone') }}">
+                                <input type="tel" class="form-input" name="claims_contact[phone]" value="{{ isset($claims_contact['phone']) ? $claims_contact['phone'] : old('claims_contact.phone') }}">
                                 @error('claims_contact.phone')
                                     <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
                                 @enderror
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Claims Address</label>
-                                <input type="text" class="form-input" name="claims_contact[address]" value="{{ old('claims_contact.address') }}">
+                                <input type="text" class="form-input" name="claims_contact[address]" value="{{ isset($claims_contact['address']) ? $claims_contact['address'] : old('claims_contact.address') }}">
                                 @error('claims_contact.address')
                                     <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
                                 @enderror
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Claims Portal URL</label>
-                                <input type="url" class="form-input" name="claims_contact[portal_url]" value="{{ old('claims_contact.portal_url') }}">
+                                <input type="url" class="form-input" name="claims_contact[portal_url]" value="{{ isset($claims_contact['portal_url']) ? $claims_contact['portal_url'] : old('claims_contact.portal_url') }}">
                                 @error('claims_contact.portal_url')
                                     <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
                                 @enderror
@@ -1408,8 +1437,8 @@
                         </div>
                     </div>
 
-                    @php
-                        $requiredDocuments = old('required_documents', []);
+                    @php 
+                        $required_documents = json_decode($policy->required_documents ?? '[]', true);
                     @endphp
                     <div class="tab-content" id="tab-documents">
                         @error('required_documents')
@@ -1417,35 +1446,35 @@
                         @enderror
                         <div class="checklist">
                             <div class="checklist-item">
-                                <input type="checkbox" id="doc1" name="required_documents[]" value="Rental Agreement showing Excess Protection purchased" {{ in_array('Rental Agreement showing Excess Protection purchased', $requiredDocuments) ? 'checked' : '' }}>
+                                <input type="checkbox" id="doc1" name="required_documents[]" value="Rental Agreement showing Excess Protection purchased" {{ in_array('Rental Agreement showing Excess Protection purchased', $required_documents) ? 'checked' : '' }}>
                                 <label for="doc1">Rental Agreement showing Excess Protection purchased</label>
                             </div>
                             <div class="checklist-item">
-                                <input type="checkbox" id="doc2" name="required_documents[]" value="Primary CDW/Theft claim settlement letter" {{ in_array('Primary CDW/Theft claim settlement letter', $requiredDocuments) ? 'checked' : '' }}>
+                                <input type="checkbox" id="doc2" name="required_documents[]" value="Primary CDW/Theft claim settlement letter" {{ in_array('Primary CDW/Theft claim settlement letter', $required_documents) ? 'checked' : '' }}>
                                 <label for="doc2">Primary CDW/Theft claim settlement letter</label>
                             </div>
                             <div class="checklist-item">
-                                <input type="checkbox" id="doc3" name="required_documents[]" value="Proof of excess payment (bank statement/receipt)" {{ in_array('Proof of excess payment (bank statement/receipt)', $requiredDocuments) ? 'checked' : '' }}>
+                                <input type="checkbox" id="doc3" name="required_documents[]" value="Proof of excess payment (bank statement/receipt)" {{ in_array('Proof of excess payment (bank statement/receipt)', $required_documents) ? 'checked' : '' }}>
                                 <label for="doc3">Proof of excess payment (bank statement/receipt)</label>
                             </div>
                             <div class="checklist-item">
-                                <input type="checkbox" id="doc4" name="required_documents[]" value="Completed Excess Protection reimbursement form" {{ in_array('Completed Excess Protection reimbursement form', $requiredDocuments) ? 'checked' : '' }}>
+                                <input type="checkbox" id="doc4" name="required_documents[]" value="Completed Excess Protection reimbursement form" {{ in_array('Completed Excess Protection reimbursement form', $required_documents) ? 'checked' : '' }}>
                                 <label for="doc4">Completed Excess Protection reimbursement form</label>
                             </div>
                             <div class="checklist-item">
-                                <input type="checkbox" id="doc5" name="required_documents[]" value="Original incident photos and police report" {{ in_array('Original incident photos and police report', $requiredDocuments) ? 'checked' : '' }}>
+                                <input type="checkbox" id="doc5" name="required_documents[]" value="Original incident photos and police report" {{ in_array('Original incident photos and police report', $required_documents) ? 'checked' : '' }}>
                                 <label for="doc5">Original incident photos and police report</label>
                             </div>
                             <div class="checklist-item">
-                                <input type="checkbox" id="doc6" name="required_documents[]" value="Driver's license copy" {{ in_array("Driver's license copy", $requiredDocuments) ? 'checked' : '' }}>
+                                <input type="checkbox" id="doc6" name="required_documents[]" value="Driver's license copy" {{ in_array("Driver's license copy", $required_documents) ? 'checked' : '' }}>
                                 <label for="doc6">Driver's license copy</label>
                             </div>
                             <div class="checklist-item">
-                                <input type="checkbox" id="doc7" name="required_documents[]" value="Repair invoice (if available)" {{ in_array('Repair invoice (if available)', $requiredDocuments) ? 'checked' : '' }}>
+                                <input type="checkbox" id="doc7" name="required_documents[]" value="Repair invoice (if available)" {{ in_array('Repair invoice (if available)', $required_documents) ? 'checked' : '' }}>
                                 <label for="doc7">Repair invoice (if available)</label>
                             </div>
                             <div class="checklist-item">
-                                <input type="checkbox" id="doc8" name="required_documents[]" value="Insurance correspondence" {{ in_array('Insurance correspondence', $requiredDocuments) ? 'checked' : '' }}>
+                                <input type="checkbox" id="doc8" name="required_documents[]" value="Insurance correspondence" {{ in_array('Insurance correspondence', $required_documents) ? 'checked' : '' }}>
                                 <label for="doc8">Insurance correspondence</label>
                             </div>
                         </div>
