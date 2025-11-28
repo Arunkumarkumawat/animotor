@@ -1556,7 +1556,7 @@
     <script>
         // Toggle Panel Accordion
         function togglePanel() {
-            const panel = document.getElementById('fullProtectionPanel');
+            const panel = document.getElementById('cdwPanel');
             panel.classList.toggle('collapsed');
         }
 
@@ -1704,7 +1704,7 @@
 
         function setStatusAndPost(status){
             document.querySelector('#policyStatus').value = status;
-            document.querySelector('#fullProtectionPanel').submit();
+            document.querySelector('#cdwPanel').submit();
         }
     </script>
 </body>

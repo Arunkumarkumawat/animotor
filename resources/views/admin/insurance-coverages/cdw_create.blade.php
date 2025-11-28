@@ -1701,7 +1701,7 @@
 
         function setStatusAndPost(status){
             document.querySelector('#policyStatus').value = status;
-            document.querySelector('#fullProtectionPanel').submit();
+            document.querySelector('#cdwPanel').submit();
         }
     </script>
 </body>

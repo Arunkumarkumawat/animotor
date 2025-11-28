@@ -409,4 +409,40 @@ class FrontPageController extends Controller
         $contents = $page->contents;
         return view('frontpage.page', compact('contents','page'));
     }
+
+    public function privateHireList(){
+        return view('frontpage.private_hire.list');
+    }
+
+    public function privateHireSingle($id){
+        return view('frontpage.private_hire.single');
+    }
+
+    public function privateHireExtras($id){
+        return view('frontpage.private_hire.extras');
+    }
+
+    public function privateHireCheckout($id){
+        return view('frontpage.private_hire.checkout');
+    }
+
+    public function chauffeurSearch(){
+        return view('frontpage.chauffeur.search');
+    }
+
+    public function chauffeurList(){
+        return view('frontpage.chauffeur.list');
+    }
+
+    public function chauffeurSingle($id){
+        return view('frontpage.chauffeur.single');
+    }
+
+    public function chauffeurExtras($id){
+        return view('frontpage.chauffeur.extras');
+    }
+
+    public function chauffeurCheckout($id){
+        return view('frontpage.chauffeur.checkout');
+    }
 }

@@ -1643,7 +1643,7 @@
 
         function setStatusAndPost(status){
             document.querySelector('#policyStatus').value = status;
-            document.querySelector('#fullProtectionPanel').submit();
+            document.querySelector('#addonsPanel').submit();
         }
     </script>
 </body>

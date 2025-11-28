@@ -1003,7 +1003,7 @@
                                 </div>
                             </div>
                             <div class="partial-notes {{ old('coverage_matrix.0.status') === 'partial' ? 'active' : '' }}">
-                                <input type="text" class="form-input" placeholder="All 4 tyres & wheels covered" value="{{ old('coverage_matrix.0.partial_notes') }}">
+                                <input name="coverage_matrix[0][partial_notes]" type="text" class="form-input" placeholder="All 4 tyres & wheels covered" value="{{ old('coverage_matrix.0.partial_notes') }}">
                             </div>
                         </div>
 
@@ -1020,7 +1020,7 @@
                                 </div>
                             </div>
                             <div class="partial-notes {{ old('coverage_matrix.1.status') === 'partial' ? 'active' : '' }}">
-                                <input type="text" class="form-input" placeholder="Windscreen, windows, mirrors covered" value="{{ old('coverage_matrix.1.partial_notes') }}">
+                                <input name="coverage_matrix[1][partial_notes]" type="text" class="form-input" placeholder="Windscreen, windows, mirrors covered" value="{{ old('coverage_matrix.1.partial_notes') }}">
                             </div>
                         </div>
 
@@ -1037,7 +1037,7 @@
                                 </div>
                             </div>
                             <div class="partial-notes {{ old('coverage_matrix.2.status') === 'partial' ? 'active' : '' }}">
-                                <input type="text" class="form-input" placeholder="Up to £400 replacement cost" value="{{ old('coverage_matrix.2.partial_notes') }}">
+                                <input name="coverage_matrix[2][partial_notes]" type="text" class="form-input" placeholder="Up to £400 replacement cost" value="{{ old('coverage_matrix.2.partial_notes') }}">
                             </div>
                         </div>
 
@@ -1054,7 +1054,7 @@
                                 </div>
                             </div>
                             <div class="partial-notes {{ old('coverage_matrix.3.status') === 'partial' ? 'active' : '' }}">
-                                <input type="text" class="form-input" placeholder="Unlimited callouts" value="{{ old('coverage_matrix.3.partial_notes') }}">
+                                <input name="coverage_matrix[3][partial_notes]" type="text" class="form-input" placeholder="Unlimited callouts" value="{{ old('coverage_matrix.3.partial_notes') }}">
                             </div>
                         </div>
 
@@ -1071,7 +1071,7 @@
                                 </div>
                             </div>
                             <div class="partial-notes {{ old('coverage_matrix.4.status') === 'partial' ? 'active' : '' }}">
-                                <input type="text" class="form-input" placeholder="Up to 100 miles" value="{{ old('coverage_matrix.4.partial_notes') }}">
+                                <input name="coverage_matrix[4][partial_notes]" type="text" class="form-input" placeholder="Up to 100 miles" value="{{ old('coverage_matrix.4.partial_notes') }}">
                             </div>
                         </div>
 
@@ -1088,7 +1088,7 @@
                                 </div>
                             </div>
                             <div class="partial-notes {{ old('coverage_matrix.5.status') === 'partial' ? 'active' : '' }}">
-                                <input type="text" class="form-input" value="Covers sump & exhaust damage">
+                                <input name="coverage_matrix[5][partial_notes]" type="text" class="form-input" value="Covers sump & exhaust damage">
                             </div>
                         </div>
 
@@ -1105,7 +1105,7 @@
                                 </div>
                             </div>
                             <div class="partial-notes {{ old('coverage_matrix.6.status') === 'partial' ? 'active' : '' }}">
-                                <input type="text" class="form-input" placeholder="Including sunroof damage" value="{{ old('coverage_matrix.6.partial_notes') }}">
+                                <input name="coverage_matrix[6][partial_notes]" type="text" class="form-input" placeholder="Including sunroof damage" value="{{ old('coverage_matrix.6.partial_notes') }}">
                             </div>
                         </div>
 
@@ -1122,7 +1122,7 @@
                                 </div>
                             </div>
                             <div class="partial-notes {{ old('coverage_matrix.7.status') === 'partial' ? 'active' : '' }}">
-                                <input type="text" class="form-input" placeholder="Up to 2 seats per rental" value="{{ old('coverage_matrix.7.partial_notes') }}">
+                                <input name="coverage_matrix[7][partial_notes]" type="text" class="form-input" placeholder="Up to 2 seats per rental" value="{{ old('coverage_matrix.7.partial_notes') }}">
                             </div>
                         </div>
 
@@ -1139,7 +1139,7 @@
                                 </div>
                             </div>
                             <div class="partial-notes {{ old('coverage_matrix.8.status') === 'partial' ? 'active' : '' }}">
-                                <input type="text" class="form-input" placeholder="Included in rental" value="{{ old('coverage_matrix.8.partial_notes') }}">
+                                <input name="coverage_matrix[8][partial_notes]" type="text" class="form-input" placeholder="Included in rental" value="{{ old('coverage_matrix.8.partial_notes') }}">
                             </div>
                         </div>
 
@@ -1156,7 +1156,7 @@
                                 </div>
                             </div>
                             <div class="partial-notes {{ old('coverage_matrix.9.status') === 'partial' ? 'active' : '' }}">
-                                <input type="text" class="form-input" placeholder="Up to 3 additional drivers" value="{{ old('coverage_matrix.9.partial_notes') }}">
+                                <input name="coverage_matrix[9][partial_notes]" type="text" class="form-input" placeholder="Up to 3 additional drivers" value="{{ old('coverage_matrix.9.partial_notes') }}">
                             </div>
                         </div>
                     </div>
@@ -1603,7 +1603,7 @@
 
         function setStatusAndPost(status){
             document.querySelector('#policyStatus').value = status;
-            document.querySelector('#fullProtectionPanel').submit();
+            document.querySelector('#addonsPanel').submit();
         }
     </script>
 </body>

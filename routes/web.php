@@ -82,6 +82,18 @@ Route::group(['middleware' => ['auto_login_required']], function () {
 Route::get('/home', function () {
     return redirect()->route('dashboard');
 });
+
+Route::get('/private-hire-list', [FrontPageController::class, 'privateHireList'])->name('private_hire_list');
+Route::get('/private-hire-single/{id}', [FrontPageController::class, 'privateHireSingle'])->name('private_hire_single');
+Route::get('/private-hire-extras/{id}', [FrontPageController::class, 'privateHireExtras'])->name('private_hire_extras');
+Route::get('/private-hire-checkout/{id}', [FrontPageController::class, 'privateHireCheckout'])->name('private_hire_checkout');
+
+Route::get('/chauffeur-search', [FrontPageController::class, 'chauffeurSearch'])->name('chauffeur_search');
+Route::get('/chauffeur-list', [FrontPageController::class, 'chauffeurList'])->name('chauffeur_list');
+Route::get('/chauffeur-single/{id}', [FrontPageController::class, 'chauffeurSingle'])->name('chauffeur_single');
+Route::get('/chauffeur-extras/{id}', [FrontPageController::class, 'chauffeurExtras'])->name('chauffeur_extras');
+Route::get('/chauffeur-checkout/{id}', [FrontPageController::class, 'chauffeurCheckout'])->name('chauffeur_checkout');
+
 Route::get('test/email', function () {
     return view('emails.account_notify');
 });
