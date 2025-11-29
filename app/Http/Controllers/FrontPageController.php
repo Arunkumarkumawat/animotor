@@ -6,12 +6,14 @@ use App\Models\Car;
 use App\Models\Page;
 use App\Models\User;
 use App\Models\Booking;
+use App\Models\VehicleType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use App\Services\WalletService;
 use App\Services\PaymentService;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
+use App\Services\NotificationService;
 use Illuminate\Support\Facades\Cache;
 use Laravel\Sanctum\PersonalAccessToken;
 
@@ -410,12 +412,43 @@ class FrontPageController extends Controller
         return view('frontpage.page', compact('contents','page'));
     }
 
-    public function privateHireList(){
-        return view('frontpage.private_hire.list');
+    public function privateHireList(Request $request){
+        $carTypes = VehicleType::where('is_active', 1)->get();
+        $cars = Car::where('is_available', 1)
+            ->where('private_hire', 1)
+            ->when($request->get('car_types'), function ($query) use ($request) {
+                $query->whereIn('type', $request->get('car_types'));
+            })
+            ->when($request->get('renting_terms'), function ($query) use ($request) {
+                foreach($request->get('renting_terms') as $term){
+                    $query->orWhere($term, 1);
+                }
+            })
+            ->when($request->get('max_weekly_rent'), function ($query) use ($request) {
+                $query->where('weekly_rate', '>=', $request->get('max_weekly_rent'));
+            })
+            ->when($request->get('councils'), function ($query) use ($request) {
+                $query->whereIn('licensing_authority', $request->get('councils'));
+            })
+            ->when($request->get('features'), function ($query) use ($request) {
+                $featuresToSearch = $request->get('features');
+                $query->where(function ($query) use ($featuresToSearch) {
+                    foreach ($featuresToSearch as $feature) {
+                        $query->where($feature, 1);
+                    }
+                });
+            })
+            ->when($request->get('order'), function ($query) use ($request) {
+                $query->orderBy($request->get('order'), $request->get('order_dir', 'asc'));
+            })
+            ->get();
+        
+        return view('frontpage.private_hire.list', compact('carTypes', 'cars'));
     }
 
     public function privateHireSingle($id){
-        return view('frontpage.private_hire.single');
+        $car = Car::findOrFail($id);
+        return view('frontpage.private_hire.single', compact('car'));
     }
 
     public function privateHireExtras($id){

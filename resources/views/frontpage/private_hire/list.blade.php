@@ -183,62 +183,59 @@
     <div class="container p-4">
         <div class="row">
             <!-- Sidebar -->
-            <aside class="col-12 col-lg-3">
+            <form method="get" class="col-12 col-lg-3">
                 <div class="sidebar-card">
                     <div class="section-title">Car Type</div>
                     <div class="row gx-2">
                         <div class="col-6 col-xl-12">
-                            <div class="form-check"><input class="form-check-input" id="ctSmall" type="checkbox"><label
-                                    class="form-check-label small-muted" for="ctSmall">Small</label></div>
-                            <div class="form-check"><input class="form-check-input" id="ctLarge" type="checkbox"><label
-                                    class="form-check-label small-muted" for="ctLarge">Large</label></div>
-                            <div class="form-check"><input class="form-check-input" id="ctEstate" type="checkbox"><label
-                                    class="form-check-label small-muted" for="ctEstate">Estate</label></div>
-                            <div class="form-check"><input class="form-check-input" id="ctLuxury" type="checkbox"><label
-                                    class="form-check-label small-muted" for="ctLuxury">Luxury</label></div>
-                        </div>
-                        <div class="col-6 col-xl-12">
-                            <div class="form-check"><input class="form-check-input" id="ctMedium" type="checkbox"><label
-                                    class="form-check-label small-muted" for="ctMedium">Medium</label></div>
-                            <div class="form-check"><input class="form-check-input" id="ctSUV" type="checkbox"><label
-                                    class="form-check-label small-muted" for="ctSUV">SUV</label></div>
-                            <div class="form-check"><input class="form-check-input" id="ct7" type="checkbox"><label
-                                    class="form-check-label small-muted" for="ct7">7-Seater</label></div>
-                            <div class="form-check"><input class="form-check-input" id="ctPHV" type="checkbox"
-                                    checked><label class="form-check-label small-muted" for="ctPHV">Private Hire</label>
-                            </div>
+                            @php $selectedCarTypes = request()->get('car_types', []); @endphp
+                            @foreach ($carTypes as $carType)
+                                <div class="form-check">
+                                    <input class="form-check-input" id="ct-{{ $carType->id }}" value="{{ $carType->name }}"
+                                        type="checkbox" name="car_types[]" {{ in_array($carType->name, $selectedCarTypes) ? 'checked' : '' }}>
+                                    <label class="form-check-label small-muted"
+                                        for="ct-{{ $carType->id }}">{{ $carType->name }}</label>
+                                </div>
+                            @endforeach
                         </div>
                     </div>
                 </div>
 
                 <div class="sidebar-card">
                     <div class="section-title">PHV Hire Options</div>
-                    <div class="form-check"><input class="form-check-input" id="optFlex" type="checkbox"><label
-                            class="form-check-label small-muted" for="optFlex">Flex (Short-term)</label></div>
-                    <div class="form-check"><input class="form-check-input" id="optLong" type="checkbox"><label
-                            class="form-check-label small-muted" for="optLong">Long-term (3+ months)</label></div>
-                    <div class="form-check"><input class="form-check-input" id="optRent" type="checkbox"><label
-                            class="form-check-label small-muted" for="optRent">Rent-to-Buy</label></div>
+                    @php $selectedRentingTerms = request()->get('renting_terms', []); @endphp
+                    @foreach ([
+                        'short_term' => 'Flex (Short-term)',
+                        'long_term' => 'Long-term (3+ months)',
+                        'rent_to_buy' => 'Rent-to-Buy',
+                    ] as $key => $value)
+                        <div class="form-check">
+                            <input class="form-check-input" id="opt-{{ $key }}" type="checkbox" name="renting_terms[]" value="{{  $key }}" {{ in_array($key, $selectedRentingTerms) ? 'checked' : '' }}>
+                            <label class="form-check-label small-muted"
+                                for="opt-{{ $key }}">{{ $value }}</label>
+                        </div>
+                    @endforeach
                 </div>
 
                 <div class="sidebar-card">
-                    <div class="section-title">Weekly Rent</div>
-                    <input type="range" class="form-range" min="0" max="500" value="120">
-                    <div class="small-muted mt-2">Up to £500/week</div>
+                    <div class="section-title">Max Weekly Rent</div>
+                    <input type="range" id="max-weekly-rent" class="form-range" min="0" max="500"
+                        value="{{ request()->get('max_weekly_rent', 120) }}" name="max_weekly_rent">
+                    <div class="small-muted mt-2">Up to {{ settings('currency_symbol', '$') }}<span
+                            id="max-weekly-rent-value">{{ request()->get('max_weekly_rent', 120) }}</span>/week</div>
                 </div>
 
                 <div class="sidebar-card">
                     <div class="section-title">Licensed Council</div>
-                    <div class="form-check"><input class="form-check-input" id="lcAny" type="checkbox"><label
-                            class="form-check-label small-muted" for="lcAny">Any Council</label></div>
-                    <div class="form-check"><input class="form-check-input" id="lcLondon" type="checkbox"><label
-                            class="form-check-label small-muted" for="lcLondon">London (TFL PHV)</label></div>
-                    <div class="form-check"><input class="form-check-input" id="lcWolver" type="checkbox"><label
-                            class="form-check-label small-muted" for="lcWolver">Wolverhampton</label></div>
-                    <div class="form-check"><input class="form-check-input" id="lcBham" type="checkbox"><label
-                            class="form-check-label small-muted" for="lcBham">Birmingham</label></div>
-                    <div class="form-check"><input class="form-check-input" id="lcManc" type="checkbox"><label
-                            class="form-check-label small-muted" for="lcManc">Manchester</label></div>
+                    @php $selectedCouncils = request()->get('councils', []); @endphp
+                    @foreach (['Transport for London', 'Manchester City Council', 'Birmingham City Council', 'Leeds City Council', 'Liverpool City Council', 'Newcastle City Council', 'Nottingham City Council', 'Salford City Council', 'Sheffield City Council', 'West Midlands City Council'] as $index => $council)
+                    <div class="form-check">
+                        <input class="form-check-input" name="councils[]" id="lc-{{ $index }}"
+                            value="{{ $council }}" type="checkbox" {{ in_array($council, $selectedCouncils) ? 'checked' : '' }}>
+                        <label class="form-check-label small-muted"
+                            for="lc-{{ $index }}">{{ $council }}</label>
+                    </div>
+                    @endforeach
                 </div>
 
                 <div class="sidebar-card">
@@ -257,22 +254,22 @@
                     <div class="small-muted mb-2">Platform Eligibility</div>
                     <div class="row">
                         <div class="col-6 small-muted">
-                            <div class="form-check"><input class="form-check-input" id="uberX"
-                                    type="checkbox"><label class="form-check-label small-muted" for="uberX">Uber
+                            <div class="form-check"><input class="form-check-input" id="uberX" type="checkbox"><label
+                                    class="form-check-label small-muted" for="uberX">Uber
                                     X</label></div>
-                            <div class="form-check"><input class="form-check-input" id="uberG"
-                                    type="checkbox"><label class="form-check-label small-muted" for="uberG">Uber
+                            <div class="form-check"><input class="form-check-input" id="uberG" type="checkbox"><label
+                                    class="form-check-label small-muted" for="uberG">Uber
                                     Green</label></div>
-                            <div class="form-check"><input class="form-check-input" id="uberC"
-                                    type="checkbox"><label class="form-check-label small-muted" for="uberC">Uber
+                            <div class="form-check"><input class="form-check-input" id="uberC" type="checkbox"><label
+                                    class="form-check-label small-muted" for="uberC">Uber
                                     Comfort</label></div>
                         </div>
                         <div class="col-6 small-muted">
-                            <div class="form-check"><input class="form-check-input" id="boltStd"
-                                    type="checkbox"><label class="form-check-label small-muted" for="boltStd">Bolt
+                            <div class="form-check"><input class="form-check-input" id="boltStd" type="checkbox"><label
+                                    class="form-check-label small-muted" for="boltStd">Bolt
                                     Standard</label></div>
-                            <div class="form-check"><input class="form-check-input" id="boltComf"
-                                    type="checkbox"><label class="form-check-label small-muted" for="boltComf">Bolt
+                            <div class="form-check"><input class="form-check-input" id="boltComf" type="checkbox"><label
+                                    class="form-check-label small-muted" for="boltComf">Bolt
                                     Comfort</label></div>
                             <div class="form-check"><input class="form-check-input" id="boltXL"
                                     type="checkbox"><label class="form-check-label small-muted" for="boltXL">Bolt
@@ -281,45 +278,34 @@
                     </div>
 
                     <hr>
-                    <div class="small-muted mb-2">Body Type</div>
-                    <div class="form-check"><input class="form-check-input" id="btSaloon" type="checkbox"><label
-                            class="form-check-label small-muted" for="btSaloon">Saloon</label></div>
-                    <div class="form-check"><input class="form-check-input" id="btEstate" type="checkbox"><label
-                            class="form-check-label small-muted" for="btEstate">Estate</label></div>
-                    <div class="form-check"><input class="form-check-input" id="btSUV" type="checkbox"><label
-                            class="form-check-label small-muted" for="btSUV">SUV</label></div>
-                    <div class="form-check"><input class="form-check-input" id="btMPV" type="checkbox"><label
-                            class="form-check-label small-muted" for="btMPV">MPV</label></div>
-                    <div class="form-check"><input class="form-check-input" id="bt7s" type="checkbox"><label
-                            class="form-check-label small-muted" for="bt7s">7-Seater</label></div>
-
-                    <hr>
                     <div class="small-muted mb-2">Features & Extras</div>
-                    <div class="form-check"><input class="form-check-input" id="feUL" type="checkbox"><label
-                            class="form-check-label small-muted" for="feUL">Unlimited Mileage</label></div>
-                    <div class="form-check"><input class="form-check-input" id="feIns" type="checkbox"><label
-                            class="form-check-label small-muted" for="feIns">Insurance Included</label></div>
-                    <div class="form-check"><input class="form-check-input" id="feMaint" type="checkbox"><label
-                            class="form-check-label small-muted" for="feMaint">Maintenance Included</label></div>
-                    <div class="form-check"><input class="form-check-input" id="feDash" type="checkbox"><label
-                            class="form-check-label small-muted" for="feDash">Dashcam</label></div>
-                    <div class="form-check"><input class="form-check-input" id="feCarplay" type="checkbox"><label
-                            class="form-check-label small-muted" for="feCarplay">CarPlay/Android Auto</label></div>
+                    @php $selectedFeatures = request()->get('features', []); @endphp 
+                    @foreach ([
+                        'ideal_for_family' => 'Ideal for Family',
+                        'free_cancellation' => 'Free cancellation',
+                        'collision_damage_waiver' => 'Collision Damage Waiver',
+                        'theft_protection' => ' Theft Protection',
+                        'unlimited_mileage' => 'Unlimited Mileage',
+                    ] as $key => $value)
+                        <div class="form-check">
+                            <input class="form-check-input" id="fe{{ $key }}" type="checkbox" name="features[]" value="{{ $key }}" {{ in_array($key, $selectedFeatures) ? 'checked' : '' }}>
+                            <label class="form-check-label small-muted" for="fe{{ $key }}">{{ $value }}</label>
+                        </div>
+                    @endforeach
                 </div>
 
                 <div class="d-grid gap-2 mt-2">
-                    <button class="btn btn-primary">Apply Filters</button>
-                    <button class="btn btn-outline-secondary">Clear All</button>
+                    <button type="submit" class="btn btn-primary">Apply Filters</button>
+                    <button type="reset" class="btn btn-outline-secondary">Clear All</button>
                 </div>
-            </aside>
+            </form method="get">
 
             <!-- Main -->
             <main class="col-12 col-lg-9">
                 <div class="p-2">
                     <div class="topbar mb-2">
                         <div>
-                            <h5 class="mb-0">1 cars available <small class="small-muted">(0 standard, 1 PHC)</small>
-                            </h5>
+                            <h5 class="mb-0">{{ $cars->count() }} cars available</h5>
                             <div class="active-filters mt-2">
                                 <div class="filter-pill">Private Hire</div>
                                 <div class="filter-pill">Free Cancellation</div>
@@ -329,71 +315,75 @@
 
                         <div class="d-flex align-items-center">
                             <div class="me-2 d-none d-md-flex gap-2">
-                                <button class="toggle-btn" title="Recommended">Recommended ▾</button>
-                            </div>
-                            <div class="btn-group me-2" role="group" aria-label="view toggle">
-                                <button class="btn btn-light toggle-btn"><svg xmlns="http://www.w3.org/2000/svg"
-                                        width="16" height="16" fill="currentColor" class="bi bi-list"
-                                        viewBox="0 0 16 16">
-                                        <path fill-rule="evenodd"
-                                            d="M2 12.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z" />
-                                    </svg></button>
-                                <button class="btn btn-light toggle-btn"><svg xmlns="http://www.w3.org/2000/svg"
-                                        width="16" height="16" fill="currentColor" class="bi bi-map"
-                                        viewBox="0 0 16 16">
-                                        <path
-                                            d="M15.817.113a.5.5 0 0 0-.56-.041L10 2.5 5.223.072a.5.5 0 0 0-.446 0L.182 2.145A.5.5 0 0 0 0 2.59v12.667a.5.5 0 0 0 .683.47L5 13.5l4.777 2.428a.5.5 0 0 0 .446 0l4.595-2.072A.5.5 0 0 0 15 13.41V.5a.5.5 0 0 0-.183-.387z" />
-                                    </svg></button>
+                                <div class="dropdown">
+                                    <button class="btn btn-light dropdown-toggle toggle-btn" type="button"
+                                        id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true"
+                                        aria-expanded="false">Recommended</button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <a class="dropdown-item" href="#">A-Z</a>
+                                        <a class="dropdown-item" href="#">Z-A</a>
+                                        <a class="dropdown-item" href="#">Price (low to high)</a>
+                                        <a class="dropdown-item" href="#">Price (high to low)</a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
+                    @foreach($cars as $car)
                     <!-- Car Card -->
                     <div class="car-card">
-                        <img src="/mnt/data/a15def2d-ad87-45f5-a323-5fbf3e71991b.png" alt="car" class="car-image">
+                        <img src="{{ $car->image }}" alt="car" class="car-image">
 
                         <div class="car-meta flex-grow-1">
                             <div class="tags">
-                                <div class="tag">Private Hire</div>
+                                @if($car->top_pick)
+                                <div class="tag">Top Pick</div>
+                                @endif
+                                @if($car->free_cancellation)
                                 <div class="tag">Free Cancellation</div>
+                                @endif
                             </div>
 
                             <div class="d-flex align-items-start justify-content-between">
                                 <div>
-                                    <div class="title">Toyota Auris <span class="badge rounded-pill"
-                                            style="background:#ffddcc;color:#9a4a00;font-weight:600">★ 4.5</span></div>
+                                    <div class="title">{{ $car->title }}</div>
                                     <div class="subtitle">Private Hire Vehicle</div>
                                 </div>
                                 <div class="small-muted text-end">From:</div>
                             </div>
 
                             <div class="row mt-3 small-muted">
-                                <div class="col-6 col-md-3">👥 5 Seats</div>
-                                <div class="col-6 col-md-3">🧳 2 Bags</div>
-                                <div class="col-6 col-md-3">⚙️ Automatic</div>
-                                <div class="col-6 col-md-3">⛽ Petrol</div>
+                                <div class="col-6 col-md-3">👥 {{ $car->seats }} Seats</div>
+                                <div class="col-6 col-md-3">🧳 {{ $car->bags_large }}+{{ $car->bags }} Bags</div>
+                                <div class="col-6 col-md-3">⚙️{{ $car->gear }}</div>
+                                <div class="col-6 col-md-3">⛽ {{ $car->fuel_type ?? 'Unknown' }}</div>
                             </div>
 
-                            <div class="mt-2 small-muted"> <span class="pill-green">Min 3 month(s)</span> · <span
-                                    style="color:#2f8f4f;font-weight:600">Free Cancellation</span></div>
-                            <div class="mt-2"><a href="#" class="small-muted">Important info & rental terms</a>
+                            <div class="mt-2 small-muted">
+                                <span class="pill-green">Min {{ $car->min_rental_period }}</span> · 
+                                @if($car->free_cancellation)
+                                <span class="pill-green">Free Cancellation</span> · 
+                                @endif
+                            </div>
+                            <div class="mt-2">
+                                <a href="#" class="small-muted">Important info & rental terms</a>
                             </div>
                         </div>
 
                         <div class="price-box">
-                            <div class="mb-2 small-muted text-end">Weekly/Monthly rates available</div>
-                            <div class="price">£23 <span class="small-muted" style="font-weight:600;font-size:12px">per
-                                    week</span></div>
+                            <div class="mb-2 small-muted text-end">{{ $car->renting_term }} rates available</div>
+                            <div class="price">{{ $car->min_rental_cost }}</div>
                             <div class="mt-2 deposit">
                                 <div class="small-muted">Deposit</div>
-                                <input class="form-control form-control-sm mt-1" value="£200">
+                                <input class="form-control form-control-sm mt-1" value="{{ $car->min_deposit }}" readonly>
                             </div>
                             <div class="mt-3 d-grid">
-                                <button class="btn" style="background:var(--accent);color:#fff" data-bs-toggle="modal" data-bs-target="#phvModal">View Options</button>
+                                <button class="btn" style="background:var(--accent);color:#fff" onclick="view_options('{{ $car->id }}')">View Options</button>
                             </div>
                         </div>
                     </div>
-
+                    @endforeach
                 </div>
             </main>
         </div>
@@ -445,7 +435,7 @@
                     <button class="btn btn-light px-4" data-bs-dismiss="modal">
                         Cancel / Go Back
                     </button>
-                    <a class="btn btn-primary px-4" href="{{ route('private_hire_single', 1) }}">
+                    <a class="btn btn-primary px-4" href="#" data-link="proceed">
                         I Understand & Continue
                     </a>
                 </div>
@@ -453,4 +443,11 @@
             </div>
         </div>
     </div>
+
+    <script type="Text/javascript">
+        function view_options(id){
+            jQuery('[data-link="proceed"]').attr('href', '{{ route('private_hire_single', '%id%') }}'.replace('%id%', id));
+            jQuery('#phvModal').modal('show');
+        }
+    </script>
 @endsection

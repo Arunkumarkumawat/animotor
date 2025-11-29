@@ -150,7 +150,7 @@
     <div class="container py-4 booking-page">
 
         <!-- Back to search -->
-        <a href="#" class="back-link d-inline-flex align-items-center mb-3">
+        <a href="{{ route('private_hire_list') }}" class="back-link d-inline-flex align-items-center mb-3">
             <i class="fas fa-arrow-left me-2"></i> Back to search results
         </a>
 
@@ -159,35 +159,39 @@
             <!-- LEFT -->
             <div class="col-lg-8 pe-lg-4">
 
-                <h2 class="car-title">Toyota Auris</h2>
+                <h2 class="car-title">{{ $car->name }}</h2>
 
                 <div class="d-flex align-items-center gap-2 mb-3">
-                    <span class="car-sub">Toyota Auris • 2025</span>
+                    <span class="car-sub">{{ $car->name }} • {{ $car->year }}</span>
                     <span class="badge badge-ph">Private Hire</span>
                 </div>
 
                 <!-- Car image -->
                 <div class="car-image mb-4">
-                    <img src="https://via.placeholder.com/1000x550" class="img-fluid" />
+                    <img src="{{ $car->image }}" class="img-fluid w-100" style="max-height: 400px;" />
                 </div>
 
                 <!-- Specs -->
                 <div class="spec-row d-flex justify-content-between text-center py-3">
                     <div>
                         <i class="fas fa-users spec-icon"></i>
-                        <div class="spec-text">5 Seats</div>
+                        <div class="spec-text">{{ $car->seats }} Seats</div>
                     </div>
                     <div>
                         <i class="fas fa-suitcase-rolling spec-icon"></i>
-                        <div class="spec-text">2 Bags</div>
+                        <div class="spec-text">{{ $car->bags }} Small Bags</div>
+                    </div>
+                    <div>
+                        <i class="fas fa-suitcase-rolling spec-icon"></i>
+                        <div class="spec-text">{{ $car->bags_large }} Large Bags</div>
                     </div>
                     <div>
                         <i class="fas fa-cog spec-icon"></i>
-                        <div class="spec-text">Automatic</div>
+                        <div class="spec-text">{{ $car->gear }}</div>
                     </div>
                     <div>
                         <i class="fas fa-gas-pump spec-icon"></i>
-                        <div class="spec-text">Petrol</div>
+                        <div class="spec-text">{{ $car->fuel_type ?? 'Unknown' }}</div>
                     </div>
                 </div>
 
@@ -195,7 +199,7 @@
                 <div class="license-box mt-4">
                     <i class="fas fa-info-circle me-2"></i>
                     <strong>Licensed Vehicle:</strong>
-                    This vehicle is licensed by Sheffield City Council for private hire operations. (Plate: PH0096)
+                    This vehicle is licensed by {{ $car->licensing_authority }} for private hire operations. (Plate: {{ $car->phv_plate_number }})
                 </div>
 
             </div>
@@ -210,16 +214,50 @@
 
                         <!-- Hire Tabs -->
                         <div class="hire-tabs d-flex mb-3">
-                            <button class="hire-tab active w-100">Flex</button>
-                            <button class="hire-tab w-100">Long-Term</button>
-                            <button class="hire-tab w-100">R2B</button>
+                            <input type="hidden" id="g_hire_option" name="hire_option" value="short_term">
+                            @if($car->short_term)
+                                <button type="button" onclick="selectHireOption(this, 'short_term')" class="hire-tab active w-100">Flex</button>
+                            @endif
+                            @if($car->long_term)
+                                <button type="button" onclick="selectHireOption(this, 'long_term')" class="hire-tab w-100">Long-Term</button>
+                            @endif
+                            @if($car->rent_to_buy)
+                                <button type="button" onclick="selectHireOption(this, 'rent_to_buy')" class="hire-tab w-100">R2B</button>
+                            @endif
                         </div>
 
-                        <!-- Insurance -->
-                        <label class="form-label fw-semibold">Insurance</label>
-                        <select class="form-select custom-select mb-3">
-                            <option>No Insurance (£220/week)</option>
-                        </select>
+                        <div id="short_term_pricing">
+                            <!-- Insurance -->
+                            <label class="form-label fw-semibold">Insurance</label>
+                            <select class="form-select custom-select mb-3">
+                                <option>No Insurance ({{ amt($car->short_term_weekly_price_wo_ins) }}/week)</option>
+                                <option>With Insurance ({{ amt($car->short_term_weekly_price_w_ins) }}/week)</option>
+                            </select>
+                        </div>
+
+                        <div id="long_term_pricing" class="d-none">
+                            <div>
+                                <label class="form-label fw-semibold">Term</label>
+                                <select class="form-select custom-select mb-3">
+                                    <option>3 months</option>
+                                    <option>6 months</option>
+                                    <option>9 months</option>
+                                    <option>12 months</option>
+                                    <option>18 months</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label fw-semibold">Insurance</label>
+                                <select class="form-select custom-select mb-3">
+                                    <option>No Insurance ({{ amt($car->short_term_weekly_price_wo_ins) }}/week)</option>
+                                    <option>With Insurance ({{ amt($car->short_term_weekly_price_w_ins) }}/week)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="rent_to_buy_pricing" class="d-none">
+
+                        </div>
 
                         <!-- Gray details box -->
                         <div class="details-box mb-3">
@@ -269,4 +307,12 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function selectHireOption(initiator,value){
+            jQuery('#g_hire_option').val(value);
+            jQuery('.hire-tab').removeClass('active');
+            jQuery(initiator).addClass('active');
+        }
+    </script>
 @endsection

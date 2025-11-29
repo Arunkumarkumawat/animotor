@@ -88,21 +88,13 @@ Route::get('/private-hire-single/{id}', [FrontPageController::class, 'privateHir
 Route::get('/private-hire-extras/{id}', [FrontPageController::class, 'privateHireExtras'])->name('private_hire_extras');
 Route::get('/private-hire-checkout/{id}', [FrontPageController::class, 'privateHireCheckout'])->name('private_hire_checkout');
 
-Route::get('/chauffeur-search', [FrontPageController::class, 'chauffeurSearch'])->name('chauffeur_search');
-Route::get('/chauffeur-list', [FrontPageController::class, 'chauffeurList'])->name('chauffeur_list');
-Route::get('/chauffeur-single/{id}', [FrontPageController::class, 'chauffeurSingle'])->name('chauffeur_single');
-Route::get('/chauffeur-extras/{id}', [FrontPageController::class, 'chauffeurExtras'])->name('chauffeur_extras');
-Route::get('/chauffeur-checkout/{id}', [FrontPageController::class, 'chauffeurCheckout'])->name('chauffeur_checkout');
-
 Route::get('test/email', function () {
     return view('emails.account_notify');
 });
 
 Route::get('/{slug}', [FrontPageController::class, 'page'])->name('page.show');
 
-
 //Route::get('/make/admin', [App\Http\Controllers\HomeController::class, 'makeAdmin']);
-
 
 include 'admin.php';
 include 'addons.php';

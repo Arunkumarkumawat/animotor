@@ -415,14 +415,14 @@
 
                     <!-- Right Button -->
                     <div class="card-content">
-                        <button class="btn btn-phv btn-lg px-5 py-3 rounded-4 fw-bold shadow-lg">
+                        <a href="{{ route('private_hire_list') }}" class="btn btn-phv btn-lg px-5 py-3 rounded-4 fw-bold shadow-lg">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                                 fill="currentColor" class="bi bi-search me-2" viewBox="0 0 16 16">
                                 <path
                                     d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.144.13.29.25.43.355l4.202 4.202a1 1 0 0 0 1.414-1.414l-4.202-4.202c-.105-.14-.225-.286-.355-.43zM7.5 12a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9" />
                             </svg>
                             Search PHV Cars
-                        </button>
+                        </a>
                     </div>
 
                 </div>

@@ -201,4 +201,72 @@ class Car extends Model
     {
         return 'Miles ' . ucwords(str_replace('_', ' ', str_replace('limited_', ' ', $this->mileage_policy)));
     }
+
+    public function getMinRentalPeriodAttribute()
+    {
+        if($this->private_hire){
+            if($this->short_term){
+                return $this->short_term_minimum_term . ' weeks';
+            } else if($this->long_term){
+                $termOptions = $this->long_term_term_options ?? [];
+                foreach($termOptions as $option){
+                    return str_replace('m', ' months', $option['value']);
+                }
+            } else if($this->rent_to_buy){
+                return $this->rent_to_buy_term . ' months';
+            }
+        }
+
+        return '';
+    }
+
+    public function getMinRentalCostAttribute()
+    {
+        if($this->private_hire){
+            if($this->short_term){
+                return amt($this->short_term_weekly_price_wo_ins) . ' / week';
+            } else if($this->long_term){
+                $termOptions = $this->long_term_term_options ?? [];
+
+                $minimumTerm = null;
+                foreach($termOptions as $option){
+                    $minimumTerm = str_replace('m', '', $option);
+                }
+                
+                return amt($this->long_term_prices[$minimumTerm . 'm']['price_wo_ins']) . ' / ' . $minimumTerm . ' months';
+            } else if($this->rent_to_buy){
+                return $this->rent_to_buy_price_per_cycle . ' / ' . $this->rent_to_buy_billing_cycle;
+            }
+        }
+
+        return '';
+    }
+
+    public function getMinDepositAttribute(){
+        if($this->private_hire){
+            if($this->short_term){
+                return amt($this->short_term_deposit);
+            } else if($this->long_term){
+                return amt($this->long_term_default_deposit);
+            } else if($this->rent_to_buy){
+                return amt($this->rent_to_buy_deposit_amount);
+            }
+        }
+
+        return '';
+    }
+
+    public function getRentingTermAttribute(){
+        if($this->private_hire){
+            if($this->short_term && $this->long_term){
+                return 'Weekly/Monthly';
+            } else if($this->short_term){
+                return 'Weekly';
+            } else if($this->long_term){
+                return 'Monthly';
+            }
+        }
+
+        return '';
+    }
 }
