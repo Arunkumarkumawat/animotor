@@ -6,6 +6,10 @@
     <title>Full Protection Insurance - {{ settings('site_name') }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        .text-red-500 {
+            color: red;
+            font-size: 12px;
+        }
         :root {
             --ani-blue: #003c7e;
             --ani-blue-dark: #002856;
@@ -283,7 +287,7 @@
         .section-hint {
             font-size: 13px;
             color: var(--grey-500);
-            margin-top: 4px;
+            margin-top: 0;
         }
 
         /* ========================================
@@ -919,6 +923,9 @@
                         </div>
                     </div>
                 </div>
+                <div class="panel-header-right">
+                    <a href="{{ route('admin.insurance-coverages.index') }}" class="btn btn-secondary btn-sm">Cancel</a>
+                </div>  
             </div>
 
             <!-- Panel Content -->
@@ -1023,7 +1030,7 @@
                             <div class="section-hint">Upload official company logo (PNG/JPG only)</div>
                         </div>
                     </div>
-                    <div class="file-upload-area d-none" xrole="logoUpload">
+                    <div class="file-upload-area {{ $policy->insurer_logo ? 'd-none' : '' }}" xrole="logoUpload">
                         <input type="file" accept=".png,.jpg,.jpeg" name="insurer_logo" id="insurerLogo">
                         <div class="upload-icon">📷</div>
                         <div class="upload-text">Click to upload or drag and drop</div>
@@ -1032,7 +1039,7 @@
                     @error('insurer_logo')
                         <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
                     @enderror
-                    <div class="file-preview active" id="logoPreview">
+                    <div class="file-preview {{ $policy->insurer_logo ? 'active' : '' }}" id="logoPreview">
                         <div class="file-preview-icon">
                             @if($policy->insurer_logo)
                                 <img src="{{ asset('storage/' . $policy->insurer_logo) }}" alt="Insurer Logo" style="width:100%; height: auto;">
@@ -1041,7 +1048,7 @@
                             @endif
                         </div>
                         <div class="file-preview-info">
-                            <div class="file-preview-name" xrole="file-name">File Uploaded</div>
+                            <div class="file-preview-name" xrole="file-name">{{ $policy->insurer_logo ? 'File Uploaded' : '' }}</div>
                             <div class="file-preview-size" xrole="file-size"></div>
                         </div>
                         <div class="file-preview-actions">

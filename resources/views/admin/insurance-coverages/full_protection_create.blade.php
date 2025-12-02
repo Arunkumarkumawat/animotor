@@ -283,7 +283,7 @@
         .section-hint {
             font-size: 13px;
             color: var(--grey-500);
-            margin-top: 4px;
+            margin-top: 0;
         }
 
         /* ========================================
@@ -895,6 +895,11 @@
         .items-center { align-items: center; }
 
         .d-none { display: none; }
+
+        .text-red-500 {
+            color: red;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
@@ -917,6 +922,9 @@
                             Premium coverage: CDW + Theft + Tyres + Glass + Keys + Zero Excess
                         </div>
                     </div>
+                </div>
+                <div class="panel-header-right">
+                    <a href="{{ route('admin.insurance-coverages.index') }}" class="btn btn-secondary btn-sm">Cancel</a>
                 </div>
             </div>
 

@@ -196,4 +196,12 @@ class InsuranceCoverageController extends Controller
 
         return redirect()->route('admin.insurance-coverages.index')->with('success', 'Insurance coverage updated successfully.');
     }
+
+    public function destroy($id)
+    {
+        $policy = InsuranceCoverage::findOrFail($id);
+        $policy->delete();
+
+        return redirect()->route('admin.insurance-coverages.index')->with('success', 'Insurance coverage deleted successfully.');
+    }
 }

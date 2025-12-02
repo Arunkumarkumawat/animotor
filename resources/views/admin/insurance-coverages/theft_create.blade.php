@@ -6,6 +6,10 @@
     <title>Theft Protection Insurance - {{ config('app.name') }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        .text-red-500 {
+            color: red;
+            font-size: 12px;
+        }
         :root {
             --ani-blue: #003c7e;
             --red: #dc2626;
@@ -268,7 +272,7 @@
         .section-hint {
             font-size: 13px;
             color: var(--grey-500);
-            margin-top: 4px;
+            margin-top: 0;
         }
 
         /* Form Fields */
@@ -844,28 +848,6 @@
             <input type="hidden" name="policy_type" value="Theft">
             <input type="hidden" name="status" id="policyStatus" value="draft">
 
-            @if($errors->any())
-            <div class="alert alert-danger mb-6 p-4 rounded-md bg-red-50 border-l-4 border-red-500">
-                <div class="flex">
-                    <div class="flex-shrink-0">
-                        <svg class="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                    <div class="ml-3">
-                        <h3 class="text-sm font-medium text-red-800">There {{ $errors->count() > 1 ? 'are' : 'is' }} {{ $errors->count() }} {{ Str::plural('error', $errors->count()) }} with your submission</h3>
-                        <div class="mt-2 text-sm text-red-700">
-                            <ul class="list-disc pl-5 space-y-1">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            @endif
-
             <div class="panel-header">
                 <div class="panel-header-left">
                     <div class="panel-icon">🔰</div>
@@ -875,6 +857,9 @@
                             Protection against full vehicle theft, attempted theft and stolen parts
                         </div>
                     </div>
+                </div>
+                <div class="panel-header-right">
+                    <a href="{{ route('admin.insurance-coverages.index') }}" class="btn btn-secondary btn-sm">Cancel</a>
                 </div>
             </div>
 
@@ -938,9 +923,6 @@
                                 Vehicle Class Applicability
                                 <span class="info-icon" data-tooltip="Vehicle types covered by Theft Protection">i</span>
                             </label>
-                            @error('vehicle_classes')
-                                <span class="text-red-500 text-xs mt-1 block mb-2">{{ $message }}</span>
-                            @enderror
                             <div class="form-checkbox-group">
                                 <label class="form-checkbox">
                                     <input type="checkbox" name="vehicle_classes[]" value="economy" {{ in_array('economy', $vehicleClasses) ? 'checked' : '' }}>
@@ -967,6 +949,9 @@
                                     MPV
                                 </label>
                             </div>
+                            @error('vehicle_classes')
+                                <span class="text-red-500 text-xs mt-1 block mb-2">{{ $message }}</span>
+                            @enderror
                         </div>
                     </div>
                 </div>

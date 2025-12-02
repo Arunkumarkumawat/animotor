@@ -268,7 +268,7 @@
         .section-hint {
             font-size: 13px;
             color: var(--grey-500);
-            margin-top: 4px;
+            margin-top: 0;
         }
 
         /* Form Fields */
@@ -834,6 +834,11 @@
         .d-none {
             display: none;
         }
+
+        .text-red-500 {
+            color: red;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
@@ -851,9 +856,12 @@
                     <div class="panel-title-group">
                         <div class="panel-title">Optional Add-Ons</div>
                         <div class="panel-subtitle">
-                            Additional coverage for tyres, glass, keys, roadside assistance and more
+                            Additional coverage for tyres, glass, keys, roadside assistance and mores
                         </div>
                     </div>
+                </div>
+                <div class="panel-header-right">
+                    <a href="{{ route('admin.insurance-coverages.index') }}" class="btn btn-secondary btn-sm">Cancel</a>
                 </div>
             </div>
 
@@ -917,9 +925,6 @@
                                 Vehicle Class Applicability
                                 <span class="info-icon" data-tooltip="Vehicle types eligible for Add-Ons">i</span>
                             </label>
-                            @error('vehicle_classes')
-                                <span class="text-red-500 text-xs mt-1 block mb-2">{{ $message }}</span>
-                            @enderror
                             <div class="form-checkbox-group">
                                 <label class="form-checkbox">
                                     <input type="checkbox" name="vehicle_classes[]" value="economy" {{ in_array('economy', $vehicleClasses) ? 'checked' : '' }}>
@@ -946,6 +951,9 @@
                                     MPV
                                 </label>
                             </div>
+                            @error('vehicle_classes')
+                                <span class="text-red-500 text-xs mt-1 block mb-2">{{ $message }}</span>
+                            @enderror
                         </div>
                     </div>
                 </div>

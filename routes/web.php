@@ -88,6 +88,12 @@ Route::get('/private-hire-single/{id}', [FrontPageController::class, 'privateHir
 Route::get('/private-hire-extras/{id}', [FrontPageController::class, 'privateHireExtras'])->name('private_hire_extras');
 Route::get('/private-hire-checkout/{id}', [FrontPageController::class, 'privateHireCheckout'])->name('private_hire_checkout');
 
+Route::get('/chauffeur/search', [FrontPageController::class, 'chauffeurSearch'])->name('frontpage.chauffeur.search');
+Route::get('/chauffeur/list', [FrontPageController::class, 'chauffeurList'])->name('frontpage.chauffeur.list');
+Route::get('/chauffeur/single/{id}', [FrontPageController::class, 'chauffeurSingle'])->name('frontpage.chauffeur.single');
+Route::get('/chauffeur/extras/{id}', [FrontPageController::class, 'chauffeurExtras'])->name('frontpage.chauffeur.extras');
+Route::get('/chauffeur/checkout/{id}', [FrontPageController::class, 'chauffeurCheckout'])->name('frontpage.chauffeur.checkout');
+
 Route::get('test/email', function () {
     return view('emails.account_notify');
 });

@@ -1,6 +1,7 @@
 @extends('frontpage.layout')
 
-@section('style')
+@push('styles')
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
         /* Gradient Background */
         .hero-section {
@@ -37,8 +38,13 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 10px;
         }
+
+        .select2-container.select2-selection--single {
+            height: 38px !important;
+            text-align: left !important;
+        }
     </style>
-@endsection
+@endpush
 
 @section('content')
     @include('frontpage.partials.private_hire.header')
@@ -55,57 +61,60 @@
             <div class="booking-box p-4 mt-4 mx-auto shadow">
                 <h5 class="fw-bold mb-3"><i class="fas fa-briefcase me-2"></i> Book Your Executive Chauffeur</h5>
 
-                <form>
+                <form action="{{ route('frontpage.chauffeur.list') }}" method="GET">
                     <div class="row g-3">
-
                         <div class="col-md-4">
                             <label class="form-label">
                                 <i class="fas fa-map-marker-alt me-1"></i> Pickup Location
                             </label>
-                            <input type="text" class="form-control" placeholder="Enter address or airport">
+                            <select class="form-select" name="location" id="pickup_location" style="width: 100%" required>
+                                <option value="">Select a location</option>
+                                @foreach($pickupLocations as $location)
+                                    <option value="{{ $location->id }}">{{ $location->name }}</option>
+                                @endforeach
+                            </select>
                         </div>
 
                         <div class="col-md-4">
                             <label class="form-label">
                                 <i class="far fa-calendar-alt me-1"></i> Date
                             </label>
-                            <input type="date" class="form-control">
+                            <input type="date" name="date" class="form-control" required>
                         </div>
 
                         <div class="col-md-4">
                             <label class="form-label">
                                 <i class="far fa-clock me-1"></i> Time
                             </label>
-                            <input type="time" class="form-control">
+                            <input type="time" name="time" class="form-control" required>
                         </div>
 
                         <div class="col-md-4">
                             <label class="form-label">Trip Type</label>
-                            <select class="form-select">
-                                <option>Hourly Hire</option>
-                                <option>One Way</option>
-                                <option>Return</option>
+                            <select name="trip_type" class="form-select" required>
+                                <option value="hourly">Hourly Hire</option>
+                                <option value="one_way">One Way</option>
+                                <option value="return">Return</option>
                             </select>
                         </div>
 
                         <div class="col-md-4">
                             <label class="form-label">Passengers</label>
-                            <select class="form-select">
-                                <option>1 Passenger</option>
-                                <option>2 Passengers</option>
-                                <option>3 Passengers</option>
-                                <option>4+ Passengers</option>
+                            <select name="passengers" class="form-select" required>
+                                <option value="1">1 Passenger</option>
+                                <option value="2">2 Passengers</option>
+                                <option value="3">3 Passengers</option>
+                                <option value="4">4+ Passengers</option>
                             </select>
                         </div>
 
                         <div class="col-md-4">
                             <label class="form-label">Service Type</label>
-                            <select class="form-select">
-                                <option>Vehicle with Driver</option>
-                                <option>Driver Only</option>
+                            <select name="service_type" class="form-select" required>
+                                <option value="vehicle_with_driver">Vehicle with Driver</option>
+                                <option value="driver_only">Driver Only</option>
                             </select>
                         </div>
-
                     </div>
 
                     <button type="submit" class="btn btn-warning w-100 mt-4 booking-btn">

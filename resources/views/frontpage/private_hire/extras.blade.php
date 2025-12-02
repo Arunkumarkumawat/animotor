@@ -109,7 +109,7 @@
     <div class="container py-4">
 
         <!-- Back link -->
-        <a href="#" class="back-link">
+        <a href="{{ route('private_hire_single', $car->id) }}" class="back-link">
             <i class="fas fa-arrow-left me-2"></i>Back to protection
         </a>
 
@@ -120,15 +120,17 @@
         <div class="car-summary mt-3 d-flex align-items-center">
             <img src="https://via.placeholder.com/80x55" class="rounded me-3" alt="car">
             <div>
-                <h6 class="fw-bold mb-1">Toyota Auris</h6>
-                <div class="text-muted small">Fri, 28 Nov – Sun, 28 Nov</div>
-                <div class="text-muted small">4d 7h 48m</div>
+                <h6 class="fw-bold mb-1">{{ $car->title }}</h6>
+                @if(isset($query['start_date']) && isset($query['end_date']))
+                <div class="text-muted small">{{ $query['start_date'] }} to {{ $query['end_date'] }}</div>
+                @endif
             </div>
         </div>
 
         <!-- Extras Grid -->
         <div class="row mt-4 g-3">
 
+            @foreach($car->extras ?? [] as $index => $extra)
             <!-- Toll Road Pass -->
             <div class="col-md-6">
                 <div class="extras-card">
@@ -136,86 +138,72 @@
                         <div class="extras-icon-box">
                             <i class="fas fa-plus"></i>
                         </div>
-                        <h6 class="fw-bold mb-0">Toll Road Pass</h6>
-                    </div>
-                    <p class="text-muted small">Electronic toll payment device</p>
-                    <p class="fw-bold mb-2">£45.00 <span class="text-muted fw-normal">/ rental</span></p>
-
-                    <div class="d-flex align-items-center gap-2">
-                        <button class="qty-btn">-</button>
-                        <span class="px-2">0</span>
-                        <button class="qty-btn">+</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- GPS -->
-            <div class="col-md-6">
-                <div class="extras-card">
-                    <div class="d-flex align-items-center mb-2">
-                        <div class="extras-icon-box">
-                            <i class="fas fa-location-arrow"></i>
+                        <div>
+                            <h6 class="fw-bold mb-2">{{ $extra['title'] }}</h6>
+                            <p class="text-mute mb-2">{{ $extra['description'] }}</p>
+                            <p class="fw-bold mb-2">{{ amt($extra['price']) }} <span class="text-muted fw-normal">/{{ $extra['interval'] }}</span></p>
                         </div>
-                        <h6 class="fw-bold mb-0">GPS Navigation</h6>
                     </div>
-                    <p class="text-muted small">Satellite navigation system</p>
-                    <p class="fw-bold mb-2">£15.00 <span class="text-muted fw-normal">/ day</span></p>
-
+                    
                     <div class="d-flex align-items-center gap-2">
-                        <button class="qty-btn">-</button>
-                        <span class="px-2">0</span>
-                        <button class="qty-btn">+</button>
+                        <button class="qty-btn" onclick="setExtraQuantity({{ $index }}, -1)">-</button>
+                        <input type="hidden" class="extras-quantity" name="extras[{{ $index }}]" data-extra-id="{{ $index }}" value="0">
+                        <span class="px-2" data-extra-id="{{ $index }}">0</span>
+                        <button class="qty-btn" onclick="setExtraQuantity({{ $index }}, 1)">+</button>
                     </div>
                 </div>
             </div>
-
-            <!-- Child Seat -->
-            <div class="col-md-6">
-                <div class="extras-card">
-                    <div class="d-flex align-items-center mb-2">
-                        <div class="extras-icon-box">
-                            <i class="fas fa-baby-carriage"></i>
-                        </div>
-                        <h6 class="fw-bold mb-0">Child Seat</h6>
-                    </div>
-                    <p class="text-muted small">Safety seat for children aged 0–4 years</p>
-                    <p class="fw-bold mb-2">£16.00 <span class="text-muted fw-normal">/ day</span></p>
-
-                    <div class="d-flex align-items-center gap-2">
-                        <button class="qty-btn">-</button>
-                        <span class="px-2">0</span>
-                        <button class="qty-btn">+</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Additional Driver -->
-            <div class="col-md-6">
-                <div class="extras-card">
-                    <div class="d-flex align-items-center mb-2">
-                        <div class="extras-icon-box">
-                            <i class="fas fa-user-plus"></i>
-                        </div>
-                        <h6 class="fw-bold mb-0">Additional Driver</h6>
-                    </div>
-                    <p class="text-muted small">Add an extra driver to your booking</p>
-                    <p class="fw-bold mb-2">£120.00 <span class="text-muted fw-normal">/ rental</span></p>
-
-                    <div class="d-flex align-items-center gap-2">
-                        <button class="qty-btn">-</button>
-                        <span class="px-2">0</span>
-                        <button class="qty-btn">+</button>
-                    </div>
-                </div>
-            </div>
+            @endforeach
 
         </div>
 
         <!-- Footer Buttons -->
         <div class="d-flex justify-content-between align-items-center mt-4">
-            <a href="{{ route('private_hire_checkout', 1) }}" class="skip-btn">Skip Extras</a>
-            <a href="{{ route('private_hire_checkout', 1) }}" class="checkout-btn">Continue to Checkout <i class="fas fa-arrow-right"></i></a>
+            <a href="javascript:void(0)" onclick="redirectMe(true)" class="skip-btn">Skip Extras</a>
+            <a href="javascript:void(0)" onclick="redirectMe(false)" class="checkout-btn">Continue to Checkout <i class="fas fa-arrow-right"></i></a>
         </div>
 
     </div>
+
+    <script>
+        function setExtraQuantity(id, quantity) {
+            const input = document.querySelector(`input[name="extras[${id}]"]`);
+            let currentQuantity = parseInt(input.value);
+            currentQuantity += quantity;
+
+            if (currentQuantity < 0) {
+                currentQuantity = 0;
+            }
+
+            input.value = currentQuantity;
+            document.querySelector(`span[data-extra-id="${id}"]`).textContent = currentQuantity;
+        }
+
+        window.addEventListener('DOMContentLoaded', function() {
+            const extras = document.querySelectorAll('.extras-quantity');
+            extras.forEach(extra => {
+                extra.nextElementSibling.textContent = extra.value;
+            });
+        });
+
+        function redirectMe(skipExtras = false){
+            const params = new URLSearchParams();
+
+            @foreach($query as $key => $value)
+                params.append('{{ $key }}', '{{ $value }}');
+            @endforeach
+
+            if(!skipExtras){
+                jQuery('.extras-quantity').each(function() {
+                    const quantity = parseInt($(this).val());
+                    if(quantity > 0){
+                        params.append('extras[' + $(this).data('extra-id') + ']', quantity);
+                    }
+                });
+            }
+
+            const url = '{{ route('private_hire_checkout', $car->id) }}';
+            window.location.href = url + '?' + params.toString();
+        }
+    </script>
 @endsection

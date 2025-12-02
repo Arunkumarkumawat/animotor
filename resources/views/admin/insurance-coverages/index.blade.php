@@ -697,7 +697,8 @@
             border-radius: 8px;
             padding: 8px 0;
             z-index: 1000;
-            margin-top: 4px;
+            margin-top: 0;
+            list-style: none;
             border: 1px solid rgba(0, 0, 0, 0.1);
         }
 
@@ -742,6 +743,7 @@
                 </div>
             </div>
             <div class="header-actions">
+                <a href="{{ route('admin.dashboard') }}" class="btn btn-primary btn-small">Dashboard</a>
                 <div class="dropdown">
                     <button class="btn btn-secondary btn-small dropdown-toggle" type="button" id="policyDropdown"
                         data-bs-toggle="dropdown" aria-expanded="false">
@@ -860,7 +862,7 @@
                         </div>
                         <div class="card-right">
                             <span
-                                class="status-badge {{ $isExpired ? 'expired' : 'active' }}">{{ $isExpired ? 'Expired' : 'Active' }}</span>
+                                class="status-badge {{ $isExpired ? 'expired' : 'active' }}">{{ $policy->status == 'Active' ? ($isExpired ? 'Expired' : 'Active') : $policy->status }}</span>
                             <span class="insurer-badge">{{ $policy->insurer_name }}</span>
                             <div class="expand-icon">
                                 <svg fill="none" viewBox="0 0 24 24" stroke-width="2.5">
@@ -902,8 +904,14 @@
                                         href="{{ route('admin.insurance-coverages.edit', $policy->id) }}">Edit
                                         Policy</a>
                                 @endif
-                                {{-- <a class="btn btn-secondary"
-                                    href="{{ route('admin.insurance-coverages.show', $policy->id) }}">View Details</a> --}}
+                                <form action="{{ route('admin.insurance-coverages.destroy', $policy->id) }}" method="POST" style="display: inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger" 
+                                            onclick="return confirm('Are you sure you want to delete this policy?')">
+                                        Delete Policy
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>

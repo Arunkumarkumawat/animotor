@@ -115,7 +115,6 @@ Route::group(['middleware' => ['auth', 'role:admin|superadmin|owner|manager'], '
     Route::get('insurance-coverages/edit/{id}', [InsuranceCoverageController::class, 'edit'])->name('insurance-coverages.edit');
     Route::put('insurance-coverages/update/{id}', [InsuranceCoverageController::class, 'update'])->name('insurance-coverages.update');
     Route::delete('insurance-coverages/destroy/{id}', [InsuranceCoverageController::class, 'destroy'])->name('insurance-coverages.destroy');
-    Route::get('insurance-coverages/download/{id}', [InsuranceCoverageController::class, 'download'])->name('insurance-coverages.download');
     Route::get('insurance-coverages/show/{id}', [InsuranceCoverageController::class, 'show'])->name('insurance-coverages.show');
 
     Route::resource('rental', RentalController::class);

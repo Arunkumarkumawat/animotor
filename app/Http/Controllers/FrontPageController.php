@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Car;
 use App\Models\Page;
 use App\Models\User;
+use App\Models\Region;
 use App\Models\Booking;
 use App\Models\VehicleType;
 use Illuminate\Http\Request;
@@ -132,7 +133,6 @@ class FrontPageController extends Controller
         if(!$user || $user?->email != $email){
             return redirect()->back()->withInput()->with('error','Invalid booking email address');
         }
-
 
         return redirect()->route('booking',['id' => $booking->id]);
 
@@ -447,24 +447,92 @@ class FrontPageController extends Controller
     }
 
     public function privateHireSingle($id){
-        $car = Car::findOrFail($id);
+        $car = Car::where('is_available', 1)
+            ->where('private_hire', 1)
+            ->where('id', $id)
+            ->firstOrFail();
+
         return view('frontpage.private_hire.single', compact('car'));
     }
 
-    public function privateHireExtras($id){
-        return view('frontpage.private_hire.extras');
+    public function privateHireExtras(Request $request, $id){
+        $car = Car::where('is_available', 1)
+            ->where('private_hire', 1)
+            ->where('id', $id)
+            ->firstOrFail();
+
+        $query = $request->all();
+        return view('frontpage.private_hire.extras', compact('query', 'car'));
     }
 
-    public function privateHireCheckout($id){
-        return view('frontpage.private_hire.checkout');
+    public function privateHireCheckout(Request $request, $id){
+        $car = Car::where('is_available', 1)
+            ->where('private_hire', 1)
+            ->where('id', $id)
+            ->firstOrFail();
+
+        $query = $request->all();
+        $query['start_date'] = \Carbon\Carbon::parse($query['start_date']);
+        $query['end_date'] = \Carbon\Carbon::parse($query['start_date']);
+
+        switch($query['hire_option']){
+            case 'rent_to_buy':
+                $deposit = $car->rent_to_buy_deposit_amount ?? 0;
+                $excess = $car->rent_to_buy_excess_mileage_rate ?? 0;
+                $query['end_date']->addMonths($query['term']);
+                $period = 'month';
+                $term = $query['term'];
+                $rate = $car->rent_to_buy_price_per_cycle;
+                $cycle = $car->rent_to_buy_billing_cycle;
+                break;
+
+            case 'long_term':
+                $deposit = $car->long_term_default_deposit ?? 0;
+                $excess = $car->long_term_prices[$query['term']]['excess_rate'] ?? 0;
+                $term = str_replace('m', '', $query['term']);
+                $query['end_date']->addMonths($term);
+                $period = 'month';
+                $cycle = $car->long_term_billing_cycle;
+                $rate = $car->long_term_prices[$query['term']][
+                    $query['insurance'] == 'w' ? 'weekly_price_w_ins' : 'weekly_price_wo_ins'
+                ];
+
+                break;
+            case 'short_term':
+                $deposit = $car->short_term_deposit;
+                $excess = $car->short_term_excess_liability;
+                $term = $query['term'];
+                $query['end_date']->addWeeks($query['term']);
+                $period = 'week';
+                $cycle = $car->short_term_pricing_cadence;
+                if($query['insurance'] == 'w'){
+                    $rate = $car->short_term_weekly_price_w_ins;
+                } else {
+                    $rate = $car->short_term_weekly_price_wo_ins;
+                }
+
+                break;
+        }
+
+        $query['end_date'] = $query['end_date'];
+
+        return view('frontpage.private_hire.checkout', compact('query', 'car', 'deposit', 'excess', 'period', 'rate', 'cycle', 'term'));
     }
 
     public function chauffeurSearch(){
-        return view('frontpage.chauffeur.search');
+        $pickupLocations = Region::where('is_active', 1)->orderBy('name', 'asc')->get();
+        return view('frontpage.chauffeur.search', compact('pickupLocations'));
     }
 
-    public function chauffeurList(){
-        return view('frontpage.chauffeur.list');
+    public function chauffeurList(Request $request){
+        $query = $request->all();
+        $cars = Car::where('is_available', 1)->whereNotNull('driver->name')
+            ->when($request->has('type'), function($q) use ($request) {
+                $q->where('type', $request->get('type'));
+            })
+            ->paginate(10);
+        $carTypes = VehicleType::where('is_active', 1)->get();
+        return view('frontpage.chauffeur.list', compact('query', 'cars', 'carTypes'));
     }
 
     public function chauffeurSingle($id){
