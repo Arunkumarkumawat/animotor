@@ -60,7 +60,11 @@
     <div class="d-flex align-items-center">
       <i class="bi bi-globe2 fs-5"></i>
       <img src="https://flagcdn.com/w20/gb.png" class="lang-flag" alt="UK Flag">
-      <button class="btn btn-signin ms-3">Sign In</button>
+      @auth
+        <a href="{{ route('logout') }}" class="btn btn-signin ms-3">Logout</a>
+      @else
+        <a href="{{ route('login') }}" class="btn btn-signin ms-3">Sign In</a>
+      @endauth
     </div>
 
   </div>

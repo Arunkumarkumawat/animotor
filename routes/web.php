@@ -2,6 +2,7 @@
 
 use App\Models\User;
 use App\Models\Booking;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\DashboardController;
@@ -83,10 +84,13 @@ Route::get('/home', function () {
     return redirect()->route('dashboard');
 });
 
+Route::post ('/last-stage-auth', [FrontPageController::class, 'lastStageAuth'])->name('last-stage-auth');
+Route::get('/address-get', [FrontPageController::class, 'addressGet'])->name('address.get');
+
 Route::get('/private-hire-list', [FrontPageController::class, 'privateHireList'])->name('private_hire_list');
 Route::get('/private-hire-single/{id}', [FrontPageController::class, 'privateHireSingle'])->name('private_hire_single');
 Route::get('/private-hire-extras/{id}', [FrontPageController::class, 'privateHireExtras'])->name('private_hire_extras');
-Route::get('/private-hire-checkout/{id}', [FrontPageController::class, 'privateHireCheckout'])->name('private_hire_checkout');
+Route::match(['get','post'], '/private-hire-checkout/{id}', [FrontPageController::class, 'privateHireCheckout'])->name('private_hire_checkout');
 
 Route::get('/chauffeur/search', [FrontPageController::class, 'chauffeurSearch'])->name('frontpage.chauffeur.search');
 Route::get('/chauffeur/list', [FrontPageController::class, 'chauffeurList'])->name('frontpage.chauffeur.list');

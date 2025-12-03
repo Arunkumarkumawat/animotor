@@ -19,14 +19,11 @@ class InsuranceCoverageController extends Controller
 
         $activePolicies = InsuranceCoverage::when($isCompany, function ($query) use ($user) {
             return $query->where('company_id', $user->company_id);
-        })->where('status', 'active')->count();
+        })->where('policy_end_date', '>', now()->format('Y-m-d'))->where('status', 'active')->count();
 
         $expiringSoonPolicies = InsuranceCoverage::when($isCompany, function ($query) use ($user) {
             return $query->where('company_id', $user->company_id);
-        })->where('status', 'active')
-            ->whereDate('policy_end_date', '>', now())
-            ->whereDate('policy_end_date', '<=', now()->addMonths(1))
-            ->count();
+        })->where('policy_end_date', now()->format('Y-m-d'))->where('status', 'active')->count();
 
         $expiredPolicies = InsuranceCoverage::when($isCompany, function ($query) use ($user) {
             return $query->where('company_id', $user->company_id);
@@ -57,8 +54,10 @@ class InsuranceCoverageController extends Controller
                 return view('admin.insurance-coverages.theft_create');
             case 'addons':
                 return view('admin.insurance-coverages.addons_create');
+            case 'basic':
+                return view('admin.insurance-coverages.basic_create');
             default:
-                return view('admin.insurance-coverages.create', compact('type'));
+                abort(404);
         }
     }
 
@@ -134,8 +133,10 @@ class InsuranceCoverageController extends Controller
                 return view('admin.insurance-coverages.theft_edit', compact('policy'));
             case 'Addons':
                 return view('admin.insurance-coverages.addons_edit', compact('policy'));
+            case 'Basic':
+                return view('admin.insurance-coverages.basic_edit', compact('policy'));
             default:
-                return view('admin.insurance-coverages.edit', compact('policy'));
+                abort(404);
         }
     }
 

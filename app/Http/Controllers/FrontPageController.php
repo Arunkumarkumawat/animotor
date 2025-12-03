@@ -4,19 +4,24 @@ namespace App\Http\Controllers;
 
 use App\Models\Car;
 use App\Models\Page;
+use App\Models\Role;
 use App\Models\User;
 use App\Models\Region;
 use App\Models\Booking;
+use App\Mail\EmailOtpMail;
 use App\Models\VehicleType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use App\Services\WalletService;
 use App\Services\PaymentService;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Services\NotificationService;
 use Illuminate\Support\Facades\Cache;
 use Laravel\Sanctum\PersonalAccessToken;
+use Illuminate\Support\Facades\Validator;
 
 class FrontPageController extends Controller
 {
@@ -516,7 +521,146 @@ class FrontPageController extends Controller
 
         $query['end_date'] = $query['end_date'];
 
+        if($request->method() == 'POST'){
+            
+        }
+
         return view('frontpage.private_hire.checkout', compact('query', 'car', 'deposit', 'excess', 'period', 'rate', 'cycle', 'term'));
+    }
+
+    public function lastStageAuth(Request $request){
+        if($request->get('type') == 'login'){
+            $rules = [
+                'email' => 'required|email|exists:users,email',
+                'password' => 'required',
+            ];
+        } else if($request->get('type') == 'register') {
+            $rules = [
+                'first_name' => 'required',
+                'last_name' => 'required',
+                'email' => 'required|email|unique:users,email',
+                'phone' => 'required',
+                'password' => 'required|min:6|confirmed',
+                'address' => 'required',
+                'zip' => 'required',
+                'city' => 'required',
+                'country' => 'required',
+            ];
+        } else if($request->get('type') == 'verify_otp') {
+            $rules = [
+                'email' => 'required|email|exists:users,email',
+                'otp' => 'required',
+            ];
+        }
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if($validator->fails()){
+            return response()->json([
+                'status' => 0,
+                'message' => $validator->errors()->first(),
+            ]);
+        }
+
+        if($request->get('type') == 'login'){
+            if(Auth::attempt(['email' => $request->email, 'password' => $request->password])){
+                return response()->json([
+                    'status' => 1,
+                    'message' => 'User successfully logged in',
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 0,
+                    'message' => 'Invalid credentials',
+                ]);
+            }
+        } else if($request->get('type') == 'register') {
+            $otp = rand(100000, 999999);
+
+            $user = User::create([
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'password' => Hash::make($request->password),
+                'address' => $request->address,
+                'postcode' => $request->zip,
+                'city' => $request->city,
+                'country' => $request->country,
+                'email_otp' => $otp,
+                'email_otp_expires_at' => now()->addMinutes(10),
+            ]);
+
+            $role = Role::where('name', 'rider')->first();
+            $user->addRole($role);
+
+            session()->put('verify_otp', [
+                'email' => $user->email,
+                'otp' => $otp,
+            ]);
+
+            Mail::to($user->email)->send(new EmailOtpMail($otp));
+
+            return response()->json([
+                'status' => 1,
+                'verify' => true,
+                'email' => $user->email,
+                'message' => 'An OTP has been sent to your email address',
+            ]);
+        } else if($request->get('type') == 'verify_otp') {
+            if(session()->has('verify_otp')){
+                $otpData = session()->get('verify_otp');
+
+                if($otpData['otp'] != $request->otp || $otpData['email'] != $request->email){
+                    return response()->json([
+                        'status' => 0,
+                        'message' => 'Invalid OTP',
+                    ]);
+                } else {
+                    $user = User::where('email', $otpData['email'])->first();
+                    $user->email_otp = null;
+                    $user->email_otp_expires_at = null;
+                    $user->email_verified_at = now();
+                    $user->save();
+
+                    session()->forget('verify_otp');
+
+                    Auth::login($user);
+
+                    return response()->json([
+                        'status' => 1,
+                        'message' => 'User successfully logged in',
+                    ]);
+                }
+            } else {
+                return response()->json([
+                    'status' => 0,
+                    'message' => 'Please register first.',
+                ]);
+            }
+        }
+    }
+
+    public function addressGet(){
+        if(!Auth::check()){
+            return response()->json([
+                'status' => 0,
+                'message' => 'User not authenticated',
+            ]);
+        }
+        
+        $user = Auth::user();
+
+        $address = [
+            'status' => 1,
+            'name' => $user->first_name . ' ' . $user->last_name,
+            'address' => $user->address,
+            'city' => $user->city,
+            'zip' => $user->postcode,
+            'country' => $user->country,
+        ];
+
+        return response()->json($address);
     }
 
     public function chauffeurSearch(){

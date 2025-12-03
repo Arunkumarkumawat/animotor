@@ -762,6 +762,9 @@
                                 href="{{ route('admin.insurance-coverages.create', ['type' => 'full_protection']) }}">Full
                                 Protection</a></li>
                         <li><a class="dropdown-item"
+                                href="{{ route('admin.insurance-coverages.create', ['type' => 'basic']) }}">Basic
+                                Protection</a></li>
+                        <li><a class="dropdown-item"
                                 href="{{ route('admin.insurance-coverages.create', ['type' => 'cdw']) }}">Collision
                                 Damage Waiver (CDW)</a></li>
                         <li><a class="dropdown-item"
@@ -848,9 +851,17 @@
             <!-- Full Protection -->
             @foreach ($policies as $policy)
                 @php
-                    $isExpired = $policy->policy_end_date < now();
+                    if($policy->status == 'Draft') {
+                        $status = 'draft';
+                    } else if($policy->policy_end_date == now()->format('Y-m-d')) {
+                        $status = 'expiring';
+                    } else if($policy->policy_end_date < now()) {
+                        $status = 'expired';
+                    } else {
+                        $status = 'active';
+                    }
                 @endphp
-                <div class="insurance-card" data-status="{{ $isExpired ? 'expired' : 'active' }}"
+                <div class="insurance-card" data-status="{{ $status }}"
                     data-name="{{ $policy->policy_type }}" data-expiry="{{ $policy->policy_end_date }}">
                     <div class="card-header full-protection" onclick="toggleCard(this)">
                         <div class="card-left">
@@ -862,7 +873,7 @@
                         </div>
                         <div class="card-right">
                             <span
-                                class="status-badge {{ $isExpired ? 'expired' : 'active' }}">{{ $policy->status == 'Active' ? ($isExpired ? 'Expired' : 'Active') : $policy->status }}</span>
+                                class="status-badge {{ $status == 'draft' ? 'active' : $status }}">{{ ucfirst($status) }}</span>
                             <span class="insurer-badge">{{ $policy->insurer_name }}</span>
                             <div class="expand-icon">
                                 <svg fill="none" viewBox="0 0 24 24" stroke-width="2.5">
@@ -895,7 +906,7 @@
                                 </div>
                             </div>
                             <div class="actions-row">
-                                @if ($isExpired)
+                                @if ($status == 'expired')
                                     <a class="btn btn-primary"
                                         href="{{ route('admin.insurance-coverages.edit', $policy->id) }}">Renew
                                         Policy</a>
