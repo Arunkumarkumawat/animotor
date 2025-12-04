@@ -77,8 +77,7 @@
                                     @enderror
                                 </div>
 
-
-                                 <!-- Country (Searchable + Sorted) -->
+                                <!-- Country (Searchable + Sorted) -->
                                 <div class="col-md-6">
                                     <label class="form-label">Country</label>
                                     <select id="country" name="country"
@@ -121,13 +120,6 @@
                                     @enderror
                                 </div>
 
-
-                               
-
-
-                               
-
-
                                  <!-- Postal Code -->
                                 <div class="col-md-6">
                                     <label class="form-label">Postal Code</label>
@@ -138,7 +130,6 @@
                                     @enderror
                                 </div>
 
-
                                 <!-- Address -->
                                 <div class="col-md-12">
                                     <label class="form-label">Address</label>
@@ -148,8 +139,6 @@
                                         <strong class="text-danger d-block">{{ $message }}</strong>
                                     @enderror
                                 </div>
-
-                               
 
                                 <!-- Password -->
                                 <div class="col-md-6">

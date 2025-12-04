@@ -443,7 +443,7 @@
                             });
                         } else {
                             $.ajax({
-                                url: '{{ url()->full() }}',
+                                url: '{!! url()->full() !!}',
                                 type: 'POST',
                                 data: {
                                     _token: '{{ csrf_token() }}',

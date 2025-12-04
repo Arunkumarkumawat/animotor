@@ -2,17 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use Stripe\Charge;
+use Stripe\Stripe;
 use App\Models\Car;
 use App\Models\Page;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Region;
 use App\Models\Booking;
+use App\Models\PhBooking;
 use App\Mail\EmailOtpMail;
 use App\Models\VehicleType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use App\Services\WalletService;
+use App\Mail\PhBookingConfirmed;
 use App\Services\PaymentService;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -39,7 +43,7 @@ class FrontPageController extends Controller
         $booking_period = $request->booking_period ?? 'daily';
         $price = $car->daily_rate ?? $car->price_per_day;
 
-        switch($booking_period){
+        switch ($booking_period) {
             case 'daily':
                 $booking_period_f = 'day';
                 $price = $car->price_per_day;
@@ -92,76 +96,83 @@ class FrontPageController extends Controller
     }
 
 
-    public function home(){
-        if(settings('enable_frontpage') != 'yes'){
+    public function home()
+    {
+        if (settings('enable_frontpage') != 'yes') {
             return redirect()->route('admin.dashboard');
         }
-        $page = Page::where('path','/')->firstOrFail();
+        $page = Page::where('path', '/')->firstOrFail();
         $contents = $page->contents;
-//        if(strlen($contents) < 300){
-//            return view('frontpage.builder', compact('contents','page'));
-//        }
-        return view('frontpage.page', compact('contents','page'));
+        //        if(strlen($contents) < 300){
+        //            return view('frontpage.builder', compact('contents','page'));
+        //        }
+        return view('frontpage.page', compact('contents', 'page'));
     }
 
-    public function builder(){
+    public function builder()
+    {
         return view('frontpage.home');
     }
-  public function token(Request $request){
-      if ($request->has('token')) {
-          $token = $request->input('token');
+    public function token(Request $request)
+    {
+        if ($request->has('token')) {
+            $token = $request->input('token');
 
-          $tk = PersonalAccessToken::findToken($token);
+            $tk = PersonalAccessToken::findToken($token);
 
-          if ($tk) {
+            if ($tk) {
                 $user = $tk->tokenable()->first();
-              auth()->login($user);
-          }
-          return $user;
-      }
-      return 'not found';
+                auth()->login($user);
+            }
+            return $user;
+        }
+        return 'not found';
     }
 
-    public function manageBooking(){
+    public function manageBooking()
+    {
         return view('frontpage.search_booking');
     }
 
-    public function searchBooking(Request $request){
+    public function searchBooking(Request $request)
+    {
         $email = $request->input('email');
         $reference = $request->input('reference');
 
-        $booking = Booking::where('reference',$reference)->first();
-        if(!$booking){
-            return redirect()->back()->withInput()->with('error',"Can't find any booking record with the provided reference number");
+        $booking = Booking::where('reference', $reference)->first();
+        if (!$booking) {
+            return redirect()->back()->withInput()->with('error', "Can't find any booking record with the provided reference number");
         }
         $user = User::find($booking->customer_id);
-        if(!$user || $user?->email != $email){
-            return redirect()->back()->withInput()->with('error','Invalid booking email address');
+        if (!$user || $user?->email != $email) {
+            return redirect()->back()->withInput()->with('error', 'Invalid booking email address');
         }
 
-        return redirect()->route('booking',['id' => $booking->id]);
-
+        return redirect()->route('booking', ['id' => $booking->id]);
     }
 
-    public function booking($id){
+    public function booking($id)
+    {
         $booking = Booking::findOrFail($id);
 
-        if(!$booking->car){
-            return redirect()->back()->with('error','Invalid booking');
+        if (!$booking->car) {
+            return redirect()->back()->with('error', 'Invalid booking');
         }
 
         return view('frontpage.booking_detail', compact('booking'));
     }
 
-    public function voucher($id){
+    public function voucher($id)
+    {
         $booking = Booking::findOrFail($id);
         return view('frontpage.booking_voucher', compact('booking'));
     }
 
-    public function cancelBooking(Request $request, $id){
+    public function cancelBooking(Request $request, $id)
+    {
         $booking = Booking::findOrFail($id);
 
-        if($booking->car->free_cancellation){
+        if ($booking->car->free_cancellation) {
             $diffNeeded = 24;
         } else {
             $diffNeeded = $booking->car->cancellation_policy;
@@ -170,11 +181,11 @@ class FrontPageController extends Controller
         $diff = Carbon::parse($booking->pick_up_date . ' ' . $booking->pick_up_time . ':00')->diffInHours(now());
         $fullRefund = $diff > $diffNeeded;
 
-        if($booking->car->cancellation_policy == 0){
+        if ($booking->car->cancellation_policy == 0) {
             $fullRefund = false;
         }
 
-        if(!$booking->cancelled && $request->isMethod('post') && $fullRefund){
+        if (!$booking->cancelled && $request->isMethod('post') && $fullRefund) {
             $booking->cancelled = 1;
             $booking->cancelled_by = 'customer';
             $booking->cancellation_reason = $request->input('cancel_comment', $request->input('cancel_reason'));
@@ -183,42 +194,46 @@ class FrontPageController extends Controller
             $notificationService = new NotificationService();
 
             $admins = User::role('admin')->get();
-            foreach($admins as $admin){
-                $notificationService->notify('A Booking Cancellation Requested for booking ('.$booking->reference.')','notification','Booking Cancellation Requested', $admin);
+            foreach ($admins as $admin) {
+                $notificationService->notify('A Booking Cancellation Requested for booking (' . $booking->reference . ')', 'notification', 'Booking Cancellation Requested', $admin);
             }
 
-            return redirect()->back()->with('success','Booking cancelled successfully');
+            return redirect()->back()->with('success', 'Booking cancelled successfully');
         }
 
         return view('frontpage.booking_cancel', compact('booking'));
     }
 
-    public function builder2(){
+    public function builder2()
+    {
         return view('frontpage.builder');
     }
-    public function list(){
+    public function list()
+    {
         return view('frontpage.list_cars');
     }
 
-    public function flight(){
+    public function flight()
+    {
         return view('frontpage.flight');
     }
 
-    public function deal(Request $request){
+    public function deal(Request $request)
+    {
         $id = $request->get('car_id');
         $car = Car::findOrFail($id);
 
-        Cache::remember('viewed_car-' . $car->id . '-' . str_replace('.', '', $request->ip()), 60 * 60, function() {
+        Cache::remember('viewed_car-' . $car->id . '-' . str_replace('.', '', $request->ip()), 60 * 60, function () {
             return 1;
         });
 
         $booking_day = $request->get('booking_day');
 
-        if(is_int($booking_day / 30)){
+        if (is_int($booking_day / 30)) {
             $divideBy = 30;
             $booking_period = 'month';
             $price = $car->monthly_rate;
-        } elseif(is_int($booking_day / 7)){
+        } elseif (is_int($booking_day / 7)) {
             $divideBy = 7;
             $booking_period = 'week';
             $price = $car->weekly_rate;
@@ -232,11 +247,11 @@ class FrontPageController extends Controller
         $car->booking_period = $booking_period;
         $car->price = $price;
         $car->total0 = $price * $car->booking_day;
-        $car->tax = 0;//$car->total0 * settings('tax',0.075);
+        $car->tax = 0; //$car->total0 * settings('tax',0.075);
         $car->total = $car->total0 + $car->tax;
 
         $insurance_fee = 0;
-        foreach($car->insurance_coverage as $coverage){
+        foreach ($car->insurance_coverage as $coverage) {
             $insurance_fee += $coverage['daily_price'] * $booking_day;
         }
         $car->insurance_fee = $insurance_fee;
@@ -244,17 +259,18 @@ class FrontPageController extends Controller
         return view('frontpage.deal', compact('car'));
     }
 
-    public function protectionOption(Request $request){
+    public function protectionOption(Request $request)
+    {
         $id = $request->get('car_id');
         $car = Car::findOrFail($id);
 
         $booking_day = $request->get('booking_day');
 
-        if(is_int($booking_day / 30)){
+        if (is_int($booking_day / 30)) {
             $divideBy = 30;
             $booking_period = 'month';
             $price = $car->monthly_rate;
-        } elseif(is_int($booking_day / 7)){
+        } elseif (is_int($booking_day / 7)) {
             $divideBy = 7;
             $booking_period = 'week';
             $price = $car->weekly_rate;
@@ -268,12 +284,12 @@ class FrontPageController extends Controller
         $car->booking_period = $booking_period;
         $car->price = $price;
         $car->total0 = $price * $car->booking_day;
-        $car->tax = 0;//$car->total0 * settings('tax',0.075);
+        $car->tax = 0; //$car->total0 * settings('tax',0.075);
         $car->total = $car->total0 + $car->tax;
 
         $insurance_fee = 0;
-        foreach($car->insurance_coverage as $index => $coverage){
-            if($request->get('insurance_id') == $index){
+        foreach ($car->insurance_coverage as $index => $coverage) {
+            if ($request->get('insurance_id') == $index) {
                 $insurance_fee = $coverage['daily_price'] * $booking_day;
                 break;
             }
@@ -283,16 +299,16 @@ class FrontPageController extends Controller
         $extras = $request->get('extras');
         $extra_fee = 0;
         $extra_fee_list = [];
-        foreach($extras as $index => $extra){
-            if(!isset($car->extras[$index]) || $extra == 0){
+        foreach ($extras as $index => $extra) {
+            if (!isset($car->extras[$index]) || $extra == 0) {
                 continue;
             }
 
-            if($car->extras[$index]['interval'] == 'daily'){
+            if ($car->extras[$index]['interval'] == 'daily') {
                 $amt = $car->extras[$index]['price'] * $extra * $booking_day * $divideBy;
-            }elseif($car->extras[$index]['interval'] == 'weekly'){
+            } elseif ($car->extras[$index]['interval'] == 'weekly') {
                 $amt = $car->extras[$index]['price'] * $extra * $booking_day * $divideBy / 7;
-            }elseif($car->extras[$index]['interval'] == 'monthly'){
+            } elseif ($car->extras[$index]['interval'] == 'monthly') {
                 $amt = $car->extras[$index]['price'] * $extra * $booking_day * $divideBy / 30;
             } else {
                 $amt = $car->extras[$index]['price'] * $extra;
@@ -305,30 +321,31 @@ class FrontPageController extends Controller
         $car->extra_fees = $extra_fee_list;
         $car->total += $extra_fee;
 
-        if($request->get('book_type') == 'with_full_protection'){
+        if ($request->get('book_type') == 'with_full_protection') {
             $car->total += $car->insurance_fee;
         }
 
         return view('frontpage.protection_options', compact('car'));
     }
 
-    public function checkout(Request $request){
+    public function checkout(Request $request)
+    {
         $id = $request->get('car_id');
         $car = Car::findOrFail($id);
-        
-        if(auth()->check()){
+
+        if (auth()->check()) {
             $user = auth()->user();
-        }else{
+        } else {
             $user = null;
         }
-        
+
         $booking_day = $request->get('booking_day');
 
-        if(is_int($booking_day / 30)){
+        if (is_int($booking_day / 30)) {
             $divideBy = 30;
             $booking_period = 'month';
             $price = $car->monthly_rate;
-        } elseif(is_int($booking_day / 7)){
+        } elseif (is_int($booking_day / 7)) {
             $divideBy = 7;
             $booking_period = 'week';
             $price = $car->weekly_rate;
@@ -342,12 +359,12 @@ class FrontPageController extends Controller
         $car->booking_period = $booking_period;
         $car->price = $price;
         $car->total0 = $price * $car->booking_day;
-        $car->tax = 0;//$car->total0 * settings('tax',0.075);
+        $car->tax = 0; //$car->total0 * settings('tax',0.075);
         $car->total = $car->total0 + $car->tax;
 
         $insurance_fee = 0;
-        foreach($car->insurance_coverage as $index => $coverage){
-            if($request->get('insurance_id') == $index){
+        foreach ($car->insurance_coverage as $index => $coverage) {
+            if ($request->get('insurance_id') == $index) {
                 $insurance_fee = $coverage['daily_price'] * $booking_day;
                 break;
             }
@@ -357,16 +374,16 @@ class FrontPageController extends Controller
         $extras = $request->get('extras');
         $extra_fee = 0;
         $extra_fee_list = [];
-        foreach($extras as $index => $extra){
-            if(!isset($car->extras[$index]) || $extra == 0){
+        foreach ($extras as $index => $extra) {
+            if (!isset($car->extras[$index]) || $extra == 0) {
                 continue;
             }
 
-            if($car->extras[$index]['interval'] == 'daily'){
+            if ($car->extras[$index]['interval'] == 'daily') {
                 $amt = $car->extras[$index]['price'] * $extra * $booking_day * $divideBy;
-            }elseif($car->extras[$index]['interval'] == 'weekly'){
+            } elseif ($car->extras[$index]['interval'] == 'weekly') {
                 $amt = $car->extras[$index]['price'] * $extra * $booking_day * $divideBy / 7;
-            }elseif($car->extras[$index]['interval'] == 'monthly'){
+            } elseif ($car->extras[$index]['interval'] == 'monthly') {
                 $amt = $car->extras[$index]['price'] * $extra * $booking_day * $divideBy / 30;
             } else {
                 $amt = $car->extras[$index]['price'] * $extra;
@@ -378,24 +395,26 @@ class FrontPageController extends Controller
 
         $car->extra_fees = $extra_fee_list;
         $car->total += $extra_fee;
-        
-        if($request->get('book_type') == 'with_full_protection'){
+
+        if ($request->get('book_type') == 'with_full_protection') {
             $car->total += $car->insurance_fee;
         }
 
-        return view('frontpage.checkout', compact('car','user'));
+        return view('frontpage.checkout', compact('car', 'user'));
     }
 
-    public function select_payment_method($booking_id){
+    public function select_payment_method($booking_id)
+    {
         $booking = Booking::findOrFail($booking_id);
         return view('frontpage.select_payment_method', compact('booking'));
     }
 
-    public function paymentProcess(Request $request, PaymentService $paymentService){
+    public function paymentProcess(Request $request, PaymentService $paymentService)
+    {
         $payment_method = $request->get('payment_method');
         $booking_id = $request->get('booking_id');
 
-        if(!in_array($payment_method, payment_methods())){
+        if (!in_array($payment_method, payment_methods())) {
             return redirect()->back()->with('error', 'Payment method not active');
         }
         $booking = Booking::findOrFail($booking_id);
@@ -406,18 +425,21 @@ class FrontPageController extends Controller
         return $paymentService->process($payment_method);
     }
 
-    public function search(Request $request){
+    public function search(Request $request)
+    {
         return view('frontpage.list_cars');
         return $request->all();
     }
 
-    public function page($slug){
-        $page = Page::where('path',$slug)->firstOrFail();
+    public function page($slug)
+    {
+        $page = Page::where('path', $slug)->firstOrFail();
         $contents = $page->contents;
-        return view('frontpage.page', compact('contents','page'));
+        return view('frontpage.page', compact('contents', 'page'));
     }
 
-    public function privateHireList(Request $request){
+    public function privateHireList(Request $request)
+    {
         $carTypes = VehicleType::where('is_active', 1)->get();
         $cars = Car::where('is_available', 1)
             ->where('private_hire', 1)
@@ -425,7 +447,7 @@ class FrontPageController extends Controller
                 $query->whereIn('type', $request->get('car_types'));
             })
             ->when($request->get('renting_terms'), function ($query) use ($request) {
-                foreach($request->get('renting_terms') as $term){
+                foreach ($request->get('renting_terms') as $term) {
                     $query->orWhere($term, 1);
                 }
             })
@@ -447,11 +469,12 @@ class FrontPageController extends Controller
                 $query->orderBy($request->get('order'), $request->get('order_dir', 'asc'));
             })
             ->get();
-        
+
         return view('frontpage.private_hire.list', compact('carTypes', 'cars'));
     }
 
-    public function privateHireSingle($id){
+    public function privateHireSingle($id)
+    {
         $car = Car::where('is_available', 1)
             ->where('private_hire', 1)
             ->where('id', $id)
@@ -460,7 +483,8 @@ class FrontPageController extends Controller
         return view('frontpage.private_hire.single', compact('car'));
     }
 
-    public function privateHireExtras(Request $request, $id){
+    public function privateHireExtras(Request $request, $id)
+    {
         $car = Car::where('is_available', 1)
             ->where('private_hire', 1)
             ->where('id', $id)
@@ -470,7 +494,8 @@ class FrontPageController extends Controller
         return view('frontpage.private_hire.extras', compact('query', 'car'));
     }
 
-    public function privateHireCheckout(Request $request, $id){
+    public function privateHireCheckout(Request $request, $id)
+    {
         $car = Car::where('is_available', 1)
             ->where('private_hire', 1)
             ->where('id', $id)
@@ -480,7 +505,7 @@ class FrontPageController extends Controller
         $query['start_date'] = \Carbon\Carbon::parse($query['start_date']);
         $query['end_date'] = \Carbon\Carbon::parse($query['start_date']);
 
-        switch($query['hire_option']){
+        switch ($query['hire_option']) {
             case 'rent_to_buy':
                 $deposit = $car->rent_to_buy_deposit_amount ?? 0;
                 $excess = $car->rent_to_buy_excess_mileage_rate ?? 0;
@@ -488,18 +513,46 @@ class FrontPageController extends Controller
                 $period = 'month';
                 $term = $query['term'];
                 $rate = $car->rent_to_buy_price_per_cycle;
-                $cycle = $car->rent_to_buy_billing_cycle;
+                $cycle = $car->rent_to_buy_billing_cycle ?? 'weekly';
+
+                $currPricingData = [
+                    'deposit' => $deposit,
+                    'rate' => $rate,
+                    'cycle' => $cycle,
+                    'balloon_payment' => $car->rent_to_buy_balloon_payment ?? 0,
+                    'payment_break_weeks_year' => $car->rent_to_buy_payment_break_weeks_year ?? 0,
+                    'mileage_allowance_per_cycle' => $car->rent_to_buy_mileage_allowance_per_cycle ?? 0,
+                    'excess_mileage_rate' => $car->rent_to_buy_excess_mileage_rate ?? 0,
+                    'insurance_included' => $car->rent_to_buy_insurance_included ?? 0,
+                    'maintenance_included' => $car->rent_to_buy_maintenance_included ?? 0,
+                    'ev_incentive_included' => $car->rent_to_buy_ev_incentive_included ?? 0,
+                    'ownership_transfer_notes' => $car->rent_to_buy_ownership_transfer_notes ?? '',
+                ];
+
                 break;
 
             case 'long_term':
+                $long_term_term_prices = $car->long_term_prices[$query['term']];
                 $deposit = $car->long_term_default_deposit ?? 0;
-                $excess = $car->long_term_prices[$query['term']]['excess_rate'] ?? 0;
+                $excess = $long_term_term_prices['excess_rate'] ?? 0;
                 $term = str_replace('m', '', $query['term']);
                 $query['end_date']->addMonths($term);
                 $period = 'month';
-                $cycle = $car->long_term_billing_cycle;
-                $rate = $car->long_term_prices[$query['term']][
-                    $query['insurance'] == 'w' ? 'weekly_price_w_ins' : 'weekly_price_wo_ins'
+                $cycle = $car->long_term_billing_cycle ?? 'weekly';
+                $rate = $car->long_term_prices[$query['term']][$query['insurance'] == 'w' ? 'price_w_ins' : 'price_wo_ins'];
+
+                $currPricingData = [
+                    'deposit' => $deposit,
+                    'rate' => $rate,
+                    'cycle' => $cycle,
+                    'maintenance_included' => $long_term_term_prices['maintenance_included'] ?? 0,
+                    'maintenance_type' => $long_term_term_prices['maintenance_type'] ?? '',
+                    'maintenance_price' => $long_term_term_prices['maintenance_price'] ?? 0,
+                    'mileage' => $long_term_term_prices['mileage'] ?? 0,
+                    'excess_rate' => $long_term_term_prices['excess_rate'] ?? 0,
+                    'excess_liability' => $car->long_term_excess_liability ?? 0,
+                    'vehicle_swap_allowed' => $car->long_term_vehicle_swap_allowed ?? 0,
+                    'early_termination_rules' => $car->long_term_early_termination_rules ?? '',
                 ];
 
                 break;
@@ -509,32 +562,151 @@ class FrontPageController extends Controller
                 $term = $query['term'];
                 $query['end_date']->addWeeks($query['term']);
                 $period = 'week';
-                $cycle = $car->short_term_pricing_cadence;
-                if($query['insurance'] == 'w'){
+                $cycle = $car->short_term_pricing_cadence ?? 'weekly';
+                if ($query['insurance'] == 'w') {
                     $rate = $car->short_term_weekly_price_w_ins;
                 } else {
                     $rate = $car->short_term_weekly_price_wo_ins;
                 }
 
+                $currPricingData = [
+                    'deposit' => $deposit,
+                    'rate' => $rate,
+                    'cycle' => $cycle,
+                    'maintenance_included' => $car->short_term_maintenance_included ?? 0,
+                    'excess_liability' => $car->short_term_excess_liability ?? 0,
+                    'early_return_fee' => $car->short_term_early_return_fee ?? 0,
+                    'notice_period_to_return' => $car->short_term_notice_period_to_return,
+                ];
+
                 break;
         }
 
-        $query['end_date'] = $query['end_date'];
+        if ($request->method() == 'POST') {
+            $extrasPrice = 0;
+            $extras = $query['extras'] ?? [];
 
-        if($request->method() == 'POST'){
-            
+            $daysPerCycle = match ($cycle) {
+                'weekly' => 7,
+                'monthly' => 30,
+                'quaterly' => 90,
+            };
+
+            foreach ($extras as $index => $quantity) {
+                if (isset($car->extras[$index])) {
+                    $extra = $car->extras[$index];
+                    $extra['quantity'] = $quantity;
+                    $extras[] = $extra;
+
+                    if ($extra['interval'] == 'daily') {
+                        $extrasPrice += ($extra['price'] * $daysPerCycle * $quantity);
+                    } else if ($extra['interval'] == 'weekly') {
+                        $extrasPrice += ($extra['price'] * $daysPerCycle * $quantity) / 7;
+                    } else { // one time
+                        $extrasPrice += $extra['price'] * $quantity;
+                    }
+                }
+            }
+
+            $extrasPrice = round($extrasPrice, 2);
+
+            return $this->rhBookingProcessor([
+                'user_id' => Auth::id(),
+                'car_id' => $car->id,
+                'term' => $query['hire_option'],
+                'insurance' => $query['insurance'],
+                'term_count' => $term,
+                'term_period' => $period,
+                'start_date' => $query['start_date'],
+                'expected_end_date' => $query['end_date'],
+                'extras' => $extras,
+                'curr_pricing_data' => $currPricingData,
+                'deposit_paid' => $deposit,
+                'rate_paid' => $rate,
+                'extras_paid' => $extrasPrice,
+                'total_paid' => $deposit + $rate + $extrasPrice,
+            ], $query['payment_token']);
         }
 
         return view('frontpage.private_hire.checkout', compact('query', 'car', 'deposit', 'excess', 'period', 'rate', 'cycle', 'term'));
     }
 
-    public function lastStageAuth(Request $request){
-        if($request->get('type') == 'login'){
+    protected function rhBookingProcessor($data, $paymentToken)
+    {
+        if (!Auth::check()) {
+            return response()->json([
+                'status' => 0,
+                'message' => 'User not logged in',
+            ]);
+        }
+
+        if (!isset($data['term']) || !in_array($data['term'], ['rent_to_buy', 'long_term', 'short_term'])) {
+            return response()->json([
+                'status' => 0,
+                'message' => 'Invalid hire option',
+            ]);
+        }
+
+        $rules = [
+            'term' => 'required',
+            'insurance' => 'required',
+            'start_date' => 'required',
+        ];
+
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 0,
+                'message' => $validator->errors()->first(),
+            ]);
+        }
+
+        $booking = PhBooking::create($data);
+        Stripe::setApiKey(env('STRIPE_SECRET_KEY'));
+
+        try {
+            $charge = Charge::create([
+                'amount' => $data['total_paid'] * 100,
+                'currency' => settings('currency_code','USD'),
+                'source' => $paymentToken,
+                'description' => 'Order ' . $booking->booking_id,
+                'metadata' => [
+                    'booking_id' => $booking->booking_id,
+                    'user_id' => $booking->user_id ? $booking->user_id : '',
+                ],
+            ]);
+
+            $booking->update([
+                'pg_tx_id' => $charge->id,
+                'pg_status' => 'Paid',
+                'paid_at' => now(),
+            ]);
+
+            Mail::to($booking->user->email)->send(new PhBookingConfirmed($booking));
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Payment method has been successfully charged.',
+                'redirect_url' => url('/'),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+                'csrf_token' => csrf_token(),
+            ]);
+        }
+    }
+
+    public function lastStageAuth(Request $request)
+    {
+        if ($request->get('type') == 'login') {
             $rules = [
                 'email' => 'required|email|exists:users,email',
                 'password' => 'required',
             ];
-        } else if($request->get('type') == 'register') {
+        } else if ($request->get('type') == 'register') {
             $rules = [
                 'first_name' => 'required',
                 'last_name' => 'required',
@@ -546,7 +718,7 @@ class FrontPageController extends Controller
                 'city' => 'required',
                 'country' => 'required',
             ];
-        } else if($request->get('type') == 'verify_otp') {
+        } else if ($request->get('type') == 'verify_otp') {
             $rules = [
                 'email' => 'required|email|exists:users,email',
                 'otp' => 'required',
@@ -555,15 +727,15 @@ class FrontPageController extends Controller
 
         $validator = Validator::make($request->all(), $rules);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json([
                 'status' => 0,
                 'message' => $validator->errors()->first(),
             ]);
         }
 
-        if($request->get('type') == 'login'){
-            if(Auth::attempt(['email' => $request->email, 'password' => $request->password])){
+        if ($request->get('type') == 'login') {
+            if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
                 return response()->json([
                     'status' => 1,
                     'message' => 'User successfully logged in',
@@ -574,7 +746,7 @@ class FrontPageController extends Controller
                     'message' => 'Invalid credentials',
                 ]);
             }
-        } else if($request->get('type') == 'register') {
+        } else if ($request->get('type') == 'register') {
             $otp = rand(100000, 999999);
 
             $user = User::create([
@@ -607,11 +779,11 @@ class FrontPageController extends Controller
                 'email' => $user->email,
                 'message' => 'An OTP has been sent to your email address',
             ]);
-        } else if($request->get('type') == 'verify_otp') {
-            if(session()->has('verify_otp')){
+        } else if ($request->get('type') == 'verify_otp') {
+            if (session()->has('verify_otp')) {
                 $otpData = session()->get('verify_otp');
 
-                if($otpData['otp'] != $request->otp || $otpData['email'] != $request->email){
+                if ($otpData['otp'] != $request->otp || $otpData['email'] != $request->email) {
                     return response()->json([
                         'status' => 0,
                         'message' => 'Invalid OTP',
@@ -641,14 +813,15 @@ class FrontPageController extends Controller
         }
     }
 
-    public function addressGet(){
-        if(!Auth::check()){
+    public function addressGet()
+    {
+        if (!Auth::check()) {
             return response()->json([
                 'status' => 0,
                 'message' => 'User not authenticated',
             ]);
         }
-        
+
         $user = Auth::user();
 
         $address = [
@@ -663,15 +836,17 @@ class FrontPageController extends Controller
         return response()->json($address);
     }
 
-    public function chauffeurSearch(){
+    public function chauffeurSearch()
+    {
         $pickupLocations = Region::where('is_active', 1)->orderBy('name', 'asc')->get();
         return view('frontpage.chauffeur.search', compact('pickupLocations'));
     }
 
-    public function chauffeurList(Request $request){
+    public function chauffeurList(Request $request)
+    {
         $query = $request->all();
         $cars = Car::where('is_available', 1)->whereNotNull('driver->name')
-            ->when($request->has('type'), function($q) use ($request) {
+            ->when($request->has('type'), function ($q) use ($request) {
                 $q->where('type', $request->get('type'));
             })
             ->paginate(10);
@@ -679,15 +854,18 @@ class FrontPageController extends Controller
         return view('frontpage.chauffeur.list', compact('query', 'cars', 'carTypes'));
     }
 
-    public function chauffeurSingle($id){
+    public function chauffeurSingle($id)
+    {
         return view('frontpage.chauffeur.single');
     }
 
-    public function chauffeurExtras($id){
+    public function chauffeurExtras($id)
+    {
         return view('frontpage.chauffeur.extras');
     }
 
-    public function chauffeurCheckout($id){
+    public function chauffeurCheckout($id)
+    {
         return view('frontpage.chauffeur.checkout');
     }
 }

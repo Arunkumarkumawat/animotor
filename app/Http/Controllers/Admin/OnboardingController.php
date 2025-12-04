@@ -175,7 +175,7 @@ class OnboardingController extends Controller
                 'company' => $user->company,
             ], function ($message) use ($user) {
                 $message->to($user->email)
-                    ->cc(config('app.admin_onboarding_cc_email'))
+                    ->cc(settings('contact_email'))
                     ->subject('Your Onboarding Is In Review - ' . settings('site_name'));
             });
 

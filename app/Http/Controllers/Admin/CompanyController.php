@@ -175,7 +175,7 @@ class CompanyController extends Controller
             };
 
             $message->to($user->email)
-                ->cc(config('app.admin_onboarding_cc_email'))
+                ->cc(settings('contact_email'))
                 ->subject($subject);
         });
 

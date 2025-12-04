@@ -2415,13 +2415,25 @@
                                     <div class="col-4 mt-2">
                                         <div style="background: #fbfbfb;border-radius: 15px;padding: 20px;">
                                             <div class="form-group">
-                                                <select class="form-control form-control-lg select2" wire:model="insurance_coverage.level">
+                                                <select class="form-control form-control-lg select2" wire:model="insurance_coverage.level" wire:change="updatePolicyDropdown()">
                                                     <option value="">Select Level</option>
-                                                    <option value="basic">Basic</option>
-                                                    <option value="full">Full</option>
-                                                    <option value="excess">Excess</option>
+                                                    <option value="Full Protection">Full Protection</option>
+                                                    <option value="CDW">CDW</option>
+                                                    <option value="Excess">Excess</option>
+                                                    <option value="Theft">Theft</option>
+                                                    <option value="Addons">Addons</option>
+                                                    <option value="Basic">Basic</option>
                                                 </select>
                                                 @error("insurance_coverage.level") <span class="error">Level is required</span> @enderror
+                                            </div>
+                                            <div class="form-group">
+                                                <select class="form-control form-control-lg select2" wire:model="insurance_coverage.policy" wire:change="selectPolicy(this.value)">
+                                                    <option value="">Select Policy</option>
+                                                    @foreach($policies as $policy)
+                                                        <option value="{{ $policy->id }}">{{ $policy->policy_number }}</option>
+                                                    @endforeach
+                                                </select>
+                                                @error("insurance_coverage.policy") <span class="error">Policy is required</span> @enderror
                                             </div>
                                             <div class="form-group">
                                                 <input class="form-control form-control-lg" type="text" wire:model="insurance_coverage.cover" placeholder="What's Covered" maxlength="20">

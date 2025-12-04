@@ -30,7 +30,7 @@ class CompanyRegistrationController extends Controller
     }
 
     public function store(Request $request)
-    {
+    {        
         $data = $request->validate([
             'company_name'   => 'required|unique:companies,name',
             'email'          => 'required|email|unique:users,email',

@@ -106,7 +106,7 @@
 
 @section('content')
     @include('frontpage.partials.private_hire.header')
-    <div class="container py-4">
+    <form method="get" action="{{ url()->full() }}" class="container py-4">
 
         <!-- Back link -->
         <a href="{{ route('private_hire_single', $car->id) }}" class="back-link">
@@ -159,11 +159,11 @@
 
         <!-- Footer Buttons -->
         <div class="d-flex justify-content-between align-items-center mt-4">
-            <a href="javascript:void(0)" onclick="redirectMe(true)" class="skip-btn">Skip Extras</a>
-            <a href="javascript:void(0)" onclick="redirectMe(false)" class="checkout-btn">Continue to Checkout <i class="fas fa-arrow-right"></i></a>
+            <a href="javascript:void(0)" onclick="redirectMe()" class="skip-btn">Skip Extras</a>
+            <button type="submit" class="checkout-btn">Continue to Checkout <i class="fas fa-arrow-right"></i></button>
         </div>
 
-    </div>
+    </form>
 
     <script>
         function setExtraQuantity(id, quantity) {
@@ -186,21 +186,12 @@
             });
         });
 
-        function redirectMe(skipExtras = false){
+        function redirectMe(){
             const params = new URLSearchParams();
 
             @foreach($query as $key => $value)
                 params.append('{{ $key }}', '{{ $value }}');
             @endforeach
-
-            if(!skipExtras){
-                jQuery('.extras-quantity').each(function() {
-                    const quantity = parseInt($(this).val());
-                    if(quantity > 0){
-                        params.append('extras[' + $(this).data('extra-id') + ']', quantity);
-                    }
-                });
-            }
 
             const url = '{{ route('private_hire_checkout', $car->id) }}';
             window.location.href = url + '?' + params.toString();

@@ -2,19 +2,19 @@
 
 namespace App\Livewire\Admin\Cars;
 
-use App\Models\Addons\pcn;
+use Exception;
 use App\Models\Car;
-use App\Models\DriverPcn;
+use App\Models\User;
 use App\Models\Region;
+use Livewire\Component;
+use App\Models\Addons\pcn;
 use App\Models\VehicleMake;
 use App\Models\VehicleModel;
-use App\Services\FileUploadService;
-use Exception;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
-use Livewire\Attributes\Computed;
-use Livewire\Component;
 use Livewire\WithFileUploads;
+use App\Models\InsuranceCoverage;
+use Livewire\Attributes\Computed;
+use App\Services\FileUploadService;
+use Illuminate\Support\Facades\File;
 
 class Form extends Component
 {
@@ -62,6 +62,7 @@ class Form extends Component
     public bool $weekly_rate_tax_incl = true;
     public ?string $monthly_rate;
     public bool $monthly_rate_tax_incl = true;
+    public $policies = [];
 
     public ?array $dynamic_pricings = [];
     public ?string $dynamic_pricing_rule_name;
@@ -71,7 +72,15 @@ class Form extends Component
     public ?string $dynamic_pricing_end_date;
 
     public array $extras = ['title' => '', 'price' => '', 'description' => '', 'interval' => ''];
-    public ?array $insurance_coverage = ['title' => '', 'value' => ''];
+    public ?array $insurance_coverage = [
+        'level' => '',
+        'policy' => '',
+        'cover' => '',
+        'cover_descr' => '',
+        'daily_price' => '',
+        'excess' => '',
+        'interval' => '',
+    ];
 
     public ?string $mileage_policy = '';
     public ?string $mileage_limit  = '';
@@ -317,6 +326,35 @@ class Form extends Component
         }
     }
 
+    public function updatePolicyDropdown(){
+        if(isset($this->insurance_coverage['level'])){
+            $company_id = $this->car->company_id;
+            $user = User::where('company_id', $company_id)->first();
+            $this->policies = InsuranceCoverage::where('policy_type', $this->insurance_coverage['level'])
+                ->where('company_id', $user ? $user->id : $company_id)
+                ->where('status', 'Active')
+                ->get();
+        }else{
+            $this->policies = [];
+        }
+    }
+
+    public function selectPolicy($policy_id){
+        $this->insurance_coverage['policy'] = $policy_id;
+        $policy = InsuranceCoverage::where('id', $policy_id)->first();
+        if($policy){
+            $this->insurance_coverage['cover'] = $policy->cover;
+            $this->insurance_coverage['cover_descr'] = $policy->cover_descr;
+            $this->insurance_coverage['daily_price'] = $policy->daily_price;
+            $this->insurance_coverage['excess'] = $policy->excess;
+        } else {
+            $this->insurance_coverage['cover'] = '';
+            $this->insurance_coverage['cover_descr'] = '';
+            $this->insurance_coverage['daily_price'] = '';
+            $this->insurance_coverage['excess'] = '';
+        }
+    }
+
     public array $full_types = [
         'Diesel',
         'Petrol',
@@ -472,6 +510,7 @@ class Form extends Component
         $this->car_types = $car_types;
         $this->car_makes = $car_makes;
         $this->car_models = $car_models;
+        $this->policies = [];
         if ($car) {
             $this->car = $car;
 
