@@ -14,7 +14,8 @@ class PhBookingController extends Controller
 {
     public function index()
     {
-        return view('admin.ph_bookings.index');
+        $items = PhBooking::with(['car', 'user'])->paginate(30);
+        return view('admin.ph_bookings.index', compact('items'));
     }
 
     public function show($id){

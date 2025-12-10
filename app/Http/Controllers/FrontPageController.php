@@ -13,6 +13,7 @@ use App\Models\Booking;
 use App\Models\PhBooking;
 use App\Mail\EmailOtpMail;
 use App\Models\VehicleType;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use App\Services\WalletService;
@@ -446,6 +447,12 @@ class FrontPageController extends Controller
             ->when($request->get('car_types'), function ($query) use ($request) {
                 $query->whereIn('type', $request->get('car_types'));
             })
+            ->when($request->get('transmission'), function ($query) use ($request) {
+                $query->whereIn('transmission', $request->get('transmission'));
+            })
+            ->when($request->get('fuel_type'), function($query) use ($request) {
+                $query->whereIn('fuel_type', $request->get('fuel_type'));
+            })
             ->when($request->get('renting_terms'), function ($query) use ($request) {
                 foreach ($request->get('renting_terms') as $term) {
                     $query->orWhere($term, 1);
@@ -465,12 +472,80 @@ class FrontPageController extends Controller
                     }
                 });
             })
-            ->when($request->get('order'), function ($query) use ($request) {
-                $query->orderBy($request->get('order'), $request->get('order_dir', 'asc'));
+            ->when($request->get('sort_by', 'Recommended'), function ($query) use ($request) {
+                switch($request->get('sort_by','Recommended')){
+                    case 'Best rated':
+                        $query->orderBy('created_at', 'ASC');
+                        break;
+                    case 'Recommended':
+                        $query->orderBy('created_at', 'DESC');
+                        break;
+                    case 'Price (low to high)':
+                        $query->orderBy('weekly_rate', 'ASC');
+                        break;
+                    case 'Price (high to low)':
+                        $query->orderBy('weekly_rate', 'DESC');
+                        break;
+                }
             })
             ->get();
 
         return view('frontpage.private_hire.list', compact('carTypes', 'cars'));
+    }
+
+    public function privateHireListAlt(Request $request)
+    {
+        $carTypes = VehicleType::where('is_active', 1)->get();
+
+        $cars = Car::where('is_available', 1)
+            ->where('private_hire', 1)
+            ->when($request->get('car_types'), function ($query) use ($request) {
+                $query->whereIn('type', $request->get('car_types'));
+            })
+            ->when($request->get('transmission'), function ($query) use ($request) {
+                $query->whereIn('gear', $request->get('transmission'));
+            })
+            ->when($request->get('fuel_types'), function($query) use ($request) {
+                $query->whereIn('fuel_type', $request->get('fuel_types'));
+            })
+            ->when($request->get('renting_terms'), function ($query) use ($request) {
+                foreach ($request->get('renting_terms') as $term) {
+                    $query->orWhere($term, 1);
+                }
+            })
+            ->when($request->get('councils'), function ($query) use ($request) {
+                $query->whereIn('licensing_authority', $request->get('councils'));
+            })
+            ->when($request->get('features'), function ($query) use ($request) {
+                $featuresToSearch = $request->get('features');
+                $query->where(function ($query) use ($featuresToSearch) {
+                    foreach ($featuresToSearch as $feature) {
+                        $query->where($feature, 1);
+                    }
+                });
+            })
+            ->when($request->get('max_weekly_rent'), function ($query) use ($request) {
+                $query->where('weekly_rate', '>=', $request->get('max_weekly_rent'));
+            })
+            ->when($request->get('sort_by', 'Recommended'), function ($query) use ($request) {
+                switch($request->get('sort_by','Recommended')){
+                    case 'Best rated':
+                        $query->orderBy('created_at', 'ASC');
+                        break;
+                    case 'Recommended':
+                        $query->orderBy('created_at', 'DESC');
+                        break;
+                    case 'Price (low to high)':
+                        $query->orderBy('weekly_rate', 'ASC');
+                        break;
+                    case 'Price (high to low)':
+                        $query->orderBy('weekly_rate', 'DESC');
+                        break;
+                }
+            })
+            ->get();
+
+        return view('frontpage.private_hire.list2', compact('carTypes', 'cars'));
     }
 
     public function privateHireSingle($id)
@@ -510,10 +585,20 @@ class FrontPageController extends Controller
                 $deposit = $car->rent_to_buy_deposit_amount ?? 0;
                 $excess = $car->rent_to_buy_excess_mileage_rate ?? 0;
                 $query['end_date']->addMonths($query['term']);
-                $period = 'month';
+                $period = 'week';
                 $term = $query['term'];
                 $rate = $car->rent_to_buy_price_per_cycle;
                 $cycle = $car->rent_to_buy_billing_cycle ?? 'weekly';
+
+                $calcTerm = $term;
+
+                if ($cycle == 'weekly') {
+                    $calcTerm = $term;
+                } else if ($cycle == 'monthly') {
+                    $calcTerm = $term * 4.34524;
+                } else if ($cycle == 'quarterly') {
+                    $calcTerm = $term * 13.0357;
+                }
 
                 $currPricingData = [
                     'deposit' => $deposit,
@@ -540,6 +625,16 @@ class FrontPageController extends Controller
                 $period = 'month';
                 $cycle = $car->long_term_billing_cycle ?? 'weekly';
                 $rate = $car->long_term_prices[$query['term']][$query['insurance'] == 'w' ? 'price_w_ins' : 'price_wo_ins'];
+
+                $calcTerm = $term;
+
+                if ($cycle == 'weekly') {
+                    $calcTerm = $term * 4.34524;
+                } else if ($cycle == 'monthly') {
+                    $calcTerm = $term;
+                } else if ($cycle == 'quarterly') {
+                    $calcTerm = $term / 3;
+                }
 
                 $currPricingData = [
                     'deposit' => $deposit,
@@ -569,6 +664,8 @@ class FrontPageController extends Controller
                     $rate = $car->short_term_weekly_price_wo_ins;
                 }
 
+                $calcTerm = $term;
+
                 $currPricingData = [
                     'deposit' => $deposit,
                     'rate' => $rate,
@@ -582,35 +679,37 @@ class FrontPageController extends Controller
                 break;
         }
 
-        if ($request->method() == 'POST') {
-            $extrasPrice = 0;
-            $extras = $query['extras'] ?? [];
+        $extrasPrice = 0;
 
-            $daysPerCycle = match ($cycle) {
-                'weekly' => 7,
-                'monthly' => 30,
-                'quaterly' => 90,
-            };
 
-            foreach ($extras as $index => $quantity) {
-                if (isset($car->extras[$index])) {
-                    $extra = $car->extras[$index];
-                    $extra['quantity'] = $quantity;
-                    $extras[] = $extra;
+        $daysPerCycle = match ($cycle) {
+            'weekly' => 7,
+            'monthly' => 30,
+            'quaterly' => 90,
+        };
 
-                    if ($extra['interval'] == 'daily') {
-                        $extrasPrice += ($extra['price'] * $daysPerCycle * $quantity);
-                    } else if ($extra['interval'] == 'weekly') {
-                        $extrasPrice += ($extra['price'] * $daysPerCycle * $quantity) / 7;
-                    } else { // one time
-                        $extrasPrice += $extra['price'] * $quantity;
-                    }
+        $extras = $query['extras'] ?? [];
+
+        foreach ($extras as $index => $quantity) {
+            if (isset($car->extras[$index])) {
+                $extra = $car->extras[$index];
+                $extra['quantity'] = $quantity;
+                $extras[] = $extra;
+
+                if ($extra['interval'] == 'daily') {
+                    $extrasPrice += ($extra['price'] * $daysPerCycle * $quantity);
+                } else if ($extra['interval'] == 'weekly') {
+                    $extrasPrice += ($extra['price'] * $daysPerCycle * $quantity) / 7;
+                } else { // one time
+                    $extrasPrice += $extra['price'] * $quantity;
                 }
             }
+        }
 
-            $extrasPrice = round($extrasPrice, 2);
+        $extrasPrice = round($extrasPrice, 2);
 
-            return $this->rhBookingProcessor([
+        if ($request->method() == 'POST') {
+            return $this->phBookingProcessor([
                 'user_id' => Auth::id(),
                 'car_id' => $car->id,
                 'term' => $query['hire_option'],
@@ -628,10 +727,10 @@ class FrontPageController extends Controller
             ], $query['payment_token']);
         }
 
-        return view('frontpage.private_hire.checkout', compact('query', 'car', 'deposit', 'excess', 'period', 'rate', 'cycle', 'term'));
+        return view('frontpage.private_hire.checkout', compact('query', 'car', 'deposit', 'excess', 'period', 'rate', 'extrasPrice', 'cycle', 'term'));
     }
 
-    protected function rhBookingProcessor($data, $paymentToken)
+    protected function phBookingProcessor($data, $paymentToken)
     {
         if (!Auth::check()) {
             return response()->json([
@@ -662,13 +761,15 @@ class FrontPageController extends Controller
             ]);
         }
 
+        $data['id'] = Str::uuid();
+
         $booking = PhBooking::create($data);
         Stripe::setApiKey(env('STRIPE_SECRET_KEY'));
 
         try {
             $charge = Charge::create([
                 'amount' => $data['total_paid'] * 100,
-                'currency' => settings('currency_code','USD'),
+                'currency' => settings('currency_code', 'USD'),
                 'source' => $paymentToken,
                 'description' => 'Order ' . $booking->booking_id,
                 'metadata' => [
@@ -846,26 +947,45 @@ class FrontPageController extends Controller
     {
         $query = $request->all();
         $cars = Car::where('is_available', 1)->whereNotNull('driver->name')
-            ->when($request->has('type'), function ($q) use ($request) {
+            ->when($request->filled('type'), function ($q) use ($request) {
                 $q->where('type', $request->get('type'));
             })
             ->paginate(10);
+            
         $carTypes = VehicleType::where('is_active', 1)->get();
         return view('frontpage.chauffeur.list', compact('query', 'cars', 'carTypes'));
     }
 
-    public function chauffeurSingle($id)
+    public function chauffeurSingle(Request $request, $id)
     {
-        return view('frontpage.chauffeur.single');
+        $query = $request->all();
+
+        $car = Car::where('is_available', 1)
+            ->where('id', $id)
+            ->firstOrFail();
+
+        return view('frontpage.chauffeur.single', compact('query','car'));
     }
 
-    public function chauffeurExtras($id)
+    public function chauffeurExtras(Request $request, $id)
     {
-        return view('frontpage.chauffeur.extras');
+        $query = $request->all();
+
+        $car = Car::where('is_available', 1)
+            ->where('id', $id)
+            ->firstOrFail();
+
+        return view('frontpage.chauffeur.extras', compact('query','car'));
     }
 
-    public function chauffeurCheckout($id)
+    public function chauffeurDetails(Request $request, $id)
     {
-        return view('frontpage.chauffeur.checkout');
+        $query = $request->all();
+
+        $car = Car::where('is_available', 1)
+            ->where('id', $id)
+            ->firstOrFail();
+
+        return view('frontpage.chauffeur.details', compact('query','car'));
     }
 }

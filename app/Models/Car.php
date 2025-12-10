@@ -45,6 +45,10 @@ class Car extends Model
         'daily_rate_tax_incl' => 'boolean',
         'weekly_rate_tax_incl' => 'boolean',
         'monthly_rate_tax_incl' => 'boolean',
+        'chauffer_airport_terms' => 'array',
+        'chauffer_long_terms' => 'array',
+        'chauffer_event_terms' => 'array',
+        'chauffer_service_terms' => 'array',
     ];
 
     public function region(): BelongsTo
@@ -213,7 +217,7 @@ class Car extends Model
                     return str_replace('m', ' months', $option['value']);
                 }
             } else if($this->rent_to_buy){
-                return $this->rent_to_buy_term . ' months';
+                return $this->rent_to_buy_term . ' weeks';
             }
         }
 

@@ -44,6 +44,7 @@ use App\Http\Controllers\Admin\VehicleModelController;
 use App\Http\Controllers\Admin\ReportIncidentController;
 use App\Http\Controllers\Admin\InsuranceCoverageController;
 use App\Http\Controllers\Admin\CancellationReasonController;
+use App\Http\Controllers\Admin\PhBookingController;
 use Modules\AdvanceRental\Http\Controllers\IncidentController;
 /*
 |--------------------------------------------------------------------------
@@ -152,8 +153,10 @@ Route::group(['middleware' => ['auth', 'role:admin|superadmin|owner|manager'], '
     Route::post('bookings/update_status', [BookingController::class, 'updateStatus'])->name('bookings.update_status');
     Route::post('bookings/confirm/{id}', [BookingController::class, 'confirmBooking'])->name('bookings.confirm');
 
-    Route::put('/api/toggle/{modelId}', [SettingsController::class, 'toggle']);
+    Route::get('ph_bookings', [PhBookingController::class, 'index'])->name('ph_booking.index');
+    Route::get('ph_bookings/show/{id}', [PhBookingController::class, 'show'])->name('ph_booking.show');
 
+    Route::put('/api/toggle/{modelId}', [SettingsController::class, 'toggle']);
 
     Route::group(['prefix' => 'settings'], function () {
         Route::any('pages', [SettingsController::class, 'pages'])->name('setting.pages');

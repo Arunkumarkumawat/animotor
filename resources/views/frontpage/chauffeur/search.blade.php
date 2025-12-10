@@ -1,7 +1,6 @@
 @extends('frontpage.layout')
 
 @push('styles')
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
         /* Gradient Background */
         .hero-section {
@@ -38,11 +37,6 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 10px;
         }
-
-        .select2-container.select2-selection--single {
-            height: 38px !important;
-            text-align: left !important;
-        }
     </style>
 @endpush
 
@@ -51,7 +45,7 @@
 
     <!-- HERO SECTION -->
     <section class="hero-section py-5">
-        <div class="container text-center text-white">
+        <div class="container text-center">
             <i class="fas fa-shield-alt fa-2x mb-2"></i>
 
             <h1 class="fw-bold display-5">Executive Chauffeur Services</h1>
@@ -67,7 +61,7 @@
                             <label class="form-label">
                                 <i class="fas fa-map-marker-alt me-1"></i> Pickup Location
                             </label>
-                            <select class="form-select" name="location" id="pickup_location" style="width: 100%" required>
+                            <select name="location" id="pickup_location" style="width: 100%; display:none;" required>
                                 <option value="">Select a location</option>
                                 @foreach($pickupLocations as $location)
                                     <option value="{{ $location->id }}">{{ $location->name }}</option>
@@ -79,22 +73,24 @@
                             <label class="form-label">
                                 <i class="far fa-calendar-alt me-1"></i> Date
                             </label>
-                            <input type="date" name="date" class="form-control" required>
+                            <input type="date" name="date" min="{{ date('Y-m-d') }}" class="form-control" required>
                         </div>
 
                         <div class="col-md-4">
                             <label class="form-label">
                                 <i class="far fa-clock me-1"></i> Time
                             </label>
-                            <input type="time" name="time" class="form-control" required>
+                            <input type="text" name="time" class="form-control timepicker" required>
                         </div>
 
                         <div class="col-md-4">
                             <label class="form-label">Trip Type</label>
                             <select name="trip_type" class="form-select" required>
-                                <option value="hourly">Hourly Hire</option>
-                                <option value="one_way">One Way</option>
-                                <option value="return">Return</option>
+                                <option value="hourly">Hourly</option>
+                                <option value="daily">Daily</option>
+                                <option value="airport">Airport Transfer</option>
+                                <option value="long_distance">Long Distance</option>
+                                <option value="event">Event</option>
                             </select>
                         </div>
 
@@ -126,7 +122,7 @@
     </section>
 
     <!-- FEATURES SECTION -->
-    <section class="features-section py-5 text-white">
+    <section class="features-section py-5">
         <div class="container">
 
             <h2 class="text-center fw-bold mb-5">Why Choose Our Executive Service</h2>
@@ -161,3 +157,28 @@
         </div>
     </section>
 @endsection
+
+@push('scripts')
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<style>
+    .select2-selection.select2-selection--single {
+        height: 38px !important;
+        text-align: left !important;
+    }
+</style>
+
+<script>
+    jQuery('#pickup_location').select2({});
+    $('.timepicker').timepicker({
+        timeFormat: 'hh:mm p',
+        interval: 30,
+        dynamic: false,
+        dropdown: true,
+        scrollbar: true
+    });
+</script>
+@endpush

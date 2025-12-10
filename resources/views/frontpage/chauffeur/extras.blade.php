@@ -3,176 +3,212 @@
 @section('style')
     <style>
         body {
-            background-color: #f5f6fa;
+            background-color: #f5f6f8;
             font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
 
-        .page-container {
-            max-width: 900px;
+        .page-wrapper {
+            max-width: 1024px;
+            margin: 32px auto 48px;
         }
 
+        /* Top back link */
+        .back-link {
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 24px;
+        }
+
+        .back-link i {
+            margin-right: 4px;
+            font-size: 0.8rem;
+        }
+
+        /* Section headings */
         .section-title {
             font-weight: 700;
-            margin-bottom: 0.25rem;
+            font-size: 1.6rem;
+            margin-bottom: 4px;
         }
 
         .section-subtitle {
-            font-size: 0.9rem;
-            color: #6b7280;
-            margin-bottom: 1.75rem;
+            color: #777;
+            font-size: 0.95rem;
+            margin-bottom: 24px;
         }
 
+        /* Package cards */
         .package-card {
             position: relative;
-            border-radius: 14px;
-            border: 1px solid #e5e7eb;
-            background-color: #ffffff;
-            padding: 1.25rem 1.5rem;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            padding: 18px 20px;
+            background-color: #fff;
             cursor: pointer;
-            transition: all .2s ease;
-            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.03);
-        }
+            transition: all 0.15s ease-in-out;
 
-        .package-card:hover {
-            box-shadow: 0 14px 30px rgba(15, 23, 42, 0.06);
-            transform: translateY(-2px);
+            /* NEW: make all cards equal height */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 140px;
+            /* adjust value to taste */
+            width: 100%;
         }
 
         .package-card.active {
-            border-color: #f59e0b;
-            box-shadow: 0 16px 32px rgba(245, 158, 11, 0.22);
-        }
-
-        .package-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 0.75rem;
-            background-color: #fff7ed;
-            color: #f97316;
-            font-size: 1.1rem;
-        }
-
-        .package-title {
-            font-weight: 600;
-            margin-bottom: .1rem;
-        }
-
-        .package-desc {
-            font-size: 0.85rem;
-            color: #6b7280;
-            margin: 0;
-        }
-
-        .package-price {
-            text-align: right;
-            font-size: 0.85rem;
-            color: #6b7280;
-        }
-
-        .package-price strong {
-            display: block;
-            font-size: 1.1rem;
-            color: #f97316;
-            margin-top: .1rem;
+            border-color: #f6a619;
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.05);
+            background-color: #fffaf2;
         }
 
         .package-radio {
             position: absolute;
-            right: 1.5rem;
-            top: 1.5rem;
+            top: 16px;
+            right: 16px;
+        }
+
+        .package-radio input[type="radio"] {
+            opacity: 0;
+            position: absolute;
+        }
+
+        .package-radio .fake-radio {
             width: 18px;
             height: 18px;
             border-radius: 50%;
-            border: 2px solid #d1d5db;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            border: 2px solid #d4d4d4;
+            display: inline-block;
+            box-sizing: border-box;
+            position: relative;
             background-color: #fff;
+            transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
         }
 
-        .package-card.active .package-radio {
-            border-color: #f59e0b;
+        .package-card.active .package-radio .fake-radio {
+            border-color: #f29b05;
+            background-color: #f29b05;
         }
 
-        .package-radio-inner {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background-color: transparent;
+        .package-card-icon {
+            font-size: 1.2rem;
+            margin-right: 8px;
+            color: #f29b05;
         }
 
-        .package-card.active .package-radio-inner {
-            background-color: #f59e0b;
+        .package-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 2px;
         }
 
-        /* Config section */
+        .package-desc {
+            font-size: 0.9rem;
+            color: #777;
+            margin-bottom: 0;
+        }
+
+        .package-price-label {
+            font-size: 0.8rem;
+            color: #999;
+            margin-top: 12px;
+            margin-bottom: 0;
+        }
+
+        .package-price {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #f29b05;
+        }
+
+        /* Config sections */
         .config-card {
-            border-radius: 14px;
-            border: 1px solid #e5e7eb;
-            background-color: #ffffff;
-            padding: 1.25rem 1.5rem 1.5rem;
-            margin-top: 2rem;
-            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.03);
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            background-color: #fff;
+            padding: 20px 24px;
         }
 
         .config-title {
+            font-size: 1.2rem;
             font-weight: 600;
-            margin-bottom: .25rem;
+            margin-bottom: 16px;
         }
 
         .config-subtitle {
-            font-size: .85rem;
-            color: #6b7280;
-            margin-bottom: 1rem;
-        }
-
-        .duration-pill {
-            border-radius: 999px;
-            border: 1px solid #e5e7eb;
-            background-color: #ffffff;
-            padding: 0.55rem 1.2rem;
             font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all .2s ease;
-            text-align: center;
-            white-space: nowrap;
+            color: #777;
+            margin-bottom: 12px;
         }
 
-        .duration-pill:hover {
-            border-color: #f59e0b;
-            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+        /* Hourly duration buttons */
+        .duration-btn {
+            border-radius: 8px;
+            border-width: 1px;
+            padding: 10px 0;
+            font-size: 0.9rem;
+            background-color: #fff;
+            transition: all 0.15s ease-in-out;
         }
 
-        .duration-pill.active {
-            border-color: #f59e0b;
-            background-color: #fff7ed;
-            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.2);
+        .duration-btn.active,
+        .duration-btn:hover {
+            border-color: #f29b05;
+            background-color: #fffaf2;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.04);
+            color: #333;
+        }
+
+        /* Airport transfer info box */
+        .airport-info {
+            margin-top: 18px;
+            border-radius: 8px;
+            background-color: #f4f8ff;
+            padding: 16px 18px;
+            font-size: 0.9rem;
+        }
+
+        .airport-info-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .airport-info ul {
+            padding-left: 18px;
+            margin-bottom: 0;
+        }
+
+        .airport-info li {
+            margin-bottom: 4px;
+        }
+
+        /* Continue button */
+        .bottom-cta {
+            margin-top: 24px;
         }
 
         .btn-continue {
-            background-color: #f59e0b;
-            border-color: #f59e0b;
-            color: #fff;
+            width: 100%;
+            border-radius: 999px;
+            background-image: linear-gradient(90deg, #f29b05, #f5b623);
+            border: none;
             font-weight: 600;
-            padding: 0.75rem 1.5rem;
-            border-radius: 6px;
-            margin-top: 1.5rem;
+            padding: 12px 0;
         }
 
         .btn-continue:hover {
-            background-color: #ea580c;
-            border-color: #ea580c;
+            filter: brightness(0.96);
         }
 
-        @media (max-width: 575.98px) {
-            .duration-pill {
-                width: 100%;
+        @media (max-width: 767.98px) {
+            .page-wrapper {
+                margin: 16px auto 32px;
+                padding: 0 12px;
             }
+        }
+
+        .active p {
+            color:unset !important;
         }
     </style>
 @endsection
@@ -180,157 +216,364 @@
 @section('content')
     @include('frontpage.partials.private_hire.header')
 
-    <div class="container page-container py-5">
+    <div class="page-wrapper px-3 px-md-0">
+        <!-- Back link -->
+        <a href="javascript:void(0)" onclick="redirectBack()" class="back-link d-inline-flex align-items-center text-decoration-none">
+            <i class="fas fa-chevron-left"></i>
+            <span>Back</span>
+        </a>
 
-        <!-- Header -->
-        <div class="mb-4">
-            <h3 class="section-title">Select Your Package</h3>
-            <p class="section-subtitle">Choose the service that best fits your needs</p>
+        <!-- Heading -->
+        <div class="mb-3">
+            <div class="section-title">Select Your Package</div>
+            <div class="section-subtitle">Choose the service that best fits your needs</div>
         </div>
 
-        <!-- Packages -->
-        <div class="row g-3 mb-2">
+        <!-- Package Selection -->
+        <div class="row g-3 mb-4">
             <!-- Hourly Hire -->
             <div class="col-md-6">
-                <div class="package-card active">
+                <label class="package-card active" data-package="hourly">
                     <div class="d-flex align-items-start">
-                        <div class="package-icon">
-                            <i class="far fa-clock"></i>
-                        </div>
-                        <div class="flex-grow-1">
+                        <i class="far fa-clock package-card-icon"></i>
+                        <div>
                             <div class="package-title">Hourly Hire</div>
-                            <p class="package-desc">Perfect for short trips and meetings</p>
+                            <p class="package-desc mb-0">Perfect for short trips and meetings</p>
                         </div>
-                        <div class="package-price">
-                            From
-                            <strong>£75</strong>
-                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <p class="package-price-label">From</p>
+                        <p class="package-price mb-0">{{ amt($car->hourly_rate) }}</p>
                     </div>
                     <div class="package-radio">
-                        <div class="package-radio-inner"></div>
+                        <span class="fake-radio"></span>
+                        <input type="radio" name="package" value="hourly" checked>
                     </div>
-                </div>
+                </label>
             </div>
 
             <!-- Daily Hire -->
             <div class="col-md-6">
-                <div class="package-card">
+                <label class="package-card" data-package="daily">
                     <div class="d-flex align-items-start">
-                        <div class="package-icon">
-                            <i class="far fa-sun"></i>
-                        </div>
-                        <div class="flex-grow-1">
+                        <i class="far fa-calendar-alt package-card-icon"></i>
+                        <div>
                             <div class="package-title">Daily Hire</div>
-                            <p class="package-desc">Full day at your disposal (up to 10 hours)</p>
+                            <p class="package-desc mb-0">Full day at your disposal (up to 10 hours)</p>
                         </div>
-                        <div class="package-price">
-                            From
-                            <strong>£500</strong>
-                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <p class="package-price-label">From</p>
+                        <p class="package-price mb-0">{{ amt($car->daily_rate) }}</p>
                     </div>
                     <div class="package-radio">
-                        <div class="package-radio-inner"></div>
+                        <span class="fake-radio"></span>
+                        <input type="radio" name="package" value="daily">
                     </div>
-                </div>
+                </label>
             </div>
 
             <!-- Airport Transfer -->
             <div class="col-md-6">
-                <div class="package-card">
+                <label class="package-card" data-package="airport">
                     <div class="d-flex align-items-start">
-                        <div class="package-icon">
-                            <i class="fas fa-plane-arrival"></i>
-                        </div>
-                        <div class="flex-grow-1">
+                        <i class="fas fa-plane-departure package-card-icon"></i>
+                        <div>
                             <div class="package-title">Airport Transfer</div>
-                            <p class="package-desc">Meet &amp; greet with flight monitoring</p>
+                            <p class="package-desc mb-0">Meet &amp; greet with flight monitoring</p>
                         </div>
-                        <div class="package-price">
-                            From
-                            <strong>£120</strong>
-                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <p class="package-price-label">From</p>
+                        <p class="package-price mb-0">{{ amt($car->airport_transfer_rate) }}</p>
                     </div>
                     <div class="package-radio">
-                        <div class="package-radio-inner"></div>
+                        <span class="fake-radio"></span>
+                        <input type="radio" name="package" value="airport">
                     </div>
-                </div>
+                </label>
             </div>
 
             <!-- Long Distance -->
             <div class="col-md-6">
-                <div class="package-card">
+                <label class="package-card" data-package="long">
                     <div class="d-flex align-items-start">
-                        <div class="package-icon">
-                            <i class="fas fa-route"></i>
-                        </div>
-                        <div class="flex-grow-1">
+                        <i class="fas fa-route package-card-icon"></i>
+                        <div>
                             <div class="package-title">Long Distance</div>
-                            <p class="package-desc">City-to-city journeys with mileage included</p>
+                            <p class="package-desc mb-0">City-to-city journeys with mileage included</p>
                         </div>
-                        <div class="package-price">
-                            From
-                            <strong>£600</strong>
-                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <p class="package-price-label">From</p>
+                        <p class="package-price mb-0">{{ amt($car->long_transfer_rate) }}</p>
                     </div>
                     <div class="package-radio">
-                        <div class="package-radio-inner"></div>
+                        <span class="fake-radio"></span>
+                        <input type="radio" name="package" value="long">
                     </div>
-                </div>
+                </label>
             </div>
 
             <!-- Event Hire -->
             <div class="col-md-6">
-                <div class="package-card">
+                <label class="package-card" data-package="event">
                     <div class="d-flex align-items-start">
-                        <div class="package-icon">
-                            <i class="fas fa-glass-cheers"></i>
-                        </div>
-                        <div class="flex-grow-1">
+                        <i class="fas fa-glass-cheers package-card-icon"></i>
+                        <div>
                             <div class="package-title">Event Hire</div>
-                            <p class="package-desc">Weddings, corporate events, VIP occasions</p>
+                            <p class="package-desc mb-0">Weddings, corporate events, VIP occasions</p>
                         </div>
-                        <div class="package-price">
-                            From
-                            <strong>£700</strong>
-                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <p class="package-price-label">From</p>
+                        <p class="package-price mb-0">{{ amt($car->event_hire_rate) }}</p>
                     </div>
                     <div class="package-radio">
-                        <div class="package-radio-inner"></div>
+                        <span class="fake-radio"></span>
+                        <input type="radio" name="package" value="event">
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <!-- Config: Hourly Hire -->
+        <div id="config-hourly" class="mb-4">
+            <div class="config-card">
+                <div class="config-title">Configure Your Hourly Hire</div>
+                <div class="config-subtitle">Select Duration</div>
+                <input type="hidden" name="hourly_duration" value="3">
+                <div class="row g-2">
+                    <div class="col-6 col-md-2">
+                        <button type="button" class="btn btn-outline-secondary duration-btn w-100" data-duration="2">2 hours</button>
+                    </div>
+                    <div class="col-6 col-md-2">
+                        <button type="button" class="btn btn-outline-secondary duration-btn w-100 active" data-duration="3">3 hours</button>
+                    </div>
+                    <div class="col-6 col-md-2">
+                        <button type="button" class="btn btn-outline-secondary duration-btn w-100" data-duration="4">4 hours</button>
+                    </div>
+                    <div class="col-6 col-md-2">
+                        <button type="button" class="btn btn-outline-secondary duration-btn w-100" data-duration="5">5 hours</button>
+                    </div>
+                    <div class="col-6 col-md-2">
+                        <button type="button" class="btn btn-outline-secondary duration-btn w-100" data-duration="8">8 hours</button>
+                    </div>
+                    <div class="col-6 col-md-2">
+                        <button type="button" class="btn btn-outline-secondary duration-btn w-100" data-duration="custom">Custom</button>
+                    </div>
+                </div>
+                <div class="form-group d-none mt-3" id="custom_hours_container">
+                    <input type="number" class="form-control" name="hourly_custom_duration" placeholder="Enter custom hours">
+                </div>
+            </div>
+        </div>
+
+        <!-- Config: Daily Hire -->
+        <div id="config-daily" class="mb-4 d-none">
+            <div class="config-card">
+                <div class="config-title">Configure Your Daily Hire</div>
+                <div class="config-subtitle">Select Duration</div>
+                <input type="hidden" name="daily_duration" value="3">
+                <div class="row g-2">
+                    <div class="col-6 col-md-3">
+                        <button type="button" class="btn btn-outline-secondary day-duration-btn w-100" data-duration="1">1 day</button>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <button type="button" class="btn btn-outline-secondary day-duration-btn w-100 active" data-duration="2">2 days</button>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <button type="button" class="btn btn-outline-secondary day-duration-btn w-100" data-duration="3">3 days</button>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <button type="button" class="btn btn-outline-secondary day-duration-btn w-100" data-duration="7">7 days</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Configuration Card -->
-        <div class="config-card">
-            <div class="config-title">Configure Your Hourly Hire</div>
-            <div class="config-subtitle">Select Duration</div>
+        <!-- Config: Airport Transfer -->
+        <div id="config-airport" class="mb-4 d-none">
+            <div class="config-card">
+                <div class="config-title">Configure Your Airport Transfer</div>
 
-            <div class="row g-2 mb-1">
-                <div class="col-6 col-md-2">
-                    <button type="button" class="btn duration-pill w-100">2 hours</button>
-                </div>
-                <div class="col-6 col-md-2">
-                    <button type="button" class="btn duration-pill active w-100">3 hours</button>
-                </div>
-                <div class="col-6 col-md-2">
-                    <button type="button" class="btn duration-pill w-100">4 hours</button>
-                </div>
-                <div class="col-6 col-md-2">
-                    <button type="button" class="btn duration-pill w-100">5 hours</button>
-                </div>
-                <div class="col-6 col-md-2">
-                    <button type="button" class="btn duration-pill w-100">8 hours</button>
-                </div>
-                <div class="col-6 col-md-2">
-                    <button type="button" class="btn duration-pill w-100">Custom</button>
+                <label class="form-label mb-1">Flight Number <span class="text-muted">(Optional)</span></label>
+                <input type="text" class="form-control mb-1" name="flight_number" placeholder="e.g. BA123">
+
+                <div class="config-subtitle">For flight monitoring and adjusted pickup time</div>
+
+                <div class="airport-info">
+                    <div class="airport-info-title">Airport Transfer Includes:</div>
+                    <ul class="mb-0">
+                        @foreach($car->chauffer_airport_terms ?? [] as $term)
+                        <li>✓ {{ $term }}</li>
+                        @endforeach
+                    </ul>
                 </div>
             </div>
         </div>
 
-        <!-- Continue Button -->
-        <button class="btn btn-continue w-100 mt-4">
-            Continue to Booking Details
-        </button>
+        <!-- Config: Long Distance -->
+        <div id="config-long" class="mb-4 d-none">
+            <div class="config-card">
+                <div class="config-title">Configure Your Long Distance</div>
+
+                <div class="airport-info">
+                    <div class="airport-info-title">Long Distance Service Includes:</div>
+                    <ul class="mb-0">
+                        @foreach($car->chauffer_long_terms ?? [] as $term)
+                        <li>✓ {{ $term }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Config: Long Distance -->
+        <div id="config-event" class="mb-4 d-none">
+            <div class="config-card">
+                <div class="config-title">Configure Your Event Hire</div>
+
+                <div class="airport-info">
+                    <div class="airport-info-title">Event Hire Includes:</div>
+                    <ul class="mb-0">
+                        @foreach($car->chauffer_event_terms ?? [] as $term)
+                        <li>✓ {{ $term }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom CTA -->
+        <div class="bottom-cta">
+            <button type="button" onclick="continueToCheckout()" class="btn btn-continue text-white">
+                Continue to Booking Details
+            </button>
+        </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        // Switch active package card + config section
+        document.querySelectorAll('.package-card').forEach(function(card) {
+            card.addEventListener('click', function() {
+                // Activate this card
+                document.querySelectorAll('.package-card').forEach(function(c) {
+                    c.classList.remove('active');
+                    c.querySelector('input[type="radio"]').checked = false;
+                });
+                card.classList.add('active');
+                card.querySelector('input[type="radio"]').checked = true;
+
+                const pkg = card.getAttribute('data-package');
+
+                // Show relevant config section
+                document.getElementById('config-hourly').classList.add('d-none');
+                document.getElementById('config-daily').classList.add('d-none');
+                document.getElementById('config-airport').classList.add('d-none');
+                document.getElementById('config-long').classList.add('d-none');
+                document.getElementById('config-event').classList.add('d-none');
+
+                if (pkg === 'hourly') {
+                    document.getElementById('config-hourly').classList.remove('d-none');
+                } else if (pkg === 'daily') {
+                    document.getElementById('config-daily').classList.remove('d-none');
+                } else if (pkg === 'long') {
+                    document.getElementById('config-long').classList.remove('d-none');
+                } else if (pkg === 'event') {
+                    document.getElementById('config-event').classList.remove('d-none');
+                } else if (pkg === 'airport') {
+                    document.getElementById('config-airport').classList.remove('d-none');
+                }
+            });
+        });
+
+        // Hourly duration button active state
+        document.querySelectorAll('.duration-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.duration-btn').forEach(function(b) {
+                    b.classList.remove('active');
+                });
+                btn.classList.add('active');
+                jQuery('[name="hourly_duration"]').val( btn.getAttribute('data-duration') );
+                if (btn.getAttribute('data-duration') === 'custom') {
+                    document.querySelector('#custom_hours_container').classList.remove('d-none');
+                } else {
+                    document.querySelector('#custom_hours_container').classList.add('d-none');
+                }
+            });
+        });
+
+        // Daily duration button active state
+        document.querySelectorAll('.day-duration-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.day-duration-btn').forEach(function(b) {
+                    b.classList.remove('active');
+                });
+                btn.classList.add('active');
+                jQuery('[name="daily_duration"]').val( btn.getAttribute('data-duration') );
+            });
+        });
+
+        function redirectBack(){
+            const params = new URLSearchParams();
+
+            @foreach ($query as $key => $value)
+                params.append('{{ $key }}', '{{ $value }}');
+            @endforeach
+
+            const url = '{{ route('frontpage.chauffeur.single', $car->id) }}';
+            window.location.href = url + '?' + params.toString();
+        }
+
+        function continueToCheckout(){
+            const params = new URLSearchParams();
+
+            @foreach ($query as $key => $value)
+                params.append('{{ $key }}', '{{ $value }}');
+            @endforeach
+
+            var package = jQuery('[name="package"]:checked').val();
+            if (!package) {
+                return;
+            }
+
+            params.append('package', package);
+
+            if (package === 'hourly') {
+                var duration = jQuery('[name="hourly_duration"]').val();
+                if (!duration) {
+                    return;
+                }
+
+                params.append('duration', duration);
+
+                if(duration == 'custom'){
+                    var custom = jQuery('[name="hourly_custom_duration"]').val();
+                    if(!custom){
+                        return;
+                    }
+                    params.append('custom', custom);
+                }
+            }
+
+            if (package === 'daily') {
+                var duration = jQuery('[name="daily_duration"]').val();
+                if (!duration) {
+                    return;
+                }
+            }
+
+            if(package == 'airport'){
+                var flight = jQuery('[name="airport_flight"]').val();
+                if(flight){
+                    params.append('flight', flight);
+                }
+            }
+            
+            window.location = '{{ route('frontpage.chauffeur.details', $car->id) }}?' + params.toString();
+        }
+    </script>
+@endpush

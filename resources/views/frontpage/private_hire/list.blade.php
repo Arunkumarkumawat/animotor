@@ -220,9 +220,9 @@
                 <div class="sidebar-card">
                     <div class="section-title">Max Weekly Rent</div>
                     <input type="range" id="max-weekly-rent" class="form-range" min="0" max="500"
-                        value="{{ request()->get('max_weekly_rent', 120) }}" name="max_weekly_rent">
+                        value="{{ request()->get('max_weekly_rent', 500) }}" name="max_weekly_rent">
                     <div class="small-muted mt-2">Up to {{ settings('currency_symbol', '$') }}<span
-                            id="max-weekly-rent-value">{{ request()->get('max_weekly_rent', 120) }}</span>/week</div>
+                            id="max-weekly-rent-value">{{ request()->get('max_weekly_rent', 500) }}</span>/week</div>
                 </div>
 
                 <div class="sidebar-card">
@@ -239,45 +239,42 @@
                 </div>
 
                 <div class="sidebar-card">
-                    <div class="section-title">More Filters</div>
-                    <div class="small-muted mb-2">Licensing Type</div>
-                    <div class="form-check"><input class="form-check-input" id="ltPHV" type="checkbox"><label
-                            class="form-check-label small-muted" for="ltPHV">Private Hire Vehicle (PHV)</label></div>
-                    <div class="form-check"><input class="form-check-input" id="ltTaxi" type="checkbox"><label
-                            class="form-check-label small-muted" for="ltTaxi">Public Hire (Taxi)</label></div>
-                    <div class="form-check"><input class="form-check-input" id="ltReady" type="checkbox"><label
-                            class="form-check-label small-muted" for="ltReady">Ready to Licence</label></div>
-                    <div class="form-check"><input class="form-check-input" id="ltPre" type="checkbox"><label
-                            class="form-check-label small-muted" for="ltPre">Pre-Plated</label></div>
-
-                    <hr>
-                    <div class="small-muted mb-2">Platform Eligibility</div>
-                    <div class="row">
-                        <div class="col-6 small-muted">
-                            <div class="form-check"><input class="form-check-input" id="uberX" type="checkbox"><label
-                                    class="form-check-label small-muted" for="uberX">Uber
-                                    X</label></div>
-                            <div class="form-check"><input class="form-check-input" id="uberG" type="checkbox"><label
-                                    class="form-check-label small-muted" for="uberG">Uber
-                                    Green</label></div>
-                            <div class="form-check"><input class="form-check-input" id="uberC" type="checkbox"><label
-                                    class="form-check-label small-muted" for="uberC">Uber
-                                    Comfort</label></div>
-                        </div>
-                        <div class="col-6 small-muted">
-                            <div class="form-check"><input class="form-check-input" id="boltStd" type="checkbox"><label
-                                    class="form-check-label small-muted" for="boltStd">Bolt
-                                    Standard</label></div>
-                            <div class="form-check"><input class="form-check-input" id="boltComf" type="checkbox"><label
-                                    class="form-check-label small-muted" for="boltComf">Bolt
-                                    Comfort</label></div>
-                            <div class="form-check"><input class="form-check-input" id="boltXL"
-                                    type="checkbox"><label class="form-check-label small-muted" for="boltXL">Bolt
-                                    XL</label></div>
-                        </div>
+                    <div class="small-muted mb-2">Transmission</div>
+                    @php $selectedTransmissions = request()->get('transmission', []); @endphp
+                    @foreach(['Automatic','Manual'] as $index => $transmission)
+                    <div class="form-check">
+                        <input class="form-check-input" name="transmission[]" id="tm-{{ $index }}"
+                            value="{{ $transmission }}" type="checkbox" {{ in_array($transmission, $selectedTransmissions) ? 'checked' : '' }}>
+                        <label class="form-check-label small-muted"
+                            for="tm-{{ $index }}">{{ $transmission }}</label>
                     </div>
+                    @endforeach
 
                     <hr>
+
+                    <div class="small-muted mb-2">Fuel Type</div>
+                    @php $selectedFuelTypes = request()->get('fuel_types', []); @endphp
+                    @foreach([
+                        'Diesel',
+                        'Petrol',
+                        'Diesel hybrid',
+                        'Petrol Hybrid',
+                        'Electric',
+                        'Plug in hybrid',
+                        'Diesel Plug in Hybrid',
+                        'Petrol Plug in Hybrid',
+                        'Hydrogen'
+                    ] as $index => $fuelType)
+                    <div class="form-check">
+                        <input class="form-check-input" name="fuel_type[]" id="ft-{{ $index }}"
+                            value="{{ $fuelType }}" type="checkbox" {{ in_array($fuelType, $selectedFuelTypes) ? 'checked' : '' }}>
+                        <label class="form-check-label small-muted"
+                            for="ft-{{ $index }}">{{ $fuelType }}</label>
+                    </div>
+                    @endforeach
+
+                    <hr>
+
                     <div class="small-muted mb-2">Features & Extras</div>
                     @php $selectedFeatures = request()->get('features', []); @endphp 
                     @foreach ([
@@ -298,7 +295,7 @@
                     <button type="submit" class="btn btn-primary">Apply Filters</button>
                     <button type="reset" class="btn btn-outline-secondary">Clear All</button>
                 </div>
-            </form method="get">
+            </form>
 
             <!-- Main -->
             <main class="col-12 col-lg-9">
@@ -307,9 +304,7 @@
                         <div>
                             <h5 class="mb-0">{{ $cars->count() }} cars available</h5>
                             <div class="active-filters mt-2">
-                                <div class="filter-pill">Private Hire</div>
-                                <div class="filter-pill">Free Cancellation</div>
-                                <a href="#" class="small-muted ms-2">Clear all filters</a>
+                                <a href="{{ route('private_hire_list_alt') }}" class="filter-pill">Private Hire</a>
                             </div>
                         </div>
 
@@ -318,12 +313,12 @@
                                 <div class="dropdown">
                                     <button class="btn btn-light dropdown-toggle toggle-btn" type="button"
                                         id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true"
-                                        aria-expanded="false">Recommended</button>
+                                        aria-expanded="false">{{ request()->get('sort_by','Recommended') }}</button>
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                        <a class="dropdown-item" href="#">A-Z</a>
-                                        <a class="dropdown-item" href="#">Z-A</a>
-                                        <a class="dropdown-item" href="#">Price (low to high)</a>
-                                        <a class="dropdown-item" href="#">Price (high to low)</a>
+                                        <a class="dropdown-item" href="javascript:void(0)" data-filter="sort" data-filter-val="Recommended">Recommended</a>
+                                        <a class="dropdown-item" href="javascript:void(0)" data-filter="sort" data-filter-val="Price (low to high)">Price (low to high)</a>
+                                        <a class="dropdown-item" href="javascript:void(0)" data-filter="sort" data-filter-val="Price (high to low)">Price (high to low)</a>
+                                        <a class="dropdown-item" href="javascript:void(0)" data-filter="sort" data-filter-val="Best rated">Best rated</a>
                                     </div>
                                 </div>
                             </div>
@@ -443,11 +438,33 @@
             </div>
         </div>
     </div>
-
-    <script type="Text/javascript">
-        function view_options(id){
-            jQuery('[data-link="proceed"]').attr('href', '{{ route('private_hire_single', '%id%') }}'.replace('%id%', id));
-            jQuery('#phvModal').modal('show');
-        }
-    </script>
 @endsection
+
+@push('scripts')
+<script type="Text/javascript">
+    function view_options(id){
+        jQuery('[data-link="proceed"]').attr('href', '{{ route('private_hire_single', '%id%') }}'.replace('%id%', id));
+        jQuery('#phvModal').modal('show');
+    }
+
+    jQuery('[data-filter="sort"]').each((idx, elem) => {
+        elem.addEventListener('click', () => {
+            jQuery('[data-filter="sort"]').removeClass('active');
+            jQuery(elem).addClass('active');
+
+            const sortBy = jQuery(elem).attr('data-filter-val');
+            const url = new URL(window.location.href);
+            url.searchParams.set('sort_by', sortBy);
+            window.location = url.toString();
+        });
+    });
+
+    jQuery('#weeklyRentRange').on('change', function(){
+        jQuery('#max-weekly-rent').text(this.value);
+    });
+
+    jQuery('#depositRange').on('change', function(){
+        jQuery('#max-security-deposit').text(this.value);
+    });
+</script>
+@endpush

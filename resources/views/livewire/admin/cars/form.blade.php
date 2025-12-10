@@ -689,7 +689,7 @@
                                             <div class="row">
                                                 <div class="col-md-4 mt-2">
                                                     <div class="form-group">
-                                                        <label class="form-label">Term (Months)</label>
+                                                        <label class="form-label">Term (Weeks)</label>
                                                         <input wire:model="rent_to_buy_term" type="text" min="1" class="form-control" pattern="^[0-9]+(\.[0-9]{2}){0,1}$" step="0.01" maxlength="20">
                                                     </div>
                                                 </div>
@@ -780,7 +780,29 @@
                             @if($step == 2)
                             <div style="margin-top: 10px; text-align: left; font-size: 20px;  font-weight: bold;">Enter pricing rates inclusive of all applicable taxes. </div>
                                 <div wire:key="2" class="row">
-                                    <div class="col-md-4 mt-3">
+                                    <div class="col-md-3 mt-3">
+                                        <div class="form-group">
+
+                                            <div for="hourly_rate" class="d-flex justify-content-between">
+                                                
+                                                <div>Hourly Rate {{  settings('currency_symbol', '$')  }}</div>
+                                                <div>
+                                                    <div class="form-control-wrap">
+                                                        <div class="form-check form-switch">
+                                                            <input type="checkbox" class="form-check-input" id="hourly_rate_tax_incl" 
+                                                                   wire:model.live="hourly_rate_tax_incl"
+                                                                   style="width: 3em; height: 1.5em; margin-top : -1px" disabled>
+                                                            <label class="form-check-label ms-2" for="hourly_rate_tax_incl">
+                                                                {{ $hourly_rate_tax_incl ? 'Tax Included' : 'Tax Excluded' }}
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <input type="text" min="1" wire:model.live="hourly_rate" name="hourly_rate" class="form-control form-control-lg" data-ui="xl" id="hourly_rate" pattern="^[0-9]+(\.[0-9]{2}){0,1}$" step="0.01" maxlength="20">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mt-3">
                                         <div class="form-group">
                                             
                                             <div for="daily_rate" class="d-flex justify-content-between">
@@ -802,7 +824,7 @@
                                             <input type="text" min="1" wire:model.live="daily_rate" name="daily_rate" class="form-control form-control-lg" data-ui="xl" id="daily_rate" pattern="^[0-9]+(\.[0-9]{2}){0,1}$" step="0.01" maxlength="20">
                                         </div>
                                     </div>
-                                    <div class="col-md-4 mt-3">
+                                    <div class="col-md-3 mt-3">
                                         <div class="form-group">
                                             <div for="weekly_rate" class="d-flex justify-content-between">
                                                 <div>Weekly Rate {{  settings('currency_symbol', '$')  }}</div>
@@ -822,7 +844,7 @@
                                             <input type="text" min="1" wire:model.live="weekly_rate" name="weekly_rate" class="form-control form-control-lg" data-ui="xl" id="weekly_rate" pattern="^[0-9]+(\.[0-9]{2}){0,1}$" step="0.01" maxlength="20">
                                         </div>
                                     </div>
-                                    <div class="col-md-4 mt-3">
+                                    <div class="col-md-3 mt-3">
                                         <div class="form-group">
                                             <div for="monthly_rate" class="d-flex justify-content-between">
                                                 <div>Monthly Rate {{  settings('currency_symbol', '$')  }}</div>
@@ -841,6 +863,90 @@
                                             </div>
                                             <input type="text" min="1" wire:model.live="monthly_rate" name="monthly_rate" class="form-control form-control-lg" data-ui="xl" id="monthly_rate" pattern="^[0-9]+(\.[0-9]{2}){0,1}$" step="0.01" maxlength="20">
                                         </div>
+                                    </div>
+                                    <div class="col-md-3 mt-3">
+                                        <div class="form-group">
+                                            <div for="airport_transfer_rate" class="d-flex justify-content-between">
+                                                <div>Airport Transfer {{  settings('currency_symbol', '$')  }}</div>
+                                                <div>
+                                                    <div class="form-control-wrap">
+                                                        <div class="form-check form-switch">
+                                                            <input type="checkbox" class="form-check-input" id="airport_transfer_rate_tax_incl" 
+                                                                   wire:model.live="airport_transfer_rate_tax_incl"
+                                                                   style="width: 3em; height: 1.5em; margin-top : -1px" disabled>
+                                                            <label class="form-check-label ms-2" for="airport_transfer_rate_tax_incl">
+                                                                {{ $airport_transfer_rate_tax_incl ? 'Tax Included' : 'Tax Excluded' }}
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <input type="text" min="1" wire:model.live="airport_transfer_rate" name="airport_transfer_rate" class="form-control form-control-lg" data-ui="xl" id="airport_transfer_rate" pattern="^[0-9]+(\.[0-9]{2}){0,1}$" step="0.01" maxlength="20">
+                                            <div class="mt-1">
+                                                <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#chauffer_airport_modal">
+                                                    <i class="ni ni-edit"></i> Edit Terms
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mt-3">
+                                        <div class="form-group">
+
+                                            <div for="long_transfer_rate" class="d-flex justify-content-between">
+                                                
+                                                <div>Long Transfer {{  settings('currency_symbol', '$')  }}</div>
+                                                <div>
+                                                    <div class="form-control-wrap">
+                                                        <div class="form-check form-switch">
+                                                            <input type="checkbox" class="form-check-input" id="long_transfer_rate_tax_incl" 
+                                                                   wire:model.live="long_transfer_rate_tax_incl"
+                                                                   style="width: 3em; height: 1.5em; margin-top : -1px" disabled>
+                                                            <label class="form-check-label ms-2" for="long_transfer_rate_tax_incl">
+                                                                {{ $long_transfer_rate_tax_incl ? 'Tax Included' : 'Tax Excluded' }}
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <input type="text" min="1" wire:model.live="long_transfer_rate" name="long_transfer_rate" class="form-control form-control-lg" data-ui="xl" id="long_transfer_rate" pattern="^[0-9]+(\.[0-9]{2}){0,1}$" step="0.01" maxlength="20">
+                                            <div class="mt-1">
+                                                <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#chauffer_long_modal">
+                                                    <i class="ni ni-edit"></i> Edit Terms
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mt-3">
+                                        <div class="form-group">
+
+                                            <div for="event_hire_rate" class="d-flex justify-content-between">
+                                                
+                                                <div>Event Hire {{  settings('currency_symbol', '$')  }}</div>
+                                                <div>
+                                                    <div class="form-control-wrap">
+                                                        <div class="form-check form-switch">
+                                                            <input type="checkbox" class="form-check-input" id="event_hire_rate_tax_incl" 
+                                                                   wire:model.live="event_hire_rate_tax_incl"
+                                                                   style="width: 3em; height: 1.5em; margin-top : -1px" disabled>
+                                                            <label class="form-check-label ms-2" for="event_hire_rate_tax_incl">
+                                                                {{ $event_hire_rate_tax_incl ? 'Tax Included' : 'Tax Excluded' }}
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <input type="text" min="1" wire:model.live="event_hire_rate" name="event_hire_rate" class="form-control form-control-lg" data-ui="xl" id="event_hire_rate" pattern="^[0-9]+(\.[0-9]{2}){0,1}$" step="0.01" maxlength="20">
+                                            <div class="mt-1">
+                                                <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#chauffer_event_modal">
+                                                    <i class="ni ni-edit"></i> Edit Terms
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 pt-3">
+                                        <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#chauffer_service_terms_modal">
+                                            <i class="ni ni-edit"></i> Edit Chauffer Service Terms
+                                        </a>
                                     </div>
                                     <div class="col-md-12 mt-3">
                                         <hr>
@@ -2741,9 +2847,204 @@
                             </div>
 
                         </div>
-
-
                     </form>
+
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="chauffer_airport_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" wire:ignore.self>
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Chauffer Airport Terms</h5>
+                                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    @if(count($chauffer_airport_terms) == 0)
+                                    <div class="input-group mb-2">
+                                        <input type="text" class="form-control" wire:model="chauffer_airport_terms.0" placeholder="Enter term">
+                                        <button type="button" wire:click="addChaufferAirportTerm" class="btn btn-outline-secondary">Add Term</button>
+                                    </div>
+                                    @endif
+
+                                    @foreach($chauffer_airport_terms as $index => $term)
+                                    <div class="input-group mb-2">
+                                        <input type="text" class="form-control" wire:model="chauffer_airport_terms.{{ $index }}" value="{{ $term }}" placeholder="Enter term">
+                                        @if($index == 0)
+                                        <button type="button" wire:click="addChaufferAirportTerm" class="btn btn-outline-secondary">Add Term</button>
+                                        @else
+                                        <button type="button" wire:click="removeChaufferAirportTerm({{ $index }})" class="btn btn-outline-danger">Remove</button>
+                                        @endif
+                                    </div>
+                                    @endforeach
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-primary" wire:click="saveChaufferAirportTerms()">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="chauffer_event_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" wire:ignore.self>
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Chauffer Event Terms</h5>
+                                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    @if(count($chauffer_event_terms) == 0)
+                                    <div class="input-group mb-2">
+                                        <input type="text" class="form-control" wire:model="chauffer_event_terms.0" placeholder="Enter term">
+                                        <button type="button" wire:click="addChaufferEventTerm" class="btn btn-outline-secondary">Add Term</button>
+                                    </div>
+                                    @endif
+
+                                    @foreach($chauffer_event_terms as $index => $term)
+                                    <div class="input-group mb-2">
+                                        <input type="text" class="form-control" wire:model="chauffer_event_terms.{{ $index }}" value="{{ $term }}" placeholder="Enter term">
+                                        @if($index == 0)
+                                        <button type="button" wire:click="addChaufferEventTerm" class="btn btn-outline-secondary">Add Term</button>
+                                        @else
+                                        <button type="button" wire:click="removeChaufferEventTerm({{ $index }})" class="btn btn-outline-danger">Remove</button>
+                                        @endif
+                                    </div>
+                                    @endforeach
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-primary" wire:click="saveChaufferEventTerms()">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="chauffer_long_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" wire:ignore.self>
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Chauffer Long Distance Terms</h5>
+                                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    @if(count($chauffer_long_terms) == 0)
+                                    <div class="input-group mb-2">
+                                        <input type="text" class="form-control" wire:model="chauffer_long_terms.0" placeholder="Enter term">
+                                        <button type="button" wire:click="addChaufferLongTerm" class="btn btn-outline-secondary">Add Term</button>
+                                    </div>
+                                    @endif
+
+                                    @foreach($chauffer_long_terms as $index => $term)
+                                    <div class="input-group mb-2">
+                                        <input type="text" class="form-control" wire:model="chauffer_long_terms.{{ $index }}" value="{{ $term }}" placeholder="Enter term">
+                                        @if($index == 0)
+                                        <button type="button" wire:click="addChaufferLongTerm" class="btn btn-outline-secondary">Add Term</button>
+                                        @else
+                                        <button type="button" wire:click="removeChaufferLongTerm({{ $index }})" class="btn btn-outline-danger">Remove</button>
+                                        @endif
+                                    </div>
+                                    @endforeach
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-primary" wire:click="saveChaufferLongTerms()">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="chauffer_service_terms_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" wire:ignore.self>
+                        <div class="modal-dialog modal-lg" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Chauffer Service Terms</h5>
+                                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <table class="table table-borderless">
+                                        <tbody>
+                                            <tr>
+                                                <td class="ps-0" style="width: 40%;"><strong>Minimum Hire</strong></td>
+                                                <td class="pe-0">
+                                                    <input type="text" class="form-control" wire:model="chauffer_service_terms.minimum_hire" placeholder="2 hours for hourly bookings">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-0"><strong>Overtime</strong></td>
+                                                <td class="pe-0">
+                                                    <input type="text" class="form-control" wire:model="chauffer_service_terms.overtime" placeholder="Charged at hourly rate in 30-minute increments">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-0"><strong>Extra Mileage</strong></td>
+                                                <td class="pe-0">
+                                                    <input type="text" class="form-control" wire:model="chauffer_service_terms.extra_mileage" placeholder="£2 per mile beyond included distance">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-0"><strong>Waiting Time</strong></td>
+                                                <td class="pe-0">
+                                                    <input type="text" class="form-control" wire:model="chauffer_service_terms.waiting_time" placeholder="First 30 minutes free, then £15 per 15 minutes">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-0"><strong>Chauffeur Standards</strong></td>
+                                                <td class="pe-0">
+                                                    <input type="text" class="form-control" wire:model="chauffer_service_terms.chauffeur_standards" placeholder="Professional dress code, courteous behavior">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-0"><strong>Vehicle Policy</strong></td>
+                                                <td class="pe-0">
+                                                    <input type="text" class="form-control" wire:model="chauffer_service_terms.vehicle_policy" placeholder="No smoking, no pets (except service animals)">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-0"><strong>Insurance</strong></td>
+                                                <td class="pe-0">
+                                                    <input type="text" class="form-control" wire:model="chauffer_service_terms.insurance" placeholder="Comprehensive coverage up to £10,000,000">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-0"><strong>Operator Compliance</strong></td>
+                                                <td class="pe-0">
+                                                    <input type="text" class="form-control" wire:model="chauffer_service_terms.operator_compliance" placeholder="Fully licensed and insured operator">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-0"><strong>Cancellation</strong></td>
+                                                <td class="pe-0">
+                                                    <input type="text" class="form-control" wire:model="chauffer_service_terms.cancellation" placeholder="Free up to 24 hours before pickup, 50% charge within 24 hours">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-0"><strong>Payment</strong></td>
+                                                <td class="pe-0">
+                                                    <input type="text" class="form-control" wire:model="chauffer_service_terms.payment" placeholder="50% deposit required, balance due before journey">
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-primary" wire:click="saveChaufferServiceTerms()">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>

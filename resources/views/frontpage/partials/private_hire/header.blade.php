@@ -61,7 +61,10 @@
       <i class="bi bi-globe2 fs-5"></i>
       <img src="https://flagcdn.com/w20/gb.png" class="lang-flag" alt="UK Flag">
       @auth
-        <a href="{{ route('logout') }}" class="btn btn-signin ms-3">Logout</a>
+        <a href="{{ route('logout') }}" class="btn btn-signin ms-3" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
+        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+            @csrf
+        </form>
       @else
         <a href="{{ route('login') }}" class="btn btn-signin ms-3">Sign In</a>
       @endauth

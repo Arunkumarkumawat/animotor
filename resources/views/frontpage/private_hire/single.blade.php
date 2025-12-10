@@ -310,7 +310,7 @@
                             </div>
                             <!-- Gray details box -->
                             <div class="details-box mb-3">
-                                • Term: {{ $car->rent_to_buy_term }} months<br>   
+                                • Term: {{ $car->rent_to_buy_term }} weeks<br>   
                                 • Deposit: {{ amt($car->rent_to_buy_deposit_amount) }}<br>
                                 • Payment: {{ amt($car->rent_to_buy_price_per_cycle) }} {{ $car->rent_to_buy_billing_cycle }}<br>
                                 • Final balloon: {{ amt($car->rent_to_buy_balloon_payment) }}<br>
@@ -345,9 +345,16 @@
 
                         <hr>
 
-                        <div class="total-line mb-3">
-                            <span>Total</span>
+                        <div class="price-line mb-3">
+                            <span>Initial Payment</span>
                             <span id="term_total"></span>
+                        </div>
+
+                        <hr>                        
+
+                        <div class="total-line mb-3">
+                            <span>Total Cost</span>
+                            <span id="total_cost"></span>
                         </div>
 
                         <a href="javascript:void(0)" onclick="redirectMe()" class="btn btn-primary continue-btn w-100">Continue Booking</a>
@@ -398,12 +405,13 @@
                 const selectInsurance = jQuery('#short_term_insurance_select option:selected');
                 const weekly_rent = parseFloat(selectInsurance.data('rate'));
                 const deposit = parseFloat(selectInsurance.data('deposit'));
+                const term = parseInt(jQuery('#short_term_term_select').val());
                 
                 jQuery('#term_weekly_rental').text('{{ settings("currency_symbol", "$") }}' + weekly_rent);
                 jQuery('#term_deposit').text('{{ settings("currency_symbol", "$") }}' + deposit);
                 jQuery('#term_total').text('{{ settings("currency_symbol", "$") }}' + (weekly_rent + deposit));
-
-                const term = parseInt(jQuery('#short_term_term_select').val());
+                jQuery('#total_cost').text('{{ settings("currency_symbol", "$") }}' + ((weekly_rent * term) + deposit))
+                
                 const startDate = jQuery('#term_start_date').val();
                 if(startDate){
                     const endDate = new Date(startDate);
@@ -414,33 +422,55 @@
                 }
             } else if(hire_option === 'long_term') {
                 const selectInsurance = jQuery('#long_term_insurance_select option:selected');
-                const weekly_rent = parseFloat(selectInsurance.data('rate'));
+                const rate = parseFloat(selectInsurance.data('rate'));
                 const deposit = parseFloat(selectInsurance.data('deposit'));
                 const cycle = selectInsurance.data('cycle');
-                
-                jQuery('#term_weekly_rental').text('{{ settings("currency_symbol", "$") }}' + weekly_rent + ' ' + cycle);
-                jQuery('#term_deposit').text('{{ settings("currency_symbol", "$") }}' + deposit);
-                jQuery('#term_total').text('{{ settings("currency_symbol", "$") }}' + (weekly_rent + deposit));
+                const termInt = parseInt(jQuery('#long_term_term_select').val().replace('m', ''))
 
-                const term = jQuery('#long_term_term_select').val();
+                var calcTerm = termInt;
+                
+                if(cycle == 'weekly'){
+                    calcTerm = termInt * 4.34524;
+                } else if(cycle == 'monthly'){
+                    calcTerm = termInt;
+                } else if(cycle == 'quarterly'){
+                    calcTerm = termInt / 3;
+                }
+
+                jQuery('#term_weekly_rental').text('{{ settings("currency_symbol", "$") }}' + rate + ' ' + cycle);
+                jQuery('#term_deposit').text('{{ settings("currency_symbol", "$") }}' + deposit);
+                jQuery('#term_total').text('{{ settings("currency_symbol", "$") }}' + (rate + deposit));
+
                 const startDate = jQuery('#term_start_date').val();
                 if(startDate){
                     const endDate = new Date(startDate);
-                    endDate.setMonth(endDate.getMonth() + parseInt(term.replace('m', '')));
+                    endDate.setMonth(endDate.getMonth() + termInt);
                     jQuery('#term_end_date').val(endDate.toISOString().split('T')[0]);
                 } else {
                     jQuery('#term_end_date').val('');
                 }
+
+                jQuery('#total_cost').text('{{ settings("currency_symbol", "$") }}' + (Math.round(rate * calcTerm, 2) + deposit))
             } else if(hire_option === 'rent_to_buy'){
                 var rent_to_buy_button = jQuery('#rent_to_buy_button');
-                const weekly_rent = parseFloat(rent_to_buy_button.data('rate'));
+                const rate = parseFloat(rent_to_buy_button.data('rate'));
                 const deposit = parseFloat(rent_to_buy_button.data('deposit'));
                 const cycle = rent_to_buy_button.data('cycle');
                 const term = rent_to_buy_button.data('term');
+
+                let calcTerm = term;
+                if(cycle == 'weekly'){
+                    calcTerm = term;
+                } else if(cycle == 'monthly'){
+                    calcTerm = term * 4.34524;
+                } else if(cycle == 'quarterly'){
+                    calcTerm = term * 13.0357;
+                }
                 
-                jQuery('#term_weekly_rental').text('{{ settings("currency_symbol", "$") }}' + weekly_rent + ' ' + cycle);
+                jQuery('#term_weekly_rental').text('{{ settings("currency_symbol", "$") }}' + rate + ' ' + cycle);
                 jQuery('#term_deposit').text('{{ settings("currency_symbol", "$") }}' + deposit);
-                jQuery('#term_total').text('{{ settings("currency_symbol", "$") }}' + (weekly_rent + deposit));
+                jQuery('#term_total').text('{{ settings("currency_symbol", "$") }}' + (rate + deposit));
+                jQuery('#total_cost').text('{{ settings("currency_symbol", "$") }}' + (Math.round(rate * calcTerm, 2) + deposit));
 
                 const startDate = jQuery('#term_start_date').val();
                 if(startDate){

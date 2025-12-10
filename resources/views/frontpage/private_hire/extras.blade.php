@@ -106,7 +106,7 @@
 
 @section('content')
     @include('frontpage.partials.private_hire.header')
-    <form method="get" action="{{ url()->full() }}" class="container py-4">
+    <form method="get" action="{{ route('private_hire_checkout', $car->id) }}" class="container py-4">
 
         <!-- Back link -->
         <a href="{{ route('private_hire_single', $car->id) }}" class="back-link">
@@ -146,16 +146,20 @@
                     </div>
                     
                     <div class="d-flex align-items-center gap-2">
-                        <button class="qty-btn" onclick="setExtraQuantity({{ $index }}, -1)">-</button>
+                        <button type="button" class="qty-btn" onclick="setExtraQuantity({{ $index }}, -1)">-</button>
                         <input type="hidden" class="extras-quantity" name="extras[{{ $index }}]" data-extra-id="{{ $index }}" value="0">
                         <span class="px-2" data-extra-id="{{ $index }}">0</span>
-                        <button class="qty-btn" onclick="setExtraQuantity({{ $index }}, 1)">+</button>
+                        <button type="button" class="qty-btn" onclick="setExtraQuantity({{ $index }}, 1)">+</button>
                     </div>
                 </div>
             </div>
             @endforeach
 
         </div>
+
+        @foreach($query as $key => $value)
+            <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+        @endforeach
 
         <!-- Footer Buttons -->
         <div class="d-flex justify-content-between align-items-center mt-4">

@@ -156,7 +156,7 @@
 
         <!-- Back -->
         <div class="mb-4">
-            <a href="#" class="back-link d-inline-flex align-items-center">
+            <a href="javascript:void()" class="back-link d-inline-flex align-items-center" onclick="redirectBack()">
                 <i class="fas fa-chevron-left me-2"></i> Back
             </a>
         </div>
@@ -181,19 +181,19 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label">Full Name *</label>
-                        <input type="text" class="form-control" placeholder="Full name">
+                        <input type="text" name="full_name" class="form-control" placeholder="Full name" required>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Phone Number *</label>
-                        <input type="text" class="form-control" placeholder="Phone number">
+                        <input type="text" name="phone" class="form-control" placeholder="Phone number" required>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Email Address *</label>
-                        <input type="email" class="form-control" placeholder="Email address">
+                        <input type="email" name="email" class="form-control" placeholder="Email address" required>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Company Name (Optional)</label>
-                        <input type="text" class="form-control" placeholder="Company name">
+                        <input type="text" name="company" class="form-control" placeholder="Company name">
                     </div>
                 </div>
             </div>
@@ -212,15 +212,23 @@
             <div class="card-body px-4 pb-0">
                 <div class="mb-3">
                     <label class="form-label">Pickup Address *</label>
-                    <input type="text" class="form-control" placeholder="Full pickup address">
+                    <input type="text" name="pickup_address" class="form-control" placeholder="Full pickup address">
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Drop-off Address *</label>
-                    <input type="text" class="form-control" placeholder="Full drop-off address">
+                    <input type="text" name="dropoff_address" class="form-control" placeholder="Full drop-off address">
+                </div>
+                <div id="additional-stop-container" class="d-none">
+                    <h5>Additional Stops</h5>
+                    <div id="additional-stops">
+
+                    </div>
                 </div>
             </div>
             <div class="add-stop-btn">
-                <i class="fas fa-plus"></i> Add Additional Stop
+                <a href="javascript:void(0)" onclick="addAdditionalStop()">
+                    <i class="fas fa-plus"></i> Add Additional Stop
+                </a>
             </div>
         </div>
 
@@ -232,21 +240,17 @@
             <div class="card-body px-4">
                 <div class="mb-3">
                     <label class="form-label">Special Requests</label>
-                    <textarea class="form-control" rows="4" placeholder="Any special requirements or requests..."></textarea>
+                    <textarea class="form-control" rows="4" name="special_requests" placeholder="Any special requirements or requests..."></textarea>
                 </div>
 
+                @foreach($car->extras ?? [] as $index => $extra)
                 <div class="form-check mb-2">
-                    <input class="form-check-input" type="checkbox" id="childSeat">
-                    <label class="form-check-label addon-label" for="childSeat">
-                        Child seat required (+£15)
+                    <input class="form-check-input" name="extras[{{ $index }}]" type="checkbox" id="addons{{ $index }}">
+                    <label class="form-check-label addon-label" for="addons{{ $index }}">
+                        {{ $extra['title'] }} ({{ amt($extra['price']) }}/{{ $extra['interval'] }})
                     </label>
                 </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="meetGreet">
-                    <label class="form-check-label addon-label" for="meetGreet">
-                        Enhanced meet &amp; greet service (+£25)
-                    </label>
-                </div>
+                @endforeach
             </div>
         </div>
 
@@ -264,19 +268,48 @@
                 <div class="terms-box mb-3">
                     <strong>Chauffeur Service Terms</strong>
                     <ul class="mt-2">
-                        <li><strong>Minimum Hire:</strong> 2 hours for hourly bookings</li>
-                        <li><strong>Overtime:</strong> Charged at hourly rate in 30-minute increments</li>
-                        <li><strong>Extra Mileage:</strong> £2 per mile beyond included distance</li>
-                        <li><strong>Waiting Time:</strong> First 30 minutes free, then £15 per 15 minutes</li>
-                        <li><strong>Chauffeur Standards:</strong> Professional dress code, courteous behavior</li>
-                        <li><strong>Vehicle Policy:</strong> No smoking, no pets (except service animals)</li>
-                        <li><strong>Insurance:</strong> Comprehensive coverage up to £10,000,000</li>
-                        <li><strong>Operator Compliance:</strong> Fully licensed and insured operator</li>
+                        @foreach($car->chauffer_service_terms ?? [] as $key => $value)
+                            @php
+                                switch($key){
+                                    case 'minimum_hire':
+                                        $key = 'Minimum Hire';
+                                        break;
+                                    case 'overtime':
+                                        $key = 'Overtime';
+                                        break;
+                                    case 'extra_mileage':
+                                        $key = 'Extra Mileage';
+                                        break;
+                                    case 'waiting_time':
+                                        $key = 'Waiting Time';
+                                        break;
+                                    case 'chauffeur_standards':
+                                        $key = 'Chauffeur Standards';
+                                        break;
+                                    case 'vehicle_policy':
+                                        $key = 'Vehicle Policy';
+                                        break;
+                                    case 'insurance':
+                                        $key = 'Insurance';
+                                        break;
+                                    case 'operator_compliance':
+                                        $key = 'Operator Compliance';
+                                        break;
+                                    case 'cancellation':
+                                        $key = 'Cancellation';
+                                        break;
+                                    case 'payment':
+                                        $key = 'Payment';
+                                        break;
+                                }
+                            @endphp
+                        <li><strong>{{ $key }}:</strong> {{ $value }}</li>
+                        @endforeach
                     </ul>
                 </div>
 
                 <div class="form-check mb-3">
-                    <input class="form-check-input" type="checkbox" id="acceptTerms">
+                    <input class="form-check-input" type="checkbox" name="terms" id="acceptTerms">
                     <label class="form-check-label addon-label" for="acceptTerms">
                         I have read and agree to the terms and conditions, cancellation policy, and operator compliance
                         requirements
@@ -292,9 +325,27 @@
 
         <!-- Continue Button -->
         <div class="pb-4">
-            <button class="btn btn-continue w-100">
+            <button type="button" onclick="continueToBooking()" class="btn btn-continue w-100">
                 Continue to Payment
             </button>
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+    function redirectBack(){
+        const params = new URLSearchParams();
+
+        @foreach ($query as $key => $value)
+            @if(in_array($key, ['package','duration','custom','flight']))
+                @continue
+            @endif
+            params.append('{{ $key }}', '{{ $value }}');
+        @endforeach
+
+        const url = '{{ route('frontpage.chauffeur.extras', $car->id) }}';
+        window.location.href = url + '?' + params.toString();
+    }
+</script>
+@endpush

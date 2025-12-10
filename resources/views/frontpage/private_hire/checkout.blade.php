@@ -75,7 +75,7 @@
 
                             <div class="d-flex mt-2 small text-muted">
                                 <div class="me-3"><i class="fas fa-users"></i> {{ $car->seats }} seats</div>
-                                <div class="me-3"><i class="fas fa-cog"></i> {{ $car->transmission }}</div>
+                                <div class="me-3"><i class="fas fa-cog"></i> {{ $car->gear }}</div>
                                 <div><i class="fas fa-gas-pump"></i> {{ $car->fuel_type }}</div>
                             </div>
                         </div>
@@ -162,21 +162,32 @@
                     <h5 class="mb-3">Price Breakdown</h5>
 
                     <div class="d-flex justify-content-between small mb-2">
+                        <span>Deposit</span>
+                        <strong>{{ amt($deposit) }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between small mb-2">
                         <span>{{ ucwords(str_replace('_', ' ', $query['hire_option'])) }} Hire - {{ $query['term'] }}
                             {{ $period }}(s) @ {{ amt($rate) }}/{{ $cycle }}</span>
                         <strong>{{ amt($rate * $term) }}</strong>
                     </div>
 
-                    <div class="d-flex justify-content-between small mb-3">
+                    <div class="d-flex justify-content-between small mb-2">
                         <span>Taxes & Fees</span>
                         <strong>Included</strong>
                     </div>
+
+                    @if(isset($query['extras']))
+                        <div class="d-flex justify-content-between small mb-2">
+                            <span>Extras</span>
+                            <strong>{{ amt($extrasPrice) }}</strong>
+                        </div>
+                    @endif
 
                     <hr>
 
                     <div class="d-flex justify-content-between">
                         <h5>Total</h5>
-                        <h5>{{ amt($rate * $term) }}</h5>
+                        <h5>{{ amt($rate * $term + $deposit + $extrasPrice) }}</h5>
                     </div>
 
                     <div class="alert alert-warning small mt-2">

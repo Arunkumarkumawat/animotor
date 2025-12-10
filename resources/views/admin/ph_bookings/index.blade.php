@@ -11,22 +11,6 @@
                                     <div class="nk-block-head-content">
                                         <h4 class="nk-block-title">All Private Hire Bookings</h4>
                                     </div>
-                                    <div class="nk-block-head-content">
-                                        <div class="toggle-wrap nk-block-tools-toggle">
-                                            <a href="#" class="btn btn-icon btn-trigger toggle-expand me-n1"
-                                                data-target="pageMenu"><em class="icon ni ni-menu-alt-r"></em></a>
-                                            <div class="toggle-expand-content" data-content="pageMenu">
-                                                <ul class="nk-block-tools g-3">
-                                                    <li class="nk-block-tools-opt d-block d-sm-none">
-                                                        <a class="btn btn-icon btn-primary" wire:navigate
-                                                            data-bs-toggle="modal"
-                                                            href="{{ route('admin.ph_bookings.create') }}"><em
-                                                                class="icon ni ni-plus"></em></a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div><!-- .toggle-wrap -->
-                                    </div><!-- .nk-block-head-content -->
                                 </div>
                             </div>
 
@@ -58,16 +42,16 @@
                                                     @foreach ($items as $item)
                                                         <tr>
                                                             <td>{{ $item->user->first_name }} {{ $item->user->last_name }}</td>
-                                                            <td>{{ $item->car->name }}</td>
-                                                            <td>{{ ucwords(str_replace('_', ' ', $item->hire_type)) }}</td>
+                                                            <td>{{ $item->car->title }}</td>
+                                                            <td>{{ ucwords(str_replace('_', ' ', $item->term)) }}</td>
                                                             <td>{{ $item->insurance == 'w' ? 'Yes' : 'No' }}</td>
                                                             <td>{{ $item->term_count }} {{ $item->term_period }}</td>
                                                             <td>{{ $item->start_date }}</td>
                                                             <td>{{ $item->expected_end_date }}</td>
-                                                            <td>{{ $item->deposit_paid }}</td>
-                                                            <td>{{ $item->rate_paid }}</td>
-                                                            <td>{{ $item->extras_paid }}</td>
-                                                            <td>{{ $item->total_paid }}</td>
+                                                            <td>{{ amt($item->deposit_paid) }}</td>
+                                                            <td>{{ amt($item->rate_paid) }}</td>
+                                                            <td>{{ amt($item->extras_paid) }}</td>
+                                                            <td>{{ amt($item->total_paid) }}</td>
                                                             <td>{{ $item->pg_status }}</td>
                                                             <td>{{ $item->booking_status }}</td>
                                                             <td>
@@ -77,7 +61,6 @@
                                                                     </button>
                                                                     <ul class="dropdown-menu">
                                                                         <li><a class="dropdown-item" href="#">View</a></li>
-                                                                        <li><a class="dropdown-item" href="#">Edit</a></li>
                                                                         <li><a class="dropdown-item" href="#">Delete</a></li>
                                                                     </ul>
                                                                 </div>
