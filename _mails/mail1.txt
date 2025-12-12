@@ -1,0 +1,24 @@
+Subject: Your Chauffeur Request Received – {{booking_id}}
+
+Hello {{customer_name}},
+
+We’ve received your Chauffeur booking request.
+
+Booking ID: {{booking_id}}
+Service type: {{service_type}}
+Pickup: {{pickup_datetime}} – {{pickup_address}}
+Drop-off: {{dropoff_address}}
+Vehicle class: {{service_class}}
+Add-ons: {{addons_list}}
+Total paid now: {{total_paid}}
+
+Next step: {{next_step_text}}
+
+View booking: {{booking_link}}
+
+Need help? {{support_phone}} | {{support_email}}
+
+Thank you,
+ANI Motors
+
+If you didn't request this booking, please contact support immediately: {{support_email}}.

@@ -1,0 +1,14 @@
+Subject: Your Chauffeur is Assigned – {{booking_id}}
+
+Hello {{customer_name}},
+
+Your chauffeur has been assigned.
+
+Booking ID: {{booking_id}}
+Chauffeur: {{chauffeur_name}}
+Vehicle: {{vehicle_make_model}} ({{vehicle_class}})
+Pickup: {{pickup_datetime}} – {{pickup_address}}
+
+Support: {{support_phone}} | {{support_email}}
+
+ANI Motors

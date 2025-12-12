@@ -1,0 +1,87 @@
+<!-- Preheader -->
+<span style="display:none; font-size:1px; color:#ffffff; line-height:1px; max-height:0; max-width:0; opacity:0; overflow:hidden;">
+  A new chauffeur dispute has been created for booking {{booking_id}}.
+</span>
+
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>New Chauffeur Dispute – {{booking_id}}</title>
+</head>
+
+<body style="margin:0; padding:0; background:#f3f5f7; font-family:-apple-system, BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif; color:#333;">
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f3f5f7; padding:24px 12px;">
+<tr><td align="center">
+
+<table width="700" cellpadding="0" cellspacing="0" style="max-width:700px; background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 6px 18px rgba(0,0,0,0.08);">
+
+  <!-- HEADER -->
+  <tr>
+    <td style="padding:22px 28px; background:linear-gradient(90deg,#0b6efd 0%,#0b9efd 100%); color:#fff;">
+      <table width="100%"><tr>
+        <td>
+          <h1 style="margin:0; font-size:20px; font-weight:700;">ANI Motors</h1>
+          <div style="margin-top:6px; font-size:13px; color:#e8f3ff;">New chauffeur dispute created</div>
+        </td>
+        <td style="text-align:right;">
+          <div style="width:48px; height:48px; border-radius:8px; background:rgba(255,255,255,0.14); display:inline-block; line-height:48px; text-align:center; font-size:22px;">
+            ⚠️
+          </div>
+        </td>
+      </tr></table>
+    </td>
+  </tr>
+
+  <!-- BODY -->
+  <tr>
+    <td style="padding:24px 28px 12px;">
+      <p style="margin:0 0 14px; font-size:15px;">Hello Admin,</p>
+
+      <p style="margin:0 0 18px; font-size:15px;">
+        A new dispute has been created for booking <strong>{{booking_id}}</strong>.
+      </p>
+
+      <!-- Info Card -->
+      <table width="100%" style="background:#fef3f2; border-radius:10px; padding:16px; margin-bottom:22px; border:1px solid #fee4e2;">
+        <tr><td style="padding:6px 8px; font-size:14px; color:#444;">
+          <strong>Booking ID:</strong> {{booking_id}}<br>
+          <strong>Created by:</strong> {{created_by_role}} ({{created_by_name}})<br>
+          <strong>Issue type:</strong> {{issue_type}}<br>
+          <strong>Priority:</strong> {{priority}}<br>
+          <strong>Summary:</strong><br>{{summary}}
+        </td></tr>
+      </table>
+
+      <!-- CTA -->
+      <div style="text-align:center; margin:28px 0 10px;">
+        <a href="{{admin_dispute_link}}" 
+           style="display:inline-block; background:#0b6efd; color:#fff; text-decoration:none; padding:12px 22px; border-radius:8px; font-size:14px; font-weight:600;">
+          Open Dispute
+        </a>
+      </div>
+
+    </td>
+  </tr>
+
+  <!-- FOOTER -->
+  <tr>
+    <td style="padding:18px 28px 26px; border-top:1px solid #eef1f5; font-size:13px; color:#6b7280;">
+      <table width="100%"><tr>
+        <td>
+          <div style="font-weight:600; color:#2b2f36;">ANI Motors</div>
+          <div style="margin-top:6px;">Booking ID: {{booking_id}}</div>
+        </td>
+        <td style="text-align:right; color:#98a0aa; font-size:12px;">Admin Notification</td>
+      </tr></table>
+    </td>
+  </tr>
+
+</table>
+
+</td></tr></table>
+
+</body>
+</html>

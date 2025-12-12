@@ -205,19 +205,21 @@ trait FillableTraits
         'monthly_rate_tax_incl',
 
         'hourly_rate',
+        'p2p_rate',
         'airport_transfer_rate',
         'long_distance_rate',
         'event_hire_rate',
 
         'hourly_rate_tax_incl',
+        'p2p_rate_tax_incl',
         'airport_transfer_rate_tax_incl',
         'long_distance_rate_tax_incl',
         'event_hire_rate_tax_incl',
 
-        'chauffer_airport_terms',
-        'chauffer_long_terms',
-        'chauffer_event_terms',
-        'chauffer_service_terms'
+        'chauffer_features1',
+        'chauffer_features2',
+        'chauffer_addons',
+        'chauffer_terms'
     ];
 
     protected array $user = [

@@ -152,7 +152,15 @@
 @section('content')
     @include('frontpage.partials.private_hire.header')
 
-    <div class="container page-container py-4">
+    <form method="post" class="container page-container py-4" id="bookingForm">
+        @csrf
+
+        @foreach($query as $key => $value)
+            @if($key == 'pickup' || $key == 'dropoff')
+                @continue
+            @endif
+            <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+        @endforeach
 
         <!-- Back -->
         <div class="mb-4">
@@ -163,7 +171,7 @@
 
         <!-- Page Title -->
         <div class="mb-4">
-            <h3 class="fw-bold mb-1">Booking Details</h3>
+            <h3 class="fw-bold mb-2">Booking Details</h3>
             <p class="helper-text mb-0">Complete your chauffeur booking information</p>
         </div>
 
@@ -181,15 +189,15 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label">Full Name *</label>
-                        <input type="text" name="full_name" class="form-control" placeholder="Full name" required>
+                        <input type="text" name="full_name" class="form-control" placeholder="Full name" value="{{ \Auth()->user()->first_name . ' ' . \Auth::user()->last_name }}" required>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Phone Number *</label>
-                        <input type="text" name="phone" class="form-control" placeholder="Phone number" required>
+                        <input type="text" name="phone" class="form-control" placeholder="Phone number" value="{{ \Auth()->user()->phone }}" required>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Email Address *</label>
-                        <input type="email" name="email" class="form-control" placeholder="Email address" required>
+                        <input type="email" name="email" class="form-control" placeholder="Email address" value="{{ \Auth()->user()->email }}" required>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Company Name (Optional)</label>
@@ -212,11 +220,11 @@
             <div class="card-body px-4 pb-0">
                 <div class="mb-3">
                     <label class="form-label">Pickup Address *</label>
-                    <input type="text" name="pickup_address" class="form-control" placeholder="Full pickup address">
+                    <input type="text" name="pickup" class="form-control" placeholder="Full pickup address" value="{{ $query['pickup'] }}">
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Drop-off Address *</label>
-                    <input type="text" name="dropoff_address" class="form-control" placeholder="Full drop-off address">
+                    <input type="text" name="dropoff" class="form-control" placeholder="Full drop-off address" value="{{ $query['dropoff'] }}">
                 </div>
                 <div id="additional-stop-container" class="d-none">
                     <h5>Additional Stops</h5>
@@ -226,7 +234,7 @@
                 </div>
             </div>
             <div class="add-stop-btn">
-                <a href="javascript:void(0)" onclick="addAdditionalStop()">
+                <a href="javascript:void(0)" onclick="addAdditionalStop()" class="text-dark">
                     <i class="fas fa-plus"></i> Add Additional Stop
                 </a>
             </div>
@@ -243,12 +251,18 @@
                     <textarea class="form-control" rows="4" name="special_requests" placeholder="Any special requirements or requests..."></textarea>
                 </div>
 
-                @foreach($car->extras ?? [] as $index => $extra)
-                <div class="form-check mb-2">
-                    <input class="form-check-input" name="extras[{{ $index }}]" type="checkbox" id="addons{{ $index }}">
-                    <label class="form-check-label addon-label" for="addons{{ $index }}">
-                        {{ $extra['title'] }} ({{ amt($extra['price']) }}/{{ $extra['interval'] }})
+                @foreach($car->chauffer_addons ?? [] as $index => $addon)
+                <div class="input-group mb-2" xrole="chauffer_addons">
+                    <div class="input-group-text">
+                        <input type="checkbox" name="extras[{{ $index }}]" id="addons{{ $index }}" class="form-check-input" onclick="toggleAddonCount(this)" value="{{ $index }}">
+                    </div>
+                    <label class="input-group-text" for="addons{{ $index }}">
+                        {{ $addon['name'] }}
                     </label>
+                    <label class="input-group-text" for="addons{{ $index }}">
+                        {{ amt($addon['price']) }} each
+                    </label>
+                    <input type="number" name="extras_count[{{ $index }}]" id="addons_count{{ $index }}" min="1" value="1" class="form-control d-none">
                 </div>
                 @endforeach
             </div>
@@ -268,7 +282,7 @@
                 <div class="terms-box mb-3">
                     <strong>Chauffeur Service Terms</strong>
                     <ul class="mt-2">
-                        @foreach($car->chauffer_service_terms ?? [] as $key => $value)
+                        @foreach($car->chauffer_terms ?? [] as $key => $value)
                             @php
                                 switch($key){
                                     case 'minimum_hire':
@@ -329,10 +343,20 @@
                 Continue to Payment
             </button>
         </div>
-    </div>
+    </form>
+
+    <template id="additional-stop-template">
+        <div class="input-group mb-3" xrole="stop">
+            <input type="text" name="stop_address[]" class="form-control" placeholder="Stop Address">
+            <button type="button" class="btn btn-outline-danger" onclick="removeAdditionalStop(this)">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+    </template>
 @endsection
 
 @push('scripts')
+<script src="https://maps.googleapis.com/maps/api/js?key={{ env('MAP_API_KEY') }}&libraries=places"></script>
 <script>
     function redirectBack(){
         const params = new URLSearchParams();
@@ -347,5 +371,84 @@
         const url = '{{ route('frontpage.chauffeur.extras', $car->id) }}';
         window.location.href = url + '?' + params.toString();
     }
+
+    function addAdditionalStop(){
+        const additionalStopContainer = document.getElementById('additional-stop-container');
+        additionalStopContainer.classList.remove('d-none');
+        const additionalStops = document.getElementById('additional-stops');
+        const additionalStopTemplate = document.getElementById('additional-stop-template').content.cloneNode(true);
+        additionalStops.appendChild(additionalStopTemplate);
+
+        // Initialize autocomplete for the newly added stop after it's appended to DOM
+        setTimeout(() => {
+            const stopInputs = additionalStops.querySelectorAll('input[name="stop_address[]"]');
+            const lastStopInput = stopInputs[stopInputs.length - 1];
+            if (lastStopInput) {
+                const stopAutocomplete = new google.maps.places.Autocomplete(
+                    lastStopInput,
+                    {
+                        types: ['address'],
+                        componentRestrictions: { country: ['uk'] }
+                    }
+                );
+            }
+        }, 100);
+    }
+
+    function removeAdditionalStop(button){
+        button.closest('div[xrole="stop"]').remove();
+    }
+
+    function toggleAddonCount(element){
+        element.closest('.input-group').querySelector('input[type="number"]').classList.toggle('d-none');
+    }
+
+    function continueToBooking(){
+        const name = document.querySelector('input[name="full_name"]').value;
+        const phone = document.querySelector('input[name="phone"]').value;
+        const email = document.querySelector('input[name="email"]').value;
+
+        const pickup_address = document.querySelector('input[name="pickup"]').value;
+        const dropoff_address = document.querySelector('input[name="dropoff"]').value;
+
+        if(name && phone && email && pickup_address && dropoff_address){
+            const form = document.getElementById('bookingForm');
+            form.submit();
+        }else{
+            alert('Please fill all the required fields');
+        }
+    }
+
+    // Initialize Google Places autocomplete
+    $(document).ready(function() {
+        // Initialize autocomplete for pickup location
+        const pickupAutocomplete = new google.maps.places.Autocomplete(
+            document.querySelector('input[name="pickup"]'),
+            {
+                types: ['address'],
+                componentRestrictions: { country: ['uk'] }
+            }
+        );
+
+        // Initialize autocomplete for dropoff location
+        const dropoffAutocomplete = new google.maps.places.Autocomplete(
+            document.querySelector('input[name="dropoff"]'),
+            {
+                types: ['address'],
+                componentRestrictions: { country: ['uk'] }
+            }
+        );
+
+        jQuery('[xrole="chauffer_addons"]').each(function() {
+            const cb = jQuery(this).find('input[type="checkbox"]');
+            const addonInput = jQuery(this).find('input[type="number"]');
+
+            if(cb.is(':checked')){
+                addonInput.removeClass('d-none');
+            }else{
+                addonInput.addClass('d-none');
+            }
+        });
+    });
 </script>
 @endpush

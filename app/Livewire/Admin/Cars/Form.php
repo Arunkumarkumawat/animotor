@@ -57,21 +57,13 @@ class Form extends Component
     public ?string $engine_size;
     public ?string $body_type = "convertible";
 
-    public ?string $hourly_rate;
-    public bool $hourly_rate_tax_incl = true;
+    
     public ?string $daily_rate;
     public bool $daily_rate_tax_incl = true;
     public ?string $weekly_rate;
     public bool $weekly_rate_tax_incl = true;
     public ?string $monthly_rate;
     public bool $monthly_rate_tax_incl = true;
-
-    public ?string $airport_transfer_rate;
-    public bool $airport_transfer_rate_tax_incl = true;
-    public ?string $long_transfer_rate;
-    public bool $long_transfer_rate_tax_incl = true;
-    public ?string $event_hire_rate;
-    public bool $event_hire_rate_tax_incl = true;
 
     public $policies = [];
 
@@ -251,10 +243,22 @@ class Form extends Component
     public bool $rent_to_buy_ev_incentive_included = false;
     public $rent_to_buy_ownership_transfer_notes = "";
 
-    public $chauffer_airport_terms = [];
-    public $chauffer_long_terms = [];
-    public $chauffer_event_terms = [];
-    public $chauffer_service_terms = [];
+    public bool $chauffeur = false;
+    public ?string $hourly_rate;
+    public bool $hourly_rate_tax_incl = true;
+    public ?string $p2p_rate;
+    public bool $p2p_rate_tax_incl = true;
+    public ?string $airport_transfer_rate;
+    public bool $airport_transfer_rate_tax_incl = true;
+    public ?string $long_transfer_rate;
+    public bool $long_transfer_rate_tax_incl = true;
+    public ?string $event_hire_rate;
+    public bool $event_hire_rate_tax_incl = true;
+    
+    public $chauffer_features1 = [];
+    public $chauffer_features2 = [];
+    public $chauffer_addons = [];
+    public $chauffer_terms = [];
     
     public bool $top_pick = false;
     public bool $ideal_for_family = false;
@@ -267,6 +271,11 @@ class Form extends Component
             $this->long_term = false;
             $this->rent_to_buy = false;
         }
+    }
+
+    public function updateChauffeur($checked)
+    {
+        $this->chauffeur = $checked;
     }
 
     public function updateData($key, $checked)
@@ -553,10 +562,10 @@ class Form extends Component
             }
         }
 
-        $this->chauffer_airport_terms = $this->car->chauffer_airport_terms ?? [];
-        $this->chauffer_long_terms = $this->car->chauffer_long_terms ?? [];
-        $this->chauffer_event_terms = $this->car->chauffer_event_terms ?? [];
-        $this->chauffer_service_terms = $this->car->chauffer_service_terms ?? [];
+        $this->chauffer_features1 = $this->car->chauffer_features1 ?? [];
+        $this->chauffer_features2 = $this->car->chauffer_features2 ?? [];
+        $this->chauffer_addons = $this->car->chauffer_addons ?? [];
+        $this->chauffer_terms = $this->car->chauffer_terms ?? [];
         
         // Ensure step is valid when component mounts
         $this->ensureValidStep();
@@ -574,7 +583,6 @@ class Form extends Component
         
         return view('livewire.admin.cars.form');
     }
-
 
     public function saveUpdate()
     {
@@ -887,17 +895,19 @@ class Form extends Component
 
     public function updatePricing(){
         $this->car->update([
-            'hourly_rate' => $this->hourly_rate,
             'daily_rate' => $this->daily_rate,
             'weekly_rate' => $this->weekly_rate,
             'monthly_rate' => $this->monthly_rate,
+            'hourly_rate' => $this->hourly_rate,
+            'p2p_rate' => $this->p2p_rate,
             'airport_transfer_rate' => $this->airport_transfer_rate,
             'long_transfer_rate' => $this->long_transfer_rate,
             'event_hire_rate' => $this->event_hire_rate,
-            'hourly_rate_tax_incl' => $this->hourly_rate_tax_incl,
             'daily_rate_tax_incl' => $this->daily_rate_tax_incl,
             'weekly_rate_tax_incl' => $this->weekly_rate_tax_incl,
             'monthly_rate_tax_incl' => $this->monthly_rate_tax_incl,
+            'hourly_rate_tax_incl' => $this->hourly_rate_tax_incl,
+            'p2p_rate_tax_incl' => $this->p2p_rate_tax_incl,
             'airport_transfer_rate_tax_incl' => $this->airport_transfer_rate_tax_incl,
             'long_transfer_rate_tax_incl' => $this->long_transfer_rate_tax_incl,
             'event_hire_rate_tax_incl' => $this->event_hire_rate_tax_incl,
@@ -1464,62 +1474,71 @@ class Form extends Component
         array_splice($this->dynamic_pricings, $index, 1);
     }
 
-    public function addChaufferAirportTerm(){
-        if(count($this->chauffer_airport_terms) == 0){
-            $this->chauffer_airport_terms = [''];
+    public function addChaufferFeature1(){
+        if(count($this->chauffer_features1) == 0){
+            $this->chauffer_features1 = [''];
         }
-        $this->chauffer_airport_terms[] = '';
+        $this->chauffer_features1[] = '';
     }
 
-    public function removeChaufferAirportTerm($index){
-        unset($this->chauffer_airport_terms[$index]);
-        $this->chauffer_airport_terms = array_values($this->chauffer_airport_terms);
+    public function removeChaufferFeature1($index){
+        unset($this->chauffer_features1[$index]);
+        $this->chauffer_features1 = array_values($this->chauffer_features1);
     }
 
-    public function saveChaufferAirportTerms(){
-        $this->car->chauffer_airport_terms = $this->chauffer_airport_terms;
+    public function saveChaufferFeature1(){
+        $this->car->chauffer_features1 = $this->chauffer_features1;
         $this->car->save();
         $this->successMsg();
     }
 
-    public function addChaufferLongTerm(){
-        if(count($this->chauffer_long_terms) == 0){
-            $this->chauffer_long_terms = [''];
+    public function addChaufferFeature2(){
+        if(count($this->chauffer_features2) == 0){
+            $this->chauffer_features2 = [''];
         }
-        $this->chauffer_long_terms[] = '';
+        $this->chauffer_features2[] = '';
     }
 
-    public function removeChaufferLongTerm($index){
-        unset($this->chauffer_long_terms[$index]);
-        $this->chauffer_long_terms = array_values($this->chauffer_long_terms);
+    public function removeChaufferFeature2($index){
+        unset($this->chauffer_features2[$index]);
+        $this->chauffer_features2 = array_values($this->chauffer_features2);
     }
 
-    public function saveChaufferLongTerms(){
-        $this->car->chauffer_long_terms = $this->chauffer_long_terms;
+    public function saveChaufferFeature2(){
+        $this->car->chauffer_features2 = $this->chauffer_features2;
         $this->car->save();
         $this->successMsg();
     }
 
-    public function addChaufferEventTerm(){
-        if(count($this->chauffer_event_terms) == 0){
-            $this->chauffer_event_terms = [''];
+    public function addChaufferAddon(){
+        if(count($this->chauffer_addons) == 0){
+            $this->chauffer_addons = [
+                [
+                    'name' => '',
+                    'price' => '',
+                ]
+            ];
         }
-        $this->chauffer_event_terms[] = '';
+
+        $this->chauffer_addons[] = [
+            'name' => '',
+            'price' => '',
+        ];
     }
 
-    public function removeChaufferEventTerm($index){
-        unset($this->chauffer_event_terms[$index]);
-        $this->chauffer_event_terms = array_values($this->chauffer_event_terms);
+    public function removeChaufferAddon($index){
+        unset($this->chauffer_addons[$index]);
+        $this->chauffer_addons = array_values($this->chauffer_addons);
     }
 
-    public function saveChaufferEventTerms(){
-        $this->car->chauffer_event_terms = $this->chauffer_event_terms;
+    public function saveChaufferAddon(){
+        $this->car->chauffer_addons = $this->chauffer_addons;
         $this->car->save();
         $this->successMsg();
     }
 
-    public function saveChaufferServiceTerms(){
-        $this->car->chauffer_service_terms = $this->chauffer_service_terms;
+    public function saveChaufferTerms(){
+        $this->car->chauffer_terms = $this->chauffer_terms;
         $this->car->save();
         $this->successMsg();
     }

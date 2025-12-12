@@ -10,6 +10,7 @@ use App\Models\Role;
 use App\Models\User;
 use App\Models\Region;
 use App\Models\Booking;
+use App\Models\CBooking;
 use App\Models\PhBooking;
 use App\Mail\EmailOtpMail;
 use App\Models\VehicleType;
@@ -17,6 +18,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use App\Services\WalletService;
+use App\Mail\ChBookingConfirmed;
 use App\Mail\PhBookingConfirmed;
 use App\Services\PaymentService;
 use App\Http\Controllers\Controller;
@@ -986,6 +988,151 @@ class FrontPageController extends Controller
             ->where('id', $id)
             ->firstOrFail();
 
+        if($request->isMethod('post')){
+            $user = Auth::user();
+
+            $carPrice = 0;
+            $tripTypeExtra = [];
+
+            if($request->get('trip_type') == 'airport'){
+                $tripTypeExtra['Direction'] = $request->get('dir');
+                $tripTypeExtra['Flight'] = $request->get('flight');
+                $tripTypeExtra['Terminal'] = $request->get('terminal');
+
+                $carPrice += $car->airport_transfer_rate;
+            } else if($request->get('trip_type') == 'hourly'){
+                $tripTypeExtra['City'] = $request->get('city');
+                $tripTypeExtra['Duration'] = $request->get('duration');
+
+                $carPrice += $car->hourly_rate * $request->get('duration', 1);
+            } else if($request->get('trip_type') == 'p2p'){
+                $tripTypeExtra['Trip'] = $request->get('dir');
+                $carPrice += $car->p2p_rate;
+            } else if($request->get('trip_type') == 'event'){
+                $tripTypeExtra['Type'] = $request->get('type');
+                $tripTypeExtra['Start Time'] = $request->get('startTime');
+                $tripTypeExtra['End Time'] = $request->get('endTime');
+                
+                $carPrice += $car->event_hire_rate;
+            } else if($request->get('trip_type') == 'long'){
+                $tripTypeExtra['Notes'] = $request->get('notes');
+                $carPrice += $car->long_transfer_rate;
+            }        
+
+            $addons = [];
+            $addonPrice = 0;
+
+            foreach($request->get('extras') as $index => $addonIndex){
+                if($car->chauffer_addons[$addonIndex] && $request->get('extras_count')[$addonIndex] > 0){
+                    $addons[] = [
+                        'name' => $car->chauffer_addons[$addonIndex]['name'],
+                        'price' => $car->chauffer_addons[$addonIndex]['price'],
+                        'count' => $request->get('extras_count')[$addonIndex]
+                    ];
+
+                    $addonPrice += ($car->chauffer_addons[$addonIndex]['price'] * $request->get('extras_count')[$addonIndex]);
+                }
+            }
+
+            $snapshot = [];
+            $snapshot['features1'] = $car->chauffer_features1;
+            $snapshot['features2'] = $car->chauffer_features2;
+            $snapshot['chauffer_terms'] = $car->chauffer_terms;
+
+            $totalPrice = $carPrice + $addonPrice;
+
+            $booking = CBooking::create([
+                'id' => Str::uuid(),
+                'car_id' => $id,
+                'user_id' => $user->id,
+                'trip_type' => $request->input('trip_type'),
+                'trip_type_extra' => $tripTypeExtra,
+                'pickup_location' => $request->input('pickup'),
+                'dropoff_location' => $request->input('dropoff'),
+                'stops' => $request->input('stops', []),
+                'pickup_date' => $request->input('date'),
+                'pickup_time' => $request->input('time'),
+                'passengers' => $request->input('passengers'),
+                'full_name' => $request->input('full_name'),
+                'phone_no' => $request->input('phone'),
+                'email_addr' => $request->input('email'),
+                'company_name' => $request->input('company'),
+                'special_reqs' => $request->input('special_requests'),
+                'addons' => $addons,
+                'car_snapshot' => $snapshot,
+                'trip_amount' => $carPrice,
+                'addons_total' => $addonPrice,
+                'total_amount' => $totalPrice,
+                'status' => 'pending',
+                'pg_status' => 'pending',
+                'pg_tx_id' => null,
+            ]);
+
+            return redirect()->route('frontpage.chauffeur.payment', $booking->id);
+        }
+
         return view('frontpage.chauffeur.details', compact('query','car'));
+    }
+
+    public function chauffeurPayment(Request $request, $id){
+        $booking = CBooking::where('id', $id)->firstOrFail();
+
+        if($request->isMethod('post')){
+            if(!isset($request->payment_token) || empty($request->payment_token)){
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Invalid charge method.'
+                ]);
+            }
+
+            Stripe::setApiKey(env('STRIPE_SECRET_KEY'));
+
+            try {
+                $charge = Charge::create([
+                    'amount' => $booking->total_amount * 100,
+                    'currency' => settings('currency_code', 'USD'),
+                    'source' => $request->payment_token,
+                    'description' => 'Order ' . $booking->id,
+                    'metadata' => [
+                        'booking_id' => $booking->id,
+                        'user_id' => $booking->user_id ? $booking->user_id : '',
+                    ],
+                ]);
+
+                $booking->update([
+                    'pg_tx_id' => $charge->id,
+                    'pg_status' => 'Paid',
+                    'paid_at' => now(),
+                ]);
+
+                Mail::to($booking->email_addr)->send(new ChBookingConfirmed($booking));
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Booking amount has been successfully paid.',
+                    'redirect_url' => route('frontpage.chauffeur.confirmation', $booking->id)
+                ]);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'status' => false,
+                    'message' => $e->getMessage()
+                ]);
+            }
+        }
+
+        $car = Car::where('id', $booking->car_id)->first();
+        return view('frontpage.chauffeur.payment', compact('booking', 'car'));
+    }
+
+    public function chauffeurBookingConfirmed(Request $request, $id){
+        $cBooking = CBooking::where('id', $id)->where('pg_status', 'Paid')->first();
+
+        if(!$cBooking){
+            return redirect()->route('frontpage.chauffeur.search')->with('error', 'Booking not found.');
+        }
+
+        $car = Car::where('id', $cBooking->car_id)->first();
+
+        return view('frontpage.chauffeur.confirmed', compact('cBooking', 'car'));
     }
 }

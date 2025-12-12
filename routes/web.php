@@ -97,8 +97,9 @@ Route::get('/chauffeur/search', [FrontPageController::class, 'chauffeurSearch'])
 Route::get('/chauffeur/list', [FrontPageController::class, 'chauffeurList'])->name('frontpage.chauffeur.list');
 Route::get('/chauffeur/single/{id}', [FrontPageController::class, 'chauffeurSingle'])->name('frontpage.chauffeur.single');
 Route::get('/chauffeur/extras/{id}', [FrontPageController::class, 'chauffeurExtras'])->name('frontpage.chauffeur.extras');
-Route::get('/chauffeur/details/{id}', [FrontPageController::class, 'chauffeurDetails'])->name('frontpage.chauffeur.details');
-Route::get('/chauffeur/checkout/{id}', [FrontPageController::class, 'chauffeurCheckout'])->name('frontpage.chauffeur.checkout');
+Route::match(['get','post'], '/chauffeur/details/{id}', [FrontPageController::class, 'chauffeurDetails'])->name('frontpage.chauffeur.details');
+Route::match(['get','post'], 'chauffeur/payment/{id}', [FrontPageController::class, 'chauffeurPayment'])->name('frontpage.chauffeur.payment');
+Route::get('/chauffeur/confirmation/{id}', [FrontPageController::class, 'chauffeurBookingConfirmed'])->name('frontpage.chauffeur.confirmation');
 
 Route::get('test/email', function () {
     return view('emails.account_notify');

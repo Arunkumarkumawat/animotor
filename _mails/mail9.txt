@@ -1,0 +1,12 @@
+Subject: Extras Pending Approval – {{booking_id}}
+
+Hello {{supplier_name}},
+
+Extras were added for booking {{booking_id}} and are pending admin approval.
+
+Extras: {{extras_list}}
+Evidence: {{evidence_link}}
+
+View booking: {{supplier_portal_link}}
+
+ANI Motors

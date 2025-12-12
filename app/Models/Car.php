@@ -45,10 +45,15 @@ class Car extends Model
         'daily_rate_tax_incl' => 'boolean',
         'weekly_rate_tax_incl' => 'boolean',
         'monthly_rate_tax_incl' => 'boolean',
-        'chauffer_airport_terms' => 'array',
-        'chauffer_long_terms' => 'array',
-        'chauffer_event_terms' => 'array',
-        'chauffer_service_terms' => 'array',
+        'hourly_rate_tax_incl' => 'boolean',
+        'p2p_rate_tax_incl' => 'boolean',
+        'airport_transfer_rate_tax_incl' => 'boolean',
+        'long_transfer_rate_tax_incl' => 'boolean',
+        'event_hire_rate_tax_incl' => 'boolean',
+        'chauffer_features1' => 'array',
+        'chauffer_features2' => 'array',
+        'chauffer_addons' => 'array',
+        'chauffer_terms' => 'array',
     ];
 
     public function region(): BelongsTo

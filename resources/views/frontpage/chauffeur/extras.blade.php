@@ -233,7 +233,7 @@
         <div class="row g-3 mb-4">
             <!-- Hourly Hire -->
             <div class="col-md-6">
-                <label class="package-card active" data-package="hourly">
+                <label class="package-card" data-package="hourly" onclick="tripTypeChanged(this.getAttribute('data-package'))">
                     <div class="d-flex align-items-start">
                         <i class="far fa-clock package-card-icon"></i>
                         <div>
@@ -247,35 +247,35 @@
                     </div>
                     <div class="package-radio">
                         <span class="fake-radio"></span>
-                        <input type="radio" name="package" value="hourly" checked>
+                        <input type="radio" name="package" value="hourly">
                     </div>
                 </label>
             </div>
 
-            <!-- Daily Hire -->
+            <!-- P2P Hire -->
             <div class="col-md-6">
-                <label class="package-card" data-package="daily">
+                <label class="package-card" data-package="p2p" onclick="tripTypeChanged(this.getAttribute('data-package'))">
                     <div class="d-flex align-items-start">
                         <i class="far fa-calendar-alt package-card-icon"></i>
                         <div>
-                            <div class="package-title">Daily Hire</div>
-                            <p class="package-desc mb-0">Full day at your disposal (up to 10 hours)</p>
+                            <div class="package-title">Point-to-Point Hire</div>
+                            <p class="package-desc mb-0">City or local trips</p>
                         </div>
                     </div>
                     <div class="mt-2">
                         <p class="package-price-label">From</p>
-                        <p class="package-price mb-0">{{ amt($car->daily_rate) }}</p>
+                        <p class="package-price mb-0">{{ amt($car->p2p_rate) }}</p>
                     </div>
                     <div class="package-radio">
                         <span class="fake-radio"></span>
-                        <input type="radio" name="package" value="daily">
+                        <input type="radio" name="package" value="p2p">
                     </div>
                 </label>
             </div>
 
             <!-- Airport Transfer -->
             <div class="col-md-6">
-                <label class="package-card" data-package="airport">
+                <label class="package-card" data-package="airport" onclick="tripTypeChanged(this.getAttribute('data-package'))">
                     <div class="d-flex align-items-start">
                         <i class="fas fa-plane-departure package-card-icon"></i>
                         <div>
@@ -296,7 +296,7 @@
 
             <!-- Long Distance -->
             <div class="col-md-6">
-                <label class="package-card" data-package="long">
+                <label class="package-card" data-package="long" onclick="tripTypeChanged(this.getAttribute('data-package'))">
                     <div class="d-flex align-items-start">
                         <i class="fas fa-route package-card-icon"></i>
                         <div>
@@ -317,7 +317,7 @@
 
             <!-- Event Hire -->
             <div class="col-md-6">
-                <label class="package-card" data-package="event">
+                <label class="package-card" data-package="event" onclick="tripTypeChanged(this.getAttribute('data-package'))">
                     <div class="d-flex align-items-start">
                         <i class="fas fa-glass-cheers package-card-icon"></i>
                         <div>
@@ -337,186 +337,152 @@
             </div>
         </div>
 
-        <!-- Config: Hourly Hire -->
-        <div id="config-hourly" class="mb-4">
-            <div class="config-card">
-                <div class="config-title">Configure Your Hourly Hire</div>
-                <div class="config-subtitle">Select Duration</div>
-                <input type="hidden" name="hourly_duration" value="3">
-                <div class="row g-2">
-                    <div class="col-6 col-md-2">
-                        <button type="button" class="btn btn-outline-secondary duration-btn w-100" data-duration="2">2 hours</button>
-                    </div>
-                    <div class="col-6 col-md-2">
-                        <button type="button" class="btn btn-outline-secondary duration-btn w-100 active" data-duration="3">3 hours</button>
-                    </div>
-                    <div class="col-6 col-md-2">
-                        <button type="button" class="btn btn-outline-secondary duration-btn w-100" data-duration="4">4 hours</button>
-                    </div>
-                    <div class="col-6 col-md-2">
-                        <button type="button" class="btn btn-outline-secondary duration-btn w-100" data-duration="5">5 hours</button>
-                    </div>
-                    <div class="col-6 col-md-2">
-                        <button type="button" class="btn btn-outline-secondary duration-btn w-100" data-duration="8">8 hours</button>
-                    </div>
-                    <div class="col-6 col-md-2">
-                        <button type="button" class="btn btn-outline-secondary duration-btn w-100" data-duration="custom">Custom</button>
-                    </div>
-                </div>
-                <div class="form-group d-none mt-3" id="custom_hours_container">
-                    <input type="number" class="form-control" name="hourly_custom_duration" placeholder="Enter custom hours">
-                </div>
-            </div>
-        </div>
-
-        <!-- Config: Daily Hire -->
-        <div id="config-daily" class="mb-4 d-none">
-            <div class="config-card">
-                <div class="config-title">Configure Your Daily Hire</div>
-                <div class="config-subtitle">Select Duration</div>
-                <input type="hidden" name="daily_duration" value="3">
-                <div class="row g-2">
-                    <div class="col-6 col-md-3">
-                        <button type="button" class="btn btn-outline-secondary day-duration-btn w-100" data-duration="1">1 day</button>
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <button type="button" class="btn btn-outline-secondary day-duration-btn w-100 active" data-duration="2">2 days</button>
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <button type="button" class="btn btn-outline-secondary day-duration-btn w-100" data-duration="3">3 days</button>
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <button type="button" class="btn btn-outline-secondary day-duration-btn w-100" data-duration="7">7 days</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Config: Airport Transfer -->
-        <div id="config-airport" class="mb-4 d-none">
-            <div class="config-card">
-                <div class="config-title">Configure Your Airport Transfer</div>
-
-                <label class="form-label mb-1">Flight Number <span class="text-muted">(Optional)</span></label>
-                <input type="text" class="form-control mb-1" name="flight_number" placeholder="e.g. BA123">
-
-                <div class="config-subtitle">For flight monitoring and adjusted pickup time</div>
-
-                <div class="airport-info">
-                    <div class="airport-info-title">Airport Transfer Includes:</div>
-                    <ul class="mb-0">
-                        @foreach($car->chauffer_airport_terms ?? [] as $term)
-                        <li>✓ {{ $term }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- Config: Long Distance -->
-        <div id="config-long" class="mb-4 d-none">
-            <div class="config-card">
-                <div class="config-title">Configure Your Long Distance</div>
-
-                <div class="airport-info">
-                    <div class="airport-info-title">Long Distance Service Includes:</div>
-                    <ul class="mb-0">
-                        @foreach($car->chauffer_long_terms ?? [] as $term)
-                        <li>✓ {{ $term }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- Config: Long Distance -->
-        <div id="config-event" class="mb-4 d-none">
-            <div class="config-card">
-                <div class="config-title">Configure Your Event Hire</div>
-
-                <div class="airport-info">
-                    <div class="airport-info-title">Event Hire Includes:</div>
-                    <ul class="mb-0">
-                        @foreach($car->chauffer_event_terms ?? [] as $term)
-                        <li>✓ {{ $term }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            </div>
-        </div>
-
         <!-- Bottom CTA -->
         <div class="bottom-cta">
-            <button type="button" onclick="continueToCheckout()" class="btn btn-continue text-white">
-                Continue to Booking Details
-            </button>
+            @auth
+                <button type="button" onclick="continueToCheckout()" class="btn btn-continue text-white">
+                    Continue to Booking Details
+                </button>
+            @else
+                <button type="button" data-bs-toggle="modal" data-bs-target="#loginModal" class="btn btn-continue text-white">
+                    Authenticate to Continue
+                </button>
+            @endauth
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login"
+                            type="button" role="tab" aria-controls="login" aria-selected="true">Login</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register"
+                            type="button" role="tab" aria-controls="register" aria-selected="false">Register</button>
+                    </li>
+                </ul>
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade p-4 show active" id="login" role="tabpanel"
+                        aria-labelledby="login-tab">
+                        <form method="POST" action="{{ route('last-stage-auth') }}">
+                            @csrf
+                            <input type="hidden" name="type" value="login">
+
+                            <div class="mb-3">
+                                <input type="email" class="form-control" placeholder="Email" name="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <input type="password" class="form-control" placeholder="Password" name="password"
+                                    required>
+                            </div>
+                            <button type="button" class="btn btn-primary w-100" onclick="login(this)">Login</button>
+                        </form>
+                    </div>
+                    <div class="tab-pane fade p-4" id="register" role="tabpanel" aria-labelledby="register-tab">
+                        <form method="POST" action="{{ route('last-stage-auth') }}">
+                            @csrf
+                            <input type="hidden" name="type" value="register">
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <input type="text" class="form-control" placeholder="First Name"
+                                        name="first_name" value="{{ old('first_name') }}" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <input type="text" class="form-control" placeholder="Last Name" name="last_name"
+                                        value="{{ old('last_name') }}" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <input type="email" class="form-control" placeholder="Email" name="email"
+                                    value="{{ old('email') }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <input type="tel" class="form-control" placeholder="Phone Number" name="phone"
+                                    value="{{ old('phone') }}" required>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <input type="password" class="form-control" placeholder="Password" name="password"
+                                        required autocomplete="new-password">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <input type="password" class="form-control" placeholder="Confirm Password"
+                                        name="password_confirmation" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <input type="text" class="form-control" placeholder="Address" name="address"
+                                        value="{{ old('address') }}" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <input type="text" class="form-control" placeholder="ZIP Code" name="zip"
+                                        value="{{ old('zip') }}" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <input type="text" class="form-control" placeholder="City" name="city"
+                                        value="{{ old('city') }}" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <input type="text" class="form-control" placeholder="Country" name="country"
+                                        value="{{ old('country') }}" required>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-primary w-100" onclick="login(this)">Register</button>
+                        </form>
+                    </div>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-warning w-100" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="otpModal" tabindex="-1" aria-labelledby="otpModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="POST" action="{{ route('last-stage-auth') }}">
+                    @csrf
+                    <input type="hidden" name="type" value="verify_otp">
+                    <input type="hidden" name="email" id="hidden_email">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="otpModalLabel">Enter OTP</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <input type="number" minlength="6" maxlength="6" class="form-control" placeholder="OTP"
+                                name="otp" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="login(this)">Verify</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 @endsection
 
 @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .swal2-container.swal2-center.swal2-backdrop-show {
+            z-index: 9999;
+        }
+    </style>
     <script>
-        // Switch active package card + config section
-        document.querySelectorAll('.package-card').forEach(function(card) {
-            card.addEventListener('click', function() {
-                // Activate this card
-                document.querySelectorAll('.package-card').forEach(function(c) {
-                    c.classList.remove('active');
-                    c.querySelector('input[type="radio"]').checked = false;
-                });
-                card.classList.add('active');
-                card.querySelector('input[type="radio"]').checked = true;
-
-                const pkg = card.getAttribute('data-package');
-
-                // Show relevant config section
-                document.getElementById('config-hourly').classList.add('d-none');
-                document.getElementById('config-daily').classList.add('d-none');
-                document.getElementById('config-airport').classList.add('d-none');
-                document.getElementById('config-long').classList.add('d-none');
-                document.getElementById('config-event').classList.add('d-none');
-
-                if (pkg === 'hourly') {
-                    document.getElementById('config-hourly').classList.remove('d-none');
-                } else if (pkg === 'daily') {
-                    document.getElementById('config-daily').classList.remove('d-none');
-                } else if (pkg === 'long') {
-                    document.getElementById('config-long').classList.remove('d-none');
-                } else if (pkg === 'event') {
-                    document.getElementById('config-event').classList.remove('d-none');
-                } else if (pkg === 'airport') {
-                    document.getElementById('config-airport').classList.remove('d-none');
-                }
-            });
-        });
-
-        // Hourly duration button active state
-        document.querySelectorAll('.duration-btn').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.duration-btn').forEach(function(b) {
-                    b.classList.remove('active');
-                });
-                btn.classList.add('active');
-                jQuery('[name="hourly_duration"]').val( btn.getAttribute('data-duration') );
-                if (btn.getAttribute('data-duration') === 'custom') {
-                    document.querySelector('#custom_hours_container').classList.remove('d-none');
-                } else {
-                    document.querySelector('#custom_hours_container').classList.add('d-none');
-                }
-            });
-        });
-
-        // Daily duration button active state
-        document.querySelectorAll('.day-duration-btn').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.day-duration-btn').forEach(function(b) {
-                    b.classList.remove('active');
-                });
-                btn.classList.add('active');
-                jQuery('[name="daily_duration"]').val( btn.getAttribute('data-duration') );
-            });
-        });
-
         function redirectBack(){
             const params = new URLSearchParams();
 
@@ -540,40 +506,71 @@
                 return;
             }
 
-            params.append('package', package);
-
-            if (package === 'hourly') {
-                var duration = jQuery('[name="hourly_duration"]').val();
-                if (!duration) {
-                    return;
-                }
-
-                params.append('duration', duration);
-
-                if(duration == 'custom'){
-                    var custom = jQuery('[name="hourly_custom_duration"]').val();
-                    if(!custom){
-                        return;
-                    }
-                    params.append('custom', custom);
-                }
-            }
-
-            if (package === 'daily') {
-                var duration = jQuery('[name="daily_duration"]').val();
-                if (!duration) {
-                    return;
-                }
-            }
-
-            if(package == 'airport'){
-                var flight = jQuery('[name="airport_flight"]').val();
-                if(flight){
-                    params.append('flight', flight);
-                }
-            }
-            
+            params.append('package', package);            
             window.location = '{{ route('frontpage.chauffeur.details', $car->id) }}?' + params.toString();
         }
+
+        function login(element) {
+            var form = jQuery(element).parents('form').get(0);
+
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            $.ajax({
+                url: form.getAttribute('action'),
+                type: 'POST',
+                data: new FormData(form),
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.status === 1) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: response.message,
+                            showConfirmButton: true
+                        });
+
+                        if ('verify' in response) {
+                            jQuery('#otpModal').modal('show');
+                            jQuery('#hidden_email').val(response.email);
+
+                            jQuery('#loginModal').modal('hide');
+                        } else {
+                            setTimeout(function() {
+                                window.location.reload();
+                            }, 2000);
+                        }
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.message,
+                            showConfirmButton: true
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    const errorMessage = xhr.responseJSON?.message || 'An error occurred. Please try again.';
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: errorMessage,
+                        showConfirmButton: true
+                    });
+                }
+            });
+        }
+
+        function tripTypeChanged(val){
+            jQuery('.package-card').removeClass('active');
+            jQuery('[name="package"]').prop('checked', false);
+            jQuery('.package-card[data-package="' + val + '"]').addClass('active');
+            jQuery('.package-card[data-package="' + val + '"]').find('input[name="package"]').prop('checked', true);
+        }
+
+        tripTypeChanged('{{ isset($query['trip_type']) ? $query['trip_type'] : 'hourly' }}');
     </script>
 @endpush

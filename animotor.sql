@@ -7,7 +7,7 @@
 # 
 # Host: 127.0.0.1 (mariadb.org binary distribution 10.11.14)
 # Database: db
-# Generation time: 2025-12-10T17:47:42+05:30
+# Generation time: 2025-12-12T17:34:09+05:30
 # ************************************************************
 
 
@@ -442,13 +442,9 @@ CREATE TABLE `cars` (
   `time_due` datetime DEFAULT NULL,
   `driver` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
   `commission_fee` decimal(10,2) DEFAULT NULL,
-  `hourly_rate` decimal(10,2) DEFAULT NULL,
   `daily_rate` decimal(10,2) DEFAULT NULL,
   `weekly_rate` decimal(10,2) DEFAULT NULL,
   `monthly_rate` decimal(10,2) DEFAULT NULL,
-  `airport_transfer_rate` decimal(10,2) DEFAULT NULL,
-  `long_transfer_rate` decimal(10,2) DEFAULT NULL,
-  `event_hire_rate` decimal(10,2) DEFAULT NULL,
   `dynamic_pricings` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
   `is_approved` tinyint(1) NOT NULL DEFAULT 0,
   `mileage_policy` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -507,13 +503,20 @@ CREATE TABLE `cars` (
   `daily_rate_tax_incl` tinyint(1) NOT NULL DEFAULT 1,
   `weekly_rate_tax_incl` tinyint(1) NOT NULL DEFAULT 1,
   `monthly_rate_tax_incl` tinyint(1) NOT NULL DEFAULT 1,
+  `hourly_rate` decimal(10,2) DEFAULT NULL,
   `hourly_rate_tax_incl` tinyint(1) NOT NULL DEFAULT 1,
+  `p2p_rate` decimal(10,2) DEFAULT NULL,
+  `p2p_transfer_rate_tax_including` tinyint(1) NOT NULL DEFAULT 1,
+  `airport_transfer_rate` decimal(10,2) DEFAULT NULL,
   `airport_transfer_rate_tax_incl` tinyint(1) NOT NULL DEFAULT 1,
+  `long_transfer_rate` decimal(10,2) DEFAULT NULL,
   `long_transfer_rate_tax_incl` tinyint(1) NOT NULL DEFAULT 1,
+  `event_hire_rate` decimal(10,2) DEFAULT NULL,
   `event_hire_rate_tax_incl` tinyint(1) NOT NULL DEFAULT 1,
-  `chauffer_airport_terms` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`chauffer_airport_terms`)),
-  `chauffer_long_terms` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`chauffer_long_terms`)),
-  `chauffer_event_terms` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`chauffer_event_terms`)),
+  `chauffer_features1` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `chauffer_features2` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `chauffer_addons` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `chauffer_terms` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `top_pick` (`top_pick`),
   KEY `ideal_for_family` (`ideal_for_family`),
@@ -523,8 +526,8 @@ CREATE TABLE `cars` (
 LOCK TABLES `cars` WRITE;
 /*!40000 ALTER TABLE `cars` DISABLE KEYS */;
 
-INSERT INTO `cars` (`id`, `driver_id`, `title`, `make`, `is_available`, `price_per_day`, `model`, `type`, `year`, `color`, `gear`, `door`, `vehicle_no`, `image`, `youtube_link`, `photos`, `pickup_instruction`, `drop_off_instruction`, `extras`, `description`, `registration_number`, `tracker_no`, `license_no`, `body_type`, `fuel_type`, `engine_size`, `mileage_text`, `insurance_coverage`, `important_text`, `damage_excess`, `security_deposit`, `requirements`, `seats`, `mileage`, `insurance_fee`, `price_per_mileage`, `air_condition`, `cancellation_fee`, `bags`, `bags_large`, `deposit`, `created_at`, `updated_at`, `region_id`, `rental_packages`, `country`, `state`, `city`, `company_id`, `insurance_group`, `date_out`, `time_out`, `date_due`, `time_due`, `driver`, `commission_fee`, `hourly_rate`, `daily_rate`, `weekly_rate`, `monthly_rate`, `airport_transfer_rate`, `long_transfer_rate`, `event_hire_rate`, `dynamic_pricings`, `is_approved`, `mileage_policy`, `mileage_limit`, `excess_mileage_rate`, `cancellation_policy`, `vehicle_photos`, `private_hire`, `licensing_authority`, `phv_plate_number`, `phv_expiry_date`, `hr_insurance_expiry`, `plate_certificate`, `hr_insurance_proof`, `short_term`, `long_term`, `rent_to_buy`, `short_term_minimum_term`, `short_term_maximum_term`, `short_term_pricing_cadence`, `short_term_weekly_price_wo_ins`, `short_term_weekly_price_w_ins`, `short_term_maintenance_included`, `short_term_deposit`, `short_term_excess_liability`, `short_term_early_return_fee`, `short_term_notice_period_to_return`, `long_term_billing_cycle`, `long_term_default_deposit`, `long_term_term_options`, `long_term_prices`, `long_term_excess_liability`, `long_term_vehicle_swap_allowed`, `long_term_early_termination_rules`, `rent_to_buy_term`, `rent_to_buy_billing_cycle`, `rent_to_buy_price_per_cycle`, `rent_to_buy_deposit_amount`, `rent_to_buy_balloon_payment`, `rent_to_buy_payment_break_weeks_year`, `rent_to_buy_mileage_allowance_per_cycle`, `rent_to_buy_excess_mileage_rate`, `rent_to_buy_insurance_included`, `rent_to_buy_maintenance_included`, `rent_to_buy_ev_incentive_included`, `rent_to_buy_ownership_transfer_notes`, `top_pick`, `ideal_for_family`, `pickup`, `dropup`, `free_cancellation`, `collision_damage_waiver`, `theft_protection`, `unlimited_mileage`, `vehicle_features`, `daily_rate_tax_incl`, `weekly_rate_tax_incl`, `monthly_rate_tax_incl`, `hourly_rate_tax_incl`, `airport_transfer_rate_tax_incl`, `long_transfer_rate_tax_incl`, `event_hire_rate_tax_incl`, `chauffer_airport_terms`, `chauffer_long_terms`, `chauffer_event_terms`) VALUES
-	("a05aed52-e6cd-4014-9ba8-1ae88d999b5a", NULL, "Lorem Ipsum", "Acura", 1, 10, "MDX", "Hatchback", "2024", "Black", "Automatic", 3, "HMFPK1782P", NULL, "aqz-KE-bpKQ", NULL, "asdfas asdfas dfasdfd", "ad fasdfadsfasfasfasdf sdfad", "[{\"title\":\"dsfsda\",\"price\":\"33\",\"description\":\"fsdf\",\"interval\":\"daily\"}]", "Lorem Ipsum De Generate", "HMFPK1782P", NULL, "HMFPK1782P", NULL, "Petrol", NULL, "<p>asdfsadf</p>", "[{\"level\":\"basic\",\"cover\":\"asdf\",\"cover_descr\":\"<p>aasdfadsfasdf<\\/p>\",\"daily_price\":\"343\",\"excess\":\"343\"}]", "<p>sdfsaf</p>", "<p>asfsadf</p>", "<p>sdfdsaf</p>", "<p>sfsdaf</p>", 5, 0, 0, 0, 1, 0, "4", 8, 400, "2025-11-14 12:38:11", "2025-12-10 11:31:48", "a05ac570-b1f0-4406-a583-2a12ed97c1de", NULL, NULL, NULL, NULL, "a060e33d-b592-4617-a50b-0b31f5db915f", NULL, NULL, NULL, NULL, NULL, "{\"name\":\"dsafasdf\",\"photo\":null,\"years_experience\":\"13\",\"special_skills\":\"Rider\",\"primary_language\":\"Chinese\",\"additional_languages\":\"Spanish\",\"area_expertise\":\"All around the world\",\"tour_guide_experience\":\"1 days\",\"driving_licenses\":\"L4WDL\",\"certifications\":\"Lorem Ipsum\",\"customer_reviews\":\"He is a psycho\",\"overall_rating\":\"1.5 \\/ 5\",\"work_hours\":\"24 x 7\",\"days_off\":\"0\",\"phone_number\":\"6969696969\",\"email_address\":\"hot_tub@yahoo.com\",\"working_hours\":\"I don\'t care\",\"driver_breaks\":\"I don\'t care\",\"accommodation\":\"I don\'t care\",\"food\":\"4 times a day\",\"toll_tax\":\"200% of ride\",\"dropoff_location\":\"Where ever I want\",\"miscellaneous\":\"Go to hell\"}", 44, 1, 1, 7, 30, 1.5, 7, 7, "[{\"rule_name\":\"asdf\",\"adjustment_type\":\"percentage_increase\",\"adjustment_value\":\"33\",\"start_date\":\"2025-11-15\",\"end_date\":\"2026-01-30\",\"status\":1}]", 1, "", "", "", "", "[\"https:\\/\\/animotor.ddev.site\\/storage\\/files\\/a060e33d-b592-4617-a50b-0b31f5db915f\\/1764577823_image-jpg.jpg\"]", 1, "Leeds City Council", "HMFPK1782P", "2025-11-14", "2026-04-14", "https://animotor.ddev.site/storage/files/9a9ede47-d4e9-4205-b546-c6437d4914f5/1763124007_Screenshot_20251111_175519.png", "https://animotor.ddev.site/storage/files/9a9ede47-d4e9-4205-b546-c6437d4914f5/1763124007_Screenshot_20251111_175519.png", 1, 1, 1, "4", NULL, NULL, "34", "33", 1, "3", "33", "33", "33", "weekly", "33", "[\"3m\",\"6m\",\"9m\"]", "{\"3m\":{\"price_wo_ins\":\"32\",\"price_w_ins\":\"33\",\"maintenance_included\":0,\"maintenance_type\":\"basic\",\"maintenance_price\":\"33\",\"mileage\":\"33\",\"excess_rate\":\"33\"},\"6m\":{\"price_wo_ins\":\"33\",\"price_w_ins\":\"34\",\"maintenance_type\":\"basic\",\"maintenance_price\":\"33\",\"mileage\":\"33\",\"excess_rate\":\"33\"},\"9m\":{\"price_wo_ins\":\"35\",\"price_w_ins\":\"36\",\"maintenance_type\":\"basic\",\"maintenance_price\":\"33\",\"mileage\":\"33\",\"excess_rate\":\"33\"}}", "333", 1, "Loerm pisdfdf", "3", "weekly", "33", "33", "33", "3", "33", "33", 1, 1, 1, "33adfadsfadsf", 1, 1, "[{\"location\":\"Jaipur\",\"latitude\":\"26.9124336\",\"longitude\":\"75.7872709\"},{\"location\":\"Alwar\",\"latitude\":\"27.5529907\",\"longitude\":\"76.6345735\"}]", "[{\"location\":\"Jaipur\",\"latitude\":\"26.9124336\",\"longitude\":\"75.7872709\"},{\"location\":\"Alwar\",\"latitude\":\"27.5529907\",\"longitude\":\"76.6345735\"}]", 1, 1, 1, 1, "[\"Air Conditioning\",\"Bluetooth\",\"GPS Navigation\"]", 1, 1, 1, 1, 1, 1, 1, "[\"afasdfa\",\"asfa\"]", "[\"asdfas\",\"sfaffaf\"]", "[\"asdfasd\",\"adsfasf\"]");
+INSERT INTO `cars` (`id`, `driver_id`, `title`, `make`, `is_available`, `price_per_day`, `model`, `type`, `year`, `color`, `gear`, `door`, `vehicle_no`, `image`, `youtube_link`, `photos`, `pickup_instruction`, `drop_off_instruction`, `extras`, `description`, `registration_number`, `tracker_no`, `license_no`, `body_type`, `fuel_type`, `engine_size`, `mileage_text`, `insurance_coverage`, `important_text`, `damage_excess`, `security_deposit`, `requirements`, `seats`, `mileage`, `insurance_fee`, `price_per_mileage`, `air_condition`, `cancellation_fee`, `bags`, `bags_large`, `deposit`, `created_at`, `updated_at`, `region_id`, `rental_packages`, `country`, `state`, `city`, `company_id`, `insurance_group`, `date_out`, `time_out`, `date_due`, `time_due`, `driver`, `commission_fee`, `daily_rate`, `weekly_rate`, `monthly_rate`, `dynamic_pricings`, `is_approved`, `mileage_policy`, `mileage_limit`, `excess_mileage_rate`, `cancellation_policy`, `vehicle_photos`, `private_hire`, `licensing_authority`, `phv_plate_number`, `phv_expiry_date`, `hr_insurance_expiry`, `plate_certificate`, `hr_insurance_proof`, `short_term`, `long_term`, `rent_to_buy`, `short_term_minimum_term`, `short_term_maximum_term`, `short_term_pricing_cadence`, `short_term_weekly_price_wo_ins`, `short_term_weekly_price_w_ins`, `short_term_maintenance_included`, `short_term_deposit`, `short_term_excess_liability`, `short_term_early_return_fee`, `short_term_notice_period_to_return`, `long_term_billing_cycle`, `long_term_default_deposit`, `long_term_term_options`, `long_term_prices`, `long_term_excess_liability`, `long_term_vehicle_swap_allowed`, `long_term_early_termination_rules`, `rent_to_buy_term`, `rent_to_buy_billing_cycle`, `rent_to_buy_price_per_cycle`, `rent_to_buy_deposit_amount`, `rent_to_buy_balloon_payment`, `rent_to_buy_payment_break_weeks_year`, `rent_to_buy_mileage_allowance_per_cycle`, `rent_to_buy_excess_mileage_rate`, `rent_to_buy_insurance_included`, `rent_to_buy_maintenance_included`, `rent_to_buy_ev_incentive_included`, `rent_to_buy_ownership_transfer_notes`, `top_pick`, `ideal_for_family`, `pickup`, `dropup`, `free_cancellation`, `collision_damage_waiver`, `theft_protection`, `unlimited_mileage`, `vehicle_features`, `daily_rate_tax_incl`, `weekly_rate_tax_incl`, `monthly_rate_tax_incl`, `hourly_rate`, `hourly_rate_tax_incl`, `p2p_rate`, `p2p_transfer_rate_tax_including`, `airport_transfer_rate`, `airport_transfer_rate_tax_incl`, `long_transfer_rate`, `long_transfer_rate_tax_incl`, `event_hire_rate`, `event_hire_rate_tax_incl`, `chauffer_features1`, `chauffer_features2`, `chauffer_addons`, `chauffer_terms`) VALUES
+	("a05aed52-e6cd-4014-9ba8-1ae88d999b5a", NULL, "Lorem Ipsum", "Acura", 1, 10, "MDX", "Hatchback", "2024", "Black", "Automatic", 3, "HMFPK1782P", NULL, "aqz-KE-bpKQ", NULL, "asdfas asdfas dfasdfd", "ad fasdfadsfasfasfasdf sdfad", "[{\"title\":\"dsfsda\",\"price\":\"33\",\"description\":\"fsdf\",\"interval\":\"daily\"}]", "Lorem Ipsum De Generate", "HMFPK1782P", NULL, "HMFPK1782P", NULL, "Petrol", NULL, "<p>asdfsadf</p>", "[{\"level\":\"basic\",\"cover\":\"asdf\",\"cover_descr\":\"<p>aasdfadsfasdf<\\/p>\",\"daily_price\":\"343\",\"excess\":\"343\"}]", "<p>sdfsaf</p>", "<p>asfsadf</p>", "<p>sdfdsaf</p>", "<p>sfsdaf</p>", 5, 0, 0, 0, 1, 0, "4", 8, 400, "2025-11-14 12:38:11", "2025-12-12 09:16:39", "a05ac570-b1f0-4406-a583-2a12ed97c1de", NULL, NULL, NULL, NULL, "a060e33d-b592-4617-a50b-0b31f5db915f", NULL, NULL, NULL, NULL, NULL, "{\"name\":\"dsafasdf\",\"photo\":null,\"years_experience\":\"13\",\"special_skills\":\"Rider\",\"primary_language\":\"Chinese\",\"additional_languages\":\"Spanish\",\"area_expertise\":\"All around the world\",\"tour_guide_experience\":\"1 days\",\"driving_licenses\":\"L4WDL\",\"certifications\":\"Lorem Ipsum\",\"customer_reviews\":\"He is a psycho\",\"overall_rating\":\"1.5 \\/ 5\",\"work_hours\":\"24 x 7\",\"days_off\":\"0\",\"phone_number\":\"6969696969\",\"email_address\":\"hot_tub@yahoo.com\",\"working_hours\":\"I don\'t care\",\"driver_breaks\":\"I don\'t care\",\"accommodation\":\"I don\'t care\",\"food\":\"4 times a day\",\"toll_tax\":\"200% of ride\",\"dropoff_location\":\"Where ever I want\",\"miscellaneous\":\"Go to hell\"}", 44, 1, 7, 30, "[{\"rule_name\":\"asdf\",\"adjustment_type\":\"percentage_increase\",\"adjustment_value\":\"33\",\"start_date\":\"2025-11-15\",\"end_date\":\"2026-01-30\",\"status\":1}]", 1, "", "", "", "", "[\"https:\\/\\/animotor.ddev.site\\/storage\\/files\\/a060e33d-b592-4617-a50b-0b31f5db915f\\/1764577823_image-jpg.jpg\"]", 1, "Leeds City Council", "HMFPK1782P", "2025-11-14", "2026-04-14", "https://animotor.ddev.site/storage/files/9a9ede47-d4e9-4205-b546-c6437d4914f5/1763124007_Screenshot_20251111_175519.png", "https://animotor.ddev.site/storage/files/9a9ede47-d4e9-4205-b546-c6437d4914f5/1763124007_Screenshot_20251111_175519.png", 1, 1, 1, "4", NULL, NULL, "34", "33", 1, "3", "33", "33", "33", "weekly", "33", "[\"3m\",\"6m\",\"9m\"]", "{\"3m\":{\"price_wo_ins\":\"32\",\"price_w_ins\":\"33\",\"maintenance_included\":0,\"maintenance_type\":\"basic\",\"maintenance_price\":\"33\",\"mileage\":\"33\",\"excess_rate\":\"33\"},\"6m\":{\"price_wo_ins\":\"33\",\"price_w_ins\":\"34\",\"maintenance_type\":\"basic\",\"maintenance_price\":\"33\",\"mileage\":\"33\",\"excess_rate\":\"33\"},\"9m\":{\"price_wo_ins\":\"35\",\"price_w_ins\":\"36\",\"maintenance_type\":\"basic\",\"maintenance_price\":\"33\",\"mileage\":\"33\",\"excess_rate\":\"33\"}}", "333", 1, "Loerm pisdfdf", "3", "weekly", "33", "33", "33", "3", "33", "33", 1, 1, 1, "33adfadsfadsf", 1, 1, "[{\"location\":\"Jaipur\",\"latitude\":\"26.9124336\",\"longitude\":\"75.7872709\"},{\"location\":\"Alwar\",\"latitude\":\"27.5529907\",\"longitude\":\"76.6345735\"}]", "[{\"location\":\"Jaipur\",\"latitude\":\"26.9124336\",\"longitude\":\"75.7872709\"},{\"location\":\"Alwar\",\"latitude\":\"27.5529907\",\"longitude\":\"76.6345735\"}]", 1, 1, 1, 1, "[\"Air Conditioning\",\"Bluetooth\",\"GPS Navigation\"]", 1, 1, 1, 1, 1, 2, 1, 3, 1, 4, 1, 5, 1, "[\"abcd\",\"bcde\",\"cdef\"]", "[\"a\",\"b\",\"c\"]", "[{\"name\":\"A\",\"price\":\"5\"},{\"name\":\"B\",\"price\":\"4\"},{\"name\":\"C\",\"price\":\"3\"}]", "{\"minimum_hire\":\"A\",\"overtime\":\"B\",\"extra_mileage\":\"C\",\"chauffeur_standards\":\"E\",\"vehicle_policy\":\"F\",\"operator_compliance\":\"H\",\"cancellation\":\"I\",\"payment\":\"J\",\"waiting_time\":\"D\",\"insurance\":\"G\"}");
 
 /*!40000 ALTER TABLE `cars` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -548,6 +551,57 @@ CREATE TABLE `categories` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
+
+
+
+# Dump of table chauffeur_bookings
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `chauffeur_bookings`;
+
+CREATE TABLE `chauffeur_bookings` (
+  `id` char(36) NOT NULL,
+  `car_id` char(36) NOT NULL,
+  `user_id` char(36) NOT NULL,
+  `pickup_location` text NOT NULL,
+  `dropoff_location` text NOT NULL,
+  `stops` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`stops`)),
+  `pickup_date` date NOT NULL,
+  `pickup_time` time NOT NULL,
+  `trip_type` varchar(100) NOT NULL,
+  `trip_type_extra` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`trip_type_extra`)),
+  `passengers` int(10) NOT NULL,
+  `full_name` varchar(255) NOT NULL,
+  `phone_no` varchar(25) NOT NULL,
+  `email_addr` varchar(255) NOT NULL,
+  `company_name` varchar(255) DEFAULT NULL,
+  `special_reqs` varchar(255) DEFAULT NULL,
+  `addons` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`addons`)),
+  `car_snapshot` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`car_snapshot`)),
+  `trip_amount` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `addons_total` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `total_amount` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `status` varchar(255) NOT NULL,
+  `pg_status` varchar(255) NOT NULL,
+  `pg_tx_id` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `paid_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `car_id` (`car_id`),
+  KEY `user_id` (`user_id`),
+  KEY `status` (`status`),
+  KEY `pg_status` (`pg_status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+LOCK TABLES `chauffeur_bookings` WRITE;
+/*!40000 ALTER TABLE `chauffeur_bookings` DISABLE KEYS */;
+
+INSERT INTO `chauffeur_bookings` (`id`, `car_id`, `user_id`, `pickup_location`, `dropoff_location`, `stops`, `pickup_date`, `pickup_time`, `trip_type`, `trip_type_extra`, `passengers`, `full_name`, `phone_no`, `email_addr`, `company_name`, `special_reqs`, `addons`, `car_snapshot`, `trip_amount`, `addons_total`, `total_amount`, `status`, `pg_status`, `pg_tx_id`, `created_at`, `updated_at`, `paid_at`) VALUES
+	("d71cc828-bba6-4806-9c59-ca5122dcc299", "a05aed52-e6cd-4014-9ba8-1ae88d999b5a", "a090f697-b3e6-4ebe-942d-31883ad14b3b", "Cardiff Airport (CWL), Rhoose, Barry, UK", "Deansgate, Manchester, UK", "[]", "2025-12-26", "12:00:00", "airport", "{\"Direction\":\"a2c\",\"Flight\":\"BA444\",\"Terminal\":\"4\"}", 1, "Nijo Gas", "9828504030", "nijogas965@discounp.com", NULL, "\"sdfa asdf asdf\"", "[{\"name\":\"A\",\"price\":\"5\",\"count\":\"1\"},{\"name\":\"B\",\"price\":\"4\",\"count\":\"2\"}]", "{\"features1\":[\"abcd\",\"bcde\",\"cdef\"],\"features2\":[\"a\",\"b\",\"c\"],\"chauffer_terms\":{\"minimum_hire\":\"A\",\"overtime\":\"B\",\"extra_mileage\":\"C\",\"chauffeur_standards\":\"E\",\"vehicle_policy\":\"F\",\"operator_compliance\":\"H\",\"cancellation\":\"I\",\"payment\":\"J\",\"waiting_time\":\"D\",\"insurance\":\"G\"}}", 3, 13, 16, "pending", "Paid", "ch_3SdUvQIuZHxyg8RG2GLLqYPt", "2025-12-12 17:20:49", "2025-12-12 17:24:21", "2025-12-12 11:54:21");
+
+/*!40000 ALTER TABLE `chauffeur_bookings` ENABLE KEYS */;
+UNLOCK TABLES;
 
 
 
@@ -2961,7 +3015,8 @@ INSERT INTO `role_user` (`role_id`, `user_id`, `user_type`) VALUES
 	(3, "a0811d15-1be2-4f92-a5bf-3faf77a16c05", "App\\Models\\User"),
 	(3, "a0811efc-9b11-4786-a955-10aaf55c4710", "App\\Models\\User"),
 	(5, "a0831bcd-dd42-4aea-af87-c94467c55a72", "App\\Models\\User"),
-	(3, "a08ab5aa-c79f-4f96-9312-018adcb7d0c3", "App\\Models\\User");
+	(3, "a08ab5aa-c79f-4f96-9312-018adcb7d0c3", "App\\Models\\User"),
+	(3, "a090f697-b3e6-4ebe-942d-31883ad14b3b", "App\\Models\\User");
 
 /*!40000 ALTER TABLE `role_user` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -3443,7 +3498,8 @@ INSERT INTO `users` (`id`, `company_id`, `region_id`, `service_id`, `first_name`
 	("a0811d15-1be2-4f92-a5bf-3faf77a16c05", NULL, NULL, NULL, "Test", "User", NULL, "yopadot592@cexch.com", "5678876543", NULL, NULL, NULL, "India", NULL, "720279", "2025-12-03 12:23:11", "$2y$10$EMsvcKfpXPo5qvg1RRMTfOz8au3Qur4EsOw0ZUFnq0BJBHUXl.zqW", "unapproved", "Lorem Ipsum", "Jaipur", NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, "2025-12-03 12:13:11", "2025-12-03 12:13:11", NULL, NULL, NULL, "available", NULL, NULL, NULL, "34567", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 	("a0811efc-9b11-4786-a955-10aaf55c4710", NULL, NULL, NULL, "Test", "User", NULL, "yopadot593@cexch.com", "5678876543", NULL, NULL, NULL, "India", "2025-12-03 12:19:20", NULL, NULL, "$2y$10$BhiNdK8CqBcGZgiAjJ8WGOgWoW4VFH7B5JIzzmwDse8FmW4.Ye7Yy", "unapproved", "Lorem Ipsum", "Jaipur", NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, "2025-12-03 12:18:30", "2025-12-03 12:19:20", NULL, NULL, NULL, "available", NULL, NULL, NULL, "34567", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 	("a0831bcd-dd42-4aea-af87-c94467c55a72", "a0831bcd-c59f-48ba-b6a9-811931e56eea", NULL, NULL, "fwfd dfdf ddfdf", NULL, NULL, "asdf@afsdf.com", "2342343243", NULL, NULL, NULL, NULL, "2025-12-04 12:01:16", NULL, NULL, "$2y$10$ACjmjHvnH1dUFsI2RmYuSOqQcnARIQH7AICclVcSKzClyBjqAZfMS", "unapproved", NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, "2025-12-04 12:01:16", "2025-12-04 12:13:00", NULL, NULL, NULL, "available", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "7", 0, NULL),
-	("a08ab5aa-c79f-4f96-9312-018adcb7d0c3", NULL, NULL, NULL, "Test", "User", NULL, "ketopa4926@cexch.com", "9828504030", NULL, NULL, NULL, "India", "2025-12-08 06:47:57", NULL, NULL, "$2y$10$dUCo/tKGuw8kGLBBUyBeWuDD9hX.9q7nbWiJFkInA.GyWWlT6UOpK", "unapproved", "Lorem Ipsum", "Jaipur", NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, "2025-12-08 06:42:17", "2025-12-08 06:47:57", NULL, NULL, NULL, "available", NULL, NULL, NULL, "302006", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+	("a08ab5aa-c79f-4f96-9312-018adcb7d0c3", NULL, NULL, NULL, "Test", "User", NULL, "ketopa4926@cexch.com", "9828504030", NULL, NULL, NULL, "India", "2025-12-08 06:47:57", NULL, NULL, "$2y$10$dUCo/tKGuw8kGLBBUyBeWuDD9hX.9q7nbWiJFkInA.GyWWlT6UOpK", "unapproved", "Lorem Ipsum", "Jaipur", NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, "2025-12-08 06:42:17", "2025-12-08 06:47:57", NULL, NULL, NULL, "available", NULL, NULL, NULL, "302006", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+	("a090f697-b3e6-4ebe-942d-31883ad14b3b", NULL, NULL, NULL, "Nijo", "Gas", NULL, "nijogas965@discounp.com", "9828504030", NULL, NULL, NULL, "India", "2025-12-11 09:19:17", NULL, NULL, "$2y$10$DoaxYmouRA3SKdp6T7tJ1OnIANgmvRAcA8UOEuMZPsodpmhhOqINK", "unapproved", "397, Near Mamta School, Hasanpura", "Jaipur", NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, "2025-12-11 09:18:48", "2025-12-11 09:19:17", NULL, NULL, NULL, "available", NULL, NULL, NULL, "302006", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -4667,4 +4723,4 @@ UNLOCK TABLES;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 
-# Dump completed on 2025-12-10T17:47:43+05:30
+# Dump completed on 2025-12-12T17:34:10+05:30
