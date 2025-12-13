@@ -104,12 +104,8 @@ class FrontPageController extends Controller
         if (settings('enable_frontpage') != 'yes') {
             return redirect()->route('admin.dashboard');
         }
-        $page = Page::where('path', '/')->firstOrFail();
-        $contents = $page->contents;
-        //        if(strlen($contents) < 300){
-        //            return view('frontpage.builder', compact('contents','page'));
-        //        }
-        return view('frontpage.page', compact('contents', 'page'));
+
+        return view('frontpage.home');
     }
 
     public function builder()
@@ -948,7 +944,8 @@ class FrontPageController extends Controller
     public function chauffeurList(Request $request)
     {
         $query = $request->all();
-        $cars = Car::where('is_available', 1)->whereNotNull('driver->name')
+        $cars = Car::where('is_available', 1)
+            ->where('chauffeur', 1)
             ->when($request->filled('type'), function ($q) use ($request) {
                 $q->where('type', $request->get('type'));
             })

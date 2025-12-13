@@ -83,13 +83,13 @@
                     <div class="col-md-9">
                         <div class="row">
                             <!-- Image -->
-                            <div class="col-md-5">
+                            <div class="col-md-3">
                                 <img src="{{ $car->image }}" class="img-fluid rounded" style="width: 100%;" alt="">
                             </div>
 
                             <!-- Middle Content -->
-                            <div class="col-md-7">
-                                <span class="badge bg-warning text-dark mb-2">Executive Saloon</span>
+                            <div class="col-md-9">
+                                <span class="badge bg-warning text-dark mb-2">{{ $car->type }}</span>
                                 <h4 class="fw-bold">{{ $car->make }} {{ $car->model }}</h4>
                                 <p class="text-muted">{{ $car->year }}</p>
 

@@ -31,6 +31,10 @@ Route::get('test-email', function () {
     ]);
 })->name('test-email');
 
+Route::get('test-store', function(){
+   Artisan::call('view:clear'); 
+});
+
 Auth::routes();
 Route::match(['get', 'post'], '/register/verify', [RegisterController::class, 'verify'])->name('register.verify');
 Route::post('/register/resend', [RegisterController::class, 'resend'])->name('register.resend');

@@ -192,15 +192,19 @@
                                                             <th colspan="3">Insurance Coverage</th>
                                                         </tr>
                                                         @foreach($item->insurance_coverage as $index => $insurance_coverage)
+                                                            @php
+                                                                $policy = \App\Models\InsuranceCoverage::where('id', $insurance_coverage['policy_id'])->first();
+                                                                $policy_price = (isset($insurance_coverage['daily_price']) && $insurance_coverage['daily_price']) ? $insurance_coverage['daily_price'] : ($policy->daily_rate ?? 0);
+                                                            @endphp
                                                         <tr wire:key="{{ $index }}">
                                                             <th>
                                                                 {{ ucfirst($insurance_coverage['level'] ?? 'N/A') }}
                                                             </th>
                                                             <td>
-                                                                {{ amt($insurance_coverage['daily_price'] ?? 0) }}
+                                                                {{ amt($policy_price) }}
                                                             </td>
                                                             <td>
-                                                                {{ amt(($insurance_coverage['daily_price'] ?? 0) * ($commission_rate[$item->id] ?? 0) / 100) }}
+                                                                {{ amt($policy_price * ($commission_rate[$item->id] ?? 0) / 100) }}
                                                             </td>
                                                         </tr>
                                                         @endforeach
@@ -253,15 +257,19 @@
                                                             <th colspan="3">Insurance Coverage</th>
                                                         </tr>
                                                         @foreach($item->insurance_coverage as $index => $insurance_coverage)
+                                                        @php
+                                                                $policy = \App\Models\InsuranceCoverage::where('id', $insurance_coverage['policy_id'])->first();
+                                                                $policy_price = (isset($insurance_coverage['daily_price']) && $insurance_coverage['daily_price']) ? $insurance_coverage['daily_price'] : ($policy->daily_rate ?? 0);
+                                                            @endphp
                                                         <tr wire:key="{{ $index }}">
                                                             <th>
                                                                 {{ ucfirst($insurance_coverage['level'] ?? 'N/A') }}
                                                             </th>
                                                             <td>
-                                                                {{ amt(($insurance_coverage['daily_price'] ?? 0) * 7) }}
+                                                                {{ amt($policy_price) }}
                                                             </td>
                                                             <td>
-                                                                {{ amt(($insurance_coverage['daily_price'] ?? 0) * 7 * ($commission_rate[$item->id] ?? 0) / 100) }}
+                                                                {{ amt($policy_price * ($commission_rate[$item->id] ?? 0) / 100) }}
                                                             </td>
                                                         </tr>
                                                         @endforeach
@@ -314,15 +322,19 @@
                                                             <th colspan="3">Insurance Coverage</th>
                                                         </tr>
                                                         @foreach($item->insurance_coverage as $index => $insurance_coverage)
+                                                        @php
+                                                                $policy = \App\Models\InsuranceCoverage::where('id', $insurance_coverage['policy_id'])->first();
+                                                                $policy_price = (isset($insurance_coverage['daily_price']) && $insurance_coverage['daily_price']) ? $insurance_coverage['daily_price'] : ($policy->daily_rate ?? 0);
+                                                            @endphp
                                                         <tr wire:key="{{ $index }}">
                                                             <th>
                                                                 {{ ucfirst($insurance_coverage['level'] ?? 'N/A') }}
                                                             </th>
                                                             <td>
-                                                                {{ amt(($insurance_coverage['daily_price'] ?? 0) * 30) }}
+                                                                {{ amt($policy_price) }}
                                                             </td>
                                                             <td>
-                                                                {{ amt(($insurance_coverage['daily_price'] ?? 0) * 30 * ($commission_rate[$item->id] ?? 0) / 100) }}
+                                                                {{ amt($policy_price * ($commission_rate[$item->id] ?? 0) / 100) }}
                                                             </td>
                                                         </tr>
                                                         @endforeach

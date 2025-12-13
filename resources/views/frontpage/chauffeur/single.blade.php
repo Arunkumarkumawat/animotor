@@ -25,7 +25,7 @@
         }
 
         .thumb {
-            height: 70px;
+            height: 130px;
             object-fit: cover;
             border-radius: 8px;
             border: 2px solid transparent
@@ -89,7 +89,7 @@
                     <div class="row g-2">
                         @foreach ($car->vehicle_photos as $photo)
                             <div class="col-3">
-                                <img src="{{ $photo }}" class="thumb active w-100">
+                                <img src="{{ $photo }}" class="my-custom-slider thumb active w-100">
                             </div>
                         @endforeach
                     </div>
@@ -444,6 +444,10 @@
         .swal2-container.swal2-center.swal2-backdrop-show {
             z-index: 9999;
         }
+        
+        .my-custom-slider {
+            cursor:pointer;
+        }
     </style>
 
     <script>
@@ -540,3 +544,12 @@
         }
     </script>
 @endsection
+
+@push('scripts')
+<script>
+    jQuery('.my-custom-slider').on('click', function(){
+        const src = jQuery(this).attr('src');
+        jQuery('.main-img').attr('src', src);
+    })
+</script>
+@endpush

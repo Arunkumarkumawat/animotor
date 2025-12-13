@@ -77,7 +77,7 @@ class Form extends Component
     public array $extras = ['title' => '', 'price' => '', 'description' => '', 'interval' => ''];
     public ?array $insurance_coverage = [
         'level' => '',
-        'policy' => '',
+        'policy_id' => '',
         'cover' => '',
         'cover_descr' => '',
         'daily_price' => '',
@@ -356,27 +356,12 @@ class Form extends Component
             $company_id = $this->car->company_id;
             $user = User::where('company_id', $company_id)->first();
             $this->policies = InsuranceCoverage::where('policy_type', $this->insurance_coverage['level'])
-                ->where('company_id', $user ? $user->id : $company_id)
+                //->where('company_id', $user ? $user->id : $company_id)
                 ->where('status', 'Active')
+                ->where('policy_end_date', '>=', date('Y-m-d'))
                 ->get();
         }else{
             $this->policies = [];
-        }
-    }
-
-    public function selectPolicy($policy_id){
-        $this->insurance_coverage['policy'] = $policy_id;
-        $policy = InsuranceCoverage::where('id', $policy_id)->first();
-        if($policy){
-            $this->insurance_coverage['cover'] = $policy->cover;
-            $this->insurance_coverage['cover_descr'] = $policy->cover_descr;
-            $this->insurance_coverage['daily_price'] = $policy->daily_price;
-            $this->insurance_coverage['excess'] = $policy->excess;
-        } else {
-            $this->insurance_coverage['cover'] = '';
-            $this->insurance_coverage['cover_descr'] = '';
-            $this->insurance_coverage['daily_price'] = '';
-            $this->insurance_coverage['excess'] = '';
         }
     }
 
@@ -566,6 +551,32 @@ class Form extends Component
         $this->chauffer_features2 = $this->car->chauffer_features2 ?? [];
         $this->chauffer_addons = $this->car->chauffer_addons ?? [];
         $this->chauffer_terms = $this->car->chauffer_terms ?? [];
+        
+        $this->driver = [
+            'name' => $this->car->driver['name'] ?? null,
+            'photo' => $this->car->driver['photo'] ?? null,
+            'years_experience' => $this->car->driver['years_experience'] ?? null,
+            'special_skills' => $this->car->driver['special_skills'] ?? null,
+            'primary_language' => $this->car->driver['primary_language'] ?? null,
+            'additional_languages' => $this->car->driver['additional_languages'] ?? null,
+            'area_expertise' => $this->car->driver['area_expertise'] ?? null,
+            'tour_guide_experience' => $this->car->driver['tour_guide_experience'] ?? null,
+            'driving_licenses' => $this->car->driver['driving_licenses'] ?? null,
+            'certifications' => $this->car->driver['certifications'] ?? null,
+            'customer_reviews' => $this->car->driver['customer_reviews'] ?? null,
+            'overall_rating' => $this->car->driver['overall_rating'] ?? null,
+            'work_hours' => $this->car->driver['work_hours'] ?? null,
+            'days_off' => $this->car->driver['days_off'] ?? null,
+            'phone_number' => $this->car->driver['phone_number'] ?? null,
+            'email_address' => $this->car->driver['email_address'] ?? null,
+            'working_hours' => $this->car->driver['working_hours'] ?? null,
+            'driver_breaks' => $this->car->driver['driver_breaks'] ?? null,
+            'accommodation' => $this->car->driver['accommodation'] ?? null,
+            'food' => $this->car->driver['food'] ?? null,
+            'toll_tax' => $this->car->driver['toll_tax'] ?? null,
+            'dropoff_location' => $this->car->driver['dropoff_location'] ?? null,
+            'miscellaneous' => $this->car->driver['miscellaneous'] ?? null,
+        ];
         
         // Ensure step is valid when component mounts
         $this->ensureValidStep();
@@ -895,6 +906,7 @@ class Form extends Component
 
     public function updatePricing(){
         $this->car->update([
+            'chauffeur' => $this->chauffeur ?? 0,
             'daily_rate' => $this->daily_rate,
             'weekly_rate' => $this->weekly_rate,
             'monthly_rate' => $this->monthly_rate,
@@ -1276,19 +1288,21 @@ class Form extends Component
     public function addInsuranceCoverage()
     {
         $this->validate([
-            'insurance_coverage.level' => ['required'],
-            'insurance_coverage.cover' => ['required'],
-            'insurance_coverage.cover_descr' => ['required'],
-            'insurance_coverage.daily_price' => ['required', 'numeric'],
-            'insurance_coverage.excess' => ['required', 'numeric'],
+            'insurance_coverage.policy_id' => ['required'],
+            'insurance_coverage.level' => ['nullable'],
+            'insurance_coverage.cover' => ['nullable'],
+            'insurance_coverage.cover_descr' => ['nullable'],
+            'insurance_coverage.daily_price' => ['nullable', 'numeric'],
+            'insurance_coverage.excess' => ['nullable', 'numeric'],
         ]);
 
         $newData = [
+            'policy_id' => $this->insurance_coverage['policy_id'],
             'level' => $this->insurance_coverage['level'],
-            'cover' => $this->insurance_coverage['cover'],
-            'cover_descr' => $this->insurance_coverage['cover_descr'],
-            'daily_price' => $this->insurance_coverage['daily_price'],
-            'excess' => $this->insurance_coverage['excess'],
+            'cover' => isset($this->insurance_coverage['cover']) ? $this->insurance_coverage['cover'] : '',
+            'cover_descr' => isset($this->insurance_coverage['cover_descr']) ? $this->insurance_coverage['cover_descr'] : '',
+            'daily_price' => isset($this->insurance_coverage['daily_price']) ? $this->insurance_coverage['daily_price'] : '',
+            'excess' => isset($this->insurance_coverage['excess']) ? $this->insurance_coverage['excess'] : '',
         ];
 
         $data = $this->car->insurance_coverage ?? [];
@@ -1299,6 +1313,7 @@ class Form extends Component
         $this->successMsg();
 
         $this->insurance_coverage = [
+            'policy_id' => '',
             'level' => '',
             'cover' => '',
             'cover_descr' => '',
@@ -1349,12 +1364,18 @@ class Form extends Component
     {
 
         $validated = $this->validate([
-            'driver.file' => 'nullable|image|mimes:jpg,jpeg,png|max:5024',
+            'driver.photo' => 'nullable|image|mimes:jpg,jpeg,png|max:5024',
         ]);
+
+        if (isset($this->driver['photo'])) {
+            $uploadService = new FileUploadService();
+            $file = $uploadService->userFileUpload($this->driver['photo']);
+            $this->driver['photo'] = $file;
+        }
 
         $this->driver = [
             'name' => $this->driver['name'] ?? null,
-            'photo' => $validated ? $this->storeImageWithOriginalName($this->driver['photo'], 'files') : null,
+            'photo' => $this->driver['photo'] ?? null,
             'years_experience' => $this->driver['years_experience'] ?? null,
             'special_skills' => $this->driver['special_skills'] ?? null,
             'primary_language' => $this->driver['primary_language'] ?? null,

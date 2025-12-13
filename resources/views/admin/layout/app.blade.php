@@ -863,9 +863,12 @@
         <!-- main @e -->
     </div>
 
-
-
-
+    <style>
+        .select2-selection.select2-selection--single {
+            height: 50px;
+            padding-top: 9px;
+        }
+    </style>
 
     <script src="{{ asset('admin/assets/js/bundle.js?ver=3.1.1') }}"></script>
 

@@ -708,7 +708,8 @@
   };
   NioApp.Select2.init = function () {
     // NioApp.Select2('.select');
-    NioApp.Select2('.js-select2');
+    // NioApp.Select2();
+    jQuery('.js-select2').select2({})
   };
 
   // Slick Slider @v1.0.1

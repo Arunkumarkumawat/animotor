@@ -202,14 +202,17 @@ class Booking extends Component
                 $this->pick_up_location = $place;
                 $this->pickup_locations = [];
             }
+
+            $this->fetchPlaceDetails($place_id, $type);
         } else {
             $this->drop_off_location = $place;
             $this->drop_off_locations = [];
             $this->pick_up_location = $place;
             $this->pickup_locations = [];
+
+            $this->fetchPlaceDetails($place_id, 'pick_up');
+            $this->drop_off_location_id = $this->pick_up_location_id;
         }
-        
-        $this->fetchPlaceDetails($place_id, $type);
     }
 
 
@@ -317,6 +320,9 @@ class Booking extends Component
 
     public function render()
     {
+        if($this->has_request){
+            return view('livewire.booking_old');
+        }
         return view('livewire.booking');
     }
 }

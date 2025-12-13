@@ -205,4 +205,10 @@ class InsuranceCoverageController extends Controller
 
         return redirect()->route('admin.insurance-coverages.index')->with('success', 'Insurance coverage deleted successfully.');
     }
+    
+    public function show(Request $request, $id)
+    {
+        $policy = InsuranceCoverage::findOrFail($id);
+        return view('admin.insurance-coverages.show', compact('policy'));
+    }
 }

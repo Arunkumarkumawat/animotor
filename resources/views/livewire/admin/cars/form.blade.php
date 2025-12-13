@@ -3072,7 +3072,14 @@
                                             <tbody>
                                                 @foreach ($car->insurance_coverage ?? [] as $index => $insurance_coverage0)
                                                     <tr>
-                                                        <td>{{ $insurance_coverage0['level'] }}</td>
+                                                        <td>
+                                                            {{ $insurance_coverage0['level'] }}
+                                                            @if(isset($insurance_coverage0['policy_id']))
+                                                            <button type="button" class="btn btn-link" onclick="showPolicyDetails('{{ route('admin.insurance-coverages.show', $insurance_coverage0['policy_id']) }}')">
+                                                                View Policy
+                                                            </button>
+                                                            @endif
+                                                        </td>
                                                         <td>
                                                             <div class="btn-group">
                                                                 <button type="button" class="btn btn-link"
@@ -3121,8 +3128,7 @@
                                             </div>
                                             <div class="form-group">
                                                 <select class="form-control form-control-lg select2"
-                                                    wire:model="insurance_coverage.policy"
-                                                    wire:change="selectPolicy(this.value)">
+                                                    wire:model="insurance_coverage.policy_id">
                                                     <option value="">Select Policy</option>
                                                     @foreach ($policies as $policy)
                                                         <option value="{{ $policy->id }}">
@@ -3774,6 +3780,35 @@
                                         data-bs-dismiss="modal">Close</button>
                                     <button type="button" class="btn btn-primary"
                                         wire:click="saveChaufferTerms()">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Modal -->
+                    <div class="modal fade" id="policy_show_modal" tabindex="-1" role="dialog"
+                        aria-labelledby="exampleModalLabel" aria-hidden="true" wire:ignore.self>
+                        <script>
+                            function showPolicyDetails(route){
+                                jQuery('#policy_details_iframe').attr('src', route);
+                                jQuery('#policy_show_modal').modal('show');
+                            }
+                        </script>
+                        <div class="modal-dialog modal-xl" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Policy Details</h5>
+                                    <button type="button" class="close" data-bs-dismiss="modal"
+                                        aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <iframe id="policy_details_iframe" style="height:400px;border:none;padding:0;margin:0;width:100%;"></iframe>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Close</button>
                                 </div>
                             </div>
                         </div>

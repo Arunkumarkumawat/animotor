@@ -216,6 +216,7 @@ trait FillableTraits
         'long_distance_rate_tax_incl',
         'event_hire_rate_tax_incl',
 
+        'chauffeur',
         'chauffer_features1',
         'chauffer_features2',
         'chauffer_addons',
