@@ -70,6 +70,24 @@
             object-fit: cover
         }
     </style>
+    <style>
+        .driver-photo {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 3px solid #dee2e6;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #6c757d;
+        }
+
+        .rating-badge {
+            font-size: 0.9rem;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -96,7 +114,7 @@
                 </div>
                 <!-- CAR INFO -->
                 <div class="card p-3 mt-4">
-                    <span class="badge-exe mb-2 d-inline-block">Executive Saloon</span>
+                    <span class="badge-exe mb-2 d-inline-block">{{ $car->type }}</span>
                     <div class="d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">{{ $car->title }}</h5>
                         <div>
@@ -106,16 +124,19 @@
                     </div>
 
                     <ul class="nav nav-tabs mt-3 w-100">
-                        <li class="nav-item flex-fill text-center"><a class="nav-link active" data-bs-toggle="tab" href="#f">Features</a>
+                        <li class="nav-item flex-fill text-center"><a class="nav-link active" data-bs-toggle="tab"
+                                href="#f">Features</a>
                         </li>
-                        <li class="nav-item flex-fill text-center"><a class="nav-link" data-bs-toggle="tab" href="#a">Addons</a></li>
-                        <li class="nav-item flex-fill text-center"><a class="nav-link" data-bs-toggle="tab" href="#s">Specifications</a></li>
+                        <li class="nav-item flex-fill text-center"><a class="nav-link" data-bs-toggle="tab"
+                                href="#a">Addons</a></li>
+                        <li class="nav-item flex-fill text-center"><a class="nav-link" data-bs-toggle="tab"
+                                href="#s">Specifications</a></li>
                     </ul>
 
                     <div class="tab-content pt-3">
                         <div id="f" class="tab-pane fade show active">
                             <div class="row">
-                                @foreach($car->chauffer_features1 ?? [] as $feature)
+                                @foreach ($car->chauffer_features1 ?? [] as $feature)
                                     <div class="col-md-4 px-4">
                                         <i class="fa fa-check-circle text-success"></i>
                                         {{ $feature }}
@@ -224,10 +245,12 @@
                     <div class="d-flex">
                         <div>
                             <img src="{{ isset($car->driver['photo']) ? $car->driver['photo'] : 'https://placehold.co/600x400' }}"
-                            class="avatar me-3" style="min-width:100px; height:100px; object-fit:cover">
+                                class="avatar me-3" style="min-width:100px; height:100px; object-fit:cover">
                         </div>
                         <div>
-                            <strong class="mb-2">{{ isset($car->driver['name']) ? $car->driver['name'] : '-' }}</strong>
+                            <a href="javascript:void(0)" class="text-primary" data-bs-toggle="modal" data-bs-target="#driverModal"><strong class="mb-2">
+                                {{ isset($car->driver['name']) ? $car->driver['name'] : '-' }}
+                            </strong></a>
                             <span class="badge bg-success ms-2">Licensed</span>
                             <p class="small mb-1">⭐
                                 {{ isset($car->driver['overall_rating']) ? $car->driver['overall_rating'] : '0/5' }}</p>
@@ -293,7 +316,7 @@
                     <hr>
 
                     <ul class="small">
-                        @foreach($car->chauffer_features2 ?? [] as $feature)
+                        @foreach ($car->chauffer_features2 ?? [] as $feature)
                             <li>✓ {{ $feature }}</li>
                         @endforeach
                     </ul>
@@ -304,8 +327,9 @@
                             <button type="button" onclick="redirectMe()" class="btn btn-info btn-book w-100 text-white"
                                 onclick="">Select Package & Continue</button>
                         @else
-                            <button type="button" data-bs-toggle="modal" data-bs-target="#loginModal" class="btn btn-info btn-book w-100 text-white"
-                                onclick="">Select Package & Continue</button>
+                            <button type="button" data-bs-toggle="modal" data-bs-target="#loginModal"
+                                class="btn btn-info btn-book w-100 text-white" onclick="">Select Package &
+                                Continue</button>
                         @endauth
                         <br>
                     </div>
@@ -315,6 +339,107 @@
             </div>
         </div>
     </div>
+
+    @if($car->driver)
+    <div class="modal fade" id="driverModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+
+                <!-- Header -->
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-id-card me-2"></i>Driver Details
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Body -->
+                <div class="modal-body">
+
+                    <!-- Profile -->
+                    <div class="d-flex align-items-center mb-4">
+                        <img src="{{ $car->driver['photo'] ?? '' }}"
+                            class="driver-photo me-3" alt="Driver Photo">
+
+                        <div>
+                            <h4 class="mb-1">{{ $car->driver['name'] ?? '' }}</h4>
+                            <span class="badge bg-warning text-dark rating-badge">
+                                ⭐ {{ $car->driver['overall_rating'] ?? '' }}
+                            </span>
+                            <div class="text-muted mt-1">
+                                <i class="fas fa-briefcase me-1"></i>{{ $car->driver['years_experience'] ?? '' }} Years Experience
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Details Grid -->
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <div><span class="info-label">Special Skills:</span> {{ $car->driver['special_skills'] ?? '' }}</div>
+                            <div><span class="info-label">Primary Language:</span> {{ $car->driver['primary_language'] ?? '' }}</div>
+                            <div><span class="info-label">Additional Languages:</span> {{ $car->driver['additional_languages'] ?? '' }}</div>
+                            <div><span class="info-label">Area Expertise:</span> {{ $car->driver['area_expertise'] ?? '' }}</div>
+                            <div><span class="info-label">Tour Guide Experience:</span> {{ $car->driver['tour_guide_experience'] ?? '' }}</div>
+                            <div><span class="info-label">Driving Licenses:</span> {{ $car->driver['driving_licenses'] ?? '' }}</div>
+                            <div><span class="info-label">Certifications:</span> {{ $car->driver['certifications'] ?? '' }}</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div><span class="info-label">Work Hours:</span> {{ $car->driver['work_hours'] ?? '' }}</div>
+                            <div><span class="info-label">Days Off:</span> {{ $car->driver['days_off'] ?? '' }}</div>
+                            <div><span class="info-label">Working Hours:</span> {{ $car->driver['working_hours'] ?? '' }}</div>
+                            <div><span class="info-label">Driver Breaks:</span> {{ $car->driver['driver_breaks'] ?? '' }}</div>
+                            <div><span class="info-label">Accommodation:</span> {{ $car->driver['accommodation'] ?? '' }}</div>
+                            <div><span class="info-label">Food:</span> {{ $car->driver['food'] ?? '' }}</div>
+                        </div>
+
+                    </div>
+
+                    <hr>
+
+                    <!-- Contact -->
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <i class="fas fa-phone-alt me-2 text-primary"></i>
+                            {{ $car->driver['phone_number'] ?? '' }}
+                        </div>
+                        <div class="col-md-6">
+                            <i class="fas fa-envelope me-2 text-primary"></i>
+                            {{ $car->driver['email_address'] ?? '' }}
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Other Info -->
+                    <div class="mb-2">
+                        <span class="info-label">Toll & Tax:</span> {{ $car->driver['toll_tax'] ?? '' }}
+                    </div>
+                    <div class="mb-2">
+                        <span class="info-label">Drop-off Location:</span> {{ $car->driver['dropoff_location'] ?? '' }}
+                    </div>
+                    <div class="mb-2">
+                        <span class="info-label">Customer Review:</span>
+                        <span class="text-danger">{{ $car->driver['customer_reviews'] ?? '' }}</span>
+                    </div>
+                    <div class="mb-2">
+                        <span class="info-label">Miscellaneous:</span> {{ $car->driver['miscellaneous'] ?? '' }}
+                    </div>
+
+                </div>
+
+                <!-- Footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Close
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    @endif
 
     <!-- Modal -->
     <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
@@ -327,7 +452,8 @@
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register"
-                            type="button" role="tab" aria-controls="register" aria-selected="false">Register</button>
+                            type="button" role="tab" aria-controls="register"
+                            aria-selected="false">Register</button>
                     </li>
                 </ul>
                 <div class="tab-content" id="myTabContent">
@@ -444,14 +570,14 @@
         .swal2-container.swal2-center.swal2-backdrop-show {
             z-index: 9999;
         }
-        
+
         .my-custom-slider {
-            cursor:pointer;
+            cursor: pointer;
         }
     </style>
 
     <script>
-        function continueToCheckout(){
+        function continueToCheckout() {
             const params = new URLSearchParams();
 
             @foreach ($query as $key => $value)
@@ -463,7 +589,7 @@
                 return;
             }
 
-            params.append('package', package);            
+            params.append('package', package);
             window.location = '{{ route('frontpage.chauffeur.details', $car->id) }}?' + params.toString();
         }
 
@@ -546,10 +672,10 @@
 @endsection
 
 @push('scripts')
-<script>
-    jQuery('.my-custom-slider').on('click', function(){
-        const src = jQuery(this).attr('src');
-        jQuery('.main-img').attr('src', src);
-    })
-</script>
+    <script>
+        jQuery('.my-custom-slider').on('click', function() {
+            const src = jQuery(this).attr('src');
+            jQuery('.main-img').attr('src', src);
+        })
+    </script>
 @endpush

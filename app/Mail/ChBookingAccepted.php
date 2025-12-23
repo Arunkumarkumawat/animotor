@@ -10,7 +10,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class ChBookingConfirmed extends Mailable
+class ChBookingAccepted extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -37,9 +37,10 @@ class ChBookingConfirmed extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.ch_booking_confirmed',
+            view: 'emails.chauffeur.booking_confirmed',
             with: [
                 'booking' => $this->booking,
+                'car' => $this->booking->car,
             ]
         );
     }

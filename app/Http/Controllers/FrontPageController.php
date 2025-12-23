@@ -18,9 +18,10 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use App\Services\WalletService;
-use App\Mail\ChBookingConfirmed;
+use App\Mail\ChBookingRequested;
 use App\Mail\PhBookingConfirmed;
 use App\Services\PaymentService;
+use App\Models\InsuranceCoverage;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -249,12 +250,6 @@ class FrontPageController extends Controller
         $car->tax = 0; //$car->total0 * settings('tax',0.075);
         $car->total = $car->total0 + $car->tax;
 
-        $insurance_fee = 0;
-        foreach ($car->insurance_coverage as $coverage) {
-            $insurance_fee += $coverage['daily_price'] * $booking_day;
-        }
-        $car->insurance_fee = $insurance_fee;
-
         return view('frontpage.deal', compact('car'));
     }
 
@@ -285,15 +280,6 @@ class FrontPageController extends Controller
         $car->total0 = $price * $car->booking_day;
         $car->tax = 0; //$car->total0 * settings('tax',0.075);
         $car->total = $car->total0 + $car->tax;
-
-        $insurance_fee = 0;
-        foreach ($car->insurance_coverage as $index => $coverage) {
-            if ($request->get('insurance_id') == $index) {
-                $insurance_fee = $coverage['daily_price'] * $booking_day;
-                break;
-            }
-        }
-        $car->insurance_fee = $insurance_fee;
 
         $extras = $request->get('extras');
         $extra_fee = 0;
@@ -364,7 +350,8 @@ class FrontPageController extends Controller
         $insurance_fee = 0;
         foreach ($car->insurance_coverage as $index => $coverage) {
             if ($request->get('insurance_id') == $index) {
-                $insurance_fee = $coverage['daily_price'] * $booking_day;
+                $policy = InsuranceCoverage::where('id', $coverage['policy_id'])->first();
+                $insurance_fee = ($coverage['daily_price'] ? $coverage['daily_price'] : $policy->daily_rate) * $booking_day;
                 break;
             }
         }
@@ -1102,7 +1089,8 @@ class FrontPageController extends Controller
                     'paid_at' => now(),
                 ]);
 
-                Mail::to($booking->email_addr)->send(new ChBookingConfirmed($booking));
+                Mail::to($booking->email_addr)->send(new ChBookingRequested($booking));
+                Mail::to(settings('contact_email'))->send(new ChBookingRequested($booking));
 
                 return response()->json([
                     'status' => true,

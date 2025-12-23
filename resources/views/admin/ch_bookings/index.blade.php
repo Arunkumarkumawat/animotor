@@ -1,4 +1,5 @@
 @extends('admin.layout.app')
+
 @section('content')
     <div class="nk-content ">
         <div class="container-fluid">
@@ -9,7 +10,7 @@
                             <div class="nk-block-head">
                                 <div class="nk-block-between">
                                     <div class="nk-block-head-content">
-                                        <h4 class="nk-block-title">All Private Hire Bookings</h4>
+                                        <h4 class="nk-block-title">All Chauffeur Bookings</h4>
                                     </div>
                                 </div>
                             </div>
@@ -24,14 +25,13 @@
                                                     <tr>
                                                         <th>User</th>
                                                         <th>Car</th>
-                                                        <th>Hire Type</th>
-                                                        <th>Insurance</th>
-                                                        <th>Term</th>
-                                                        <th>Start Date</th>
-                                                        <th>End Date</th>
-                                                        <th>Deposit Paid</th>
-                                                        <th>Rate Paid</th>
-                                                        <th>Extra Paid</th>
+                                                        <th>Trip Type</th>
+                                                        <th>Pickup</th>
+                                                        <th>Dropoff</th>
+                                                        <th>Pickup Date</th>
+                                                        <th>Passengers</th>
+                                                        <th>Trip Amount</th>
+                                                        <th>Extras Paid</th>
                                                         <th>Total</th>
                                                         <th>Payment Status</th>
                                                         <th>Booking Status</th>
@@ -49,24 +49,23 @@
                                                                 @endif
                                                             </td>
                                                             <td>{{ $item->car ? $item->car->title : 'N/A' }}</td>
-                                                            <td>{{ ucwords(str_replace('_', ' ', $item->term)) }}</td>
-                                                            <td>{{ $item->insurance == 'w' ? 'Yes' : 'No' }}</td>
-                                                            <td>{{ $item->term_count }} {{ $item->term_period }}</td>
-                                                            <td>{{ $item->start_date }}</td>
-                                                            <td>{{ $item->expected_end_date }}</td>
-                                                            <td>{{ amt($item->deposit_paid) }}</td>
-                                                            <td>{{ amt($item->rate_paid) }}</td>
-                                                            <td>{{ amt($item->extras_paid) }}</td>
-                                                            <td>{{ amt($item->total_paid) }}</td>
+                                                            <td>{{ strtoupper($item->trip_type) }}</td>
+                                                            <td>{{ $item->pickup_location }}</td>
+                                                            <td>{{ $item->dropoff_location }}</td>
+                                                            <td>{{ $item->pickup_date }} {{ $item->pickup_time }}</td>
+                                                            <td>{{ $item->passengers }}</td>
+                                                            <td>{{ amt($item->trip_amount) }}</td>
+                                                            <td>{{ amt($item->addons_total) }}</td>
+                                                            <td>{{ amt($item->total_amount) }}</td>
                                                             <td>{{ $item->pg_status }}</td>
-                                                            <td>{{ $item->booking_status }}</td>
+                                                            <td>{{ $item->status }}</td>
                                                             <td>
                                                                 <div class="btn-group">
                                                                     <button type="button" class="btn btn-sm btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                                                                         Actions
                                                                     </button>
                                                                     <ul class="dropdown-menu">
-                                                                        <li><a class="dropdown-item" href="#">View</a></li>
+                                                                        <li><a class="dropdown-item" href="{{ route('admin.ch_bookings.show', $item->id) }}">View</a></li>
                                                                         <li><a class="dropdown-item" href="#">Delete</a></li>
                                                                     </ul>
                                                                 </div>

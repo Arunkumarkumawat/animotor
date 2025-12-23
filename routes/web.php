@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\User;
 use App\Models\Booking;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -30,10 +29,6 @@ Route::get('test-email', function () {
         'booking' => Booking::latest()->first()
     ]);
 })->name('test-email');
-
-Route::get('test-store', function(){
-   Artisan::call('view:clear'); 
-});
 
 Auth::routes();
 Route::match(['get', 'post'], '/register/verify', [RegisterController::class, 'verify'])->name('register.verify');
@@ -104,6 +99,7 @@ Route::get('/chauffeur/extras/{id}', [FrontPageController::class, 'chauffeurExtr
 Route::match(['get','post'], '/chauffeur/details/{id}', [FrontPageController::class, 'chauffeurDetails'])->name('frontpage.chauffeur.details');
 Route::match(['get','post'], 'chauffeur/payment/{id}', [FrontPageController::class, 'chauffeurPayment'])->name('frontpage.chauffeur.payment');
 Route::get('/chauffeur/confirmation/{id}', [FrontPageController::class, 'chauffeurBookingConfirmed'])->name('frontpage.chauffeur.confirmation');
+Route::get('/chauffeur/invoice/{id}', [FrontPageController::class, 'chauffeurInvoice'])->name('frontpage.chauffeur.invoice');
 
 Route::get('test/email', function () {
     return view('emails.account_notify');

@@ -345,7 +345,21 @@
 
             $menuArray[] = [
                 'url' => route('admin.bookings.index'),
-                'text' => 'Car Bookings',
+                'text' => 'Standard Bookings',
+                'route' => 'bookings-index',
+                'icon' => 'ni ni-calendar-booking',
+            ];
+
+            $menuArray[] = [
+                'url' => route('admin.ch_bookings.index'),
+                'text' => 'Chauffeur Bookings',
+                'route' => 'bookings-index',
+                'icon' => 'ni ni-calendar-booking',
+            ];
+
+            $menuArray[] = [
+                'url' => route('admin.ph_bookings.index'),
+                'text' => 'Private Hire Bookings',
                 'route' => 'bookings-index',
                 'icon' => 'ni ni-calendar-booking',
             ];

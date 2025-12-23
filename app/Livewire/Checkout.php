@@ -9,6 +9,7 @@ use App\Models\Booking;
 use App\Models\Country;
 use Livewire\Component;
 use App\Mail\EmailOtpMail;
+use App\Models\InsuranceCoverage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -179,9 +180,10 @@ class Checkout extends Component
         $total += $extra_fee;
         
         $insurance_fee = 0;
-        foreach($this->car->insurance_coverage as $index => $coverage){
+        foreach ($this->car->insurance_coverage as $index => $coverage) {
             if(isset($params['insurance_id']) && $params['insurance_id'] == $index){
-                $insurance_fee = $coverage['daily_price'] * $booking_day;
+                $policy = InsuranceCoverage::where('id', $coverage['policy_id'])->first();
+                $insurance_fee = ($coverage['daily_price'] ? $coverage['daily_price'] : $policy->daily_rate) * $booking_day;
                 break;
             }
         }

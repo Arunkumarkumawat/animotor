@@ -1,6 +1,6 @@
 <!-- Preheader -->
 <span style="display:none; font-size:1px; color:#ffffff; line-height:1px; max-height:0; max-width:0; opacity:0; overflow:hidden;">
-  Refund action is required for booking {{booking_id}}.
+  Refund action is required for booking {{ $booking->id }}.
 </span>
 
 <!doctype html>
@@ -8,7 +8,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Refund Required – {{booking_id}}</title>
+  <title>Refund Required – {{ $booking->id }}</title>
 </head>
 
 <body style="margin:0; padding:0; background:#f3f5f7; font-family:-apple-system, BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif; color:#333;">
@@ -26,7 +26,7 @@
         <tr>
           <td>
             <h1 style="margin:0; font-size:20px; font-weight:700; color:#ffffff;">
-              ANI Motors
+              {{ settings('site_name') }}
             </h1>
             <div style="margin-top:6px; font-size:13px; color:#e8f3ff;">
               Refund action required
@@ -60,17 +60,17 @@
              style="background:#f8f9fb; border-radius:10px; padding:16px; margin-bottom:22px;">
         <tr>
           <td style="padding:6px 8px; font-size:14px; color:#444;">
-            <strong>Booking ID:</strong> {{booking_id}}<br>
-            <strong>Customer:</strong> {{customer_name}}<br>
-            <strong>Amount:</strong> {{refund_amount}}<br>
-            <strong>Reason:</strong> {{refund_reason}}
+            <strong>Booking ID:</strong> {{ $booking->id }}<br>
+            <strong>Customer:</strong> {{ $booking->customer->name }}<br>
+            <strong>Amount:</strong> {{ $booking->refund_amount }}<br>
+            <strong>Reason:</strong> {{ $booking->refund_reason }}
           </td>
         </tr>
       </table>
 
       <!-- CTA -->
       <div style="text-align:center; margin:28px 0 10px;">
-        <a href="{{admin_booking_link}}" 
+        <a href="#" 
            style="display:inline-block; background:#0b6efd; color:#ffffff; text-decoration:none; 
                   padding:12px 22px; border-radius:8px; font-size:14px; font-weight:600;">
           Open Booking
@@ -87,8 +87,8 @@
       <table width="100%" cellpadding="0" cellspacing="0">
         <tr>
           <td>
-            <div style="font-weight:600; color:#2b2f36;">ANI Motors</div>
-            <div style="margin-top:6px;">Booking ID: {{booking_id}}</div>
+            <div style="font-weight:600; color:#2b2f36;">{{ settings('site_name') }}</div>
+            <div style="margin-top:6px;">Booking ID: {{ $booking->id }}</div>
           </td>
           <td style="text-align:right; color:#98a0aa; font-size:12px;">
             Admin Notification

@@ -98,6 +98,9 @@
                                             @endphp
 
                                             @foreach($insurance_data as $index => $coverage)
+                                                @php
+                                                    $policy = \App\Models\InsuranceCoverage::where('id', $coverage['policy_id'])->first();
+                                                @endphp
                                                 <div class="row border-bottom py-4">
                                                     <div class="col-2">
                                                         <h6>{{ ucfirst($coverage['level']) }}</h6>
@@ -106,21 +109,29 @@
                                                         <div class="text-center">
                                                             <div class="btn-group">
                                                                 <button type="button" class="btn btn-link" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none;">
-                                                                    {{ $coverage['cover'] }}
+                                                                    {{ $coverage['cover'] ? $coverage['cover'] : 'Coverage Info' }}
                                                                 </button>
-                                                                @if( isset($coverage['cover_descr']) )
                                                                 <div class="dropdown-menu dropdown-menu-start" style="min-width: 400px; max-height:400px; overflow-y:auto; padding: 10px;">
-                                                                    {!! $coverage['cover_descr'] !!}
+                                                                    @if( $coverage['cover_descr'] )
+                                                                        {!! $coverage['cover_descr'] !!}
+                                                                    @else
+                                                                        @foreach(json_decode($policy->coverage_matrix ?? '[]', true) as $item)
+                                                                            @if($item['status'] == 'covered')
+                                                                                <p style="color:green;">&#10003; {{ $item['name'] }}</p>
+                                                                            @elseif($item['status'] == 'partial')
+                                                                                <p style="color:green;">&#10003; {{ $item['name'] }} (Partially)</p>
+                                                                            @endif
+                                                                        @endforeach
+                                                                    @endif
                                                                 </div>
-                                                                @endif
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <div class="col-2 text-center">
-                                                        <p style="margin-top:5px;">{{ amt($coverage['daily_price']) }}</p>
+                                                        <p style="margin-top:5px;">{{ amt($coverage['daily_price'] ? $coverage['daily_price'] : $policy->daily_rate) }}</p>
                                                     </div>
                                                     <div class="col-2 text-center">
-                                                        <p style="margin-top:5px;">{{ amt($coverage['excess']) }}</p>
+                                                        <p style="margin-top:5px;">{{ amt($coverage['excess'] ? $coverage['excess'] : $policy->excess) }}</p>
                                                     </div>
                                                     <div class="col-2">
                                                         <a href="{{ url('checkout') }}?{{ http_build_query(['book_type' => 'with_full_protection', 'insurance_id' => $index] + request()->query()) }}" class="cmn__btn" style="padding:5px 14px; font-size:16px;">
@@ -131,7 +142,7 @@
                                                     </div>
                                                 </div>
                                                 @php
-                                                    $total_price += $coverage['daily_price'];
+                                                    $total_price += ($coverage['daily_price'] ? $coverage['daily_price'] : $policy->daily_rate);
                                                 @endphp
                                             @endforeach
                                         </div>

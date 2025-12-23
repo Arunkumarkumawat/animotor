@@ -1,6 +1,6 @@
 <!-- Preheader (hidden) -->
 <span style="display:none; font-size:1px; color:#ffffff; line-height:1px; max-height:0; max-width:0; opacity:0; overflow:hidden;">
-  Your refund for booking {{booking_id}} has been processed.
+  Your booking {{ $booking->id }} has been cancelled.
 </span>
 
 <!doctype html>
@@ -8,7 +8,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Refund Processed – {{booking_id}}</title>
+  <title>Booking Cancelled – {{ $booking->id }}</title>
 </head>
 
 <body style="margin:0; padding:0; background:#f3f5f7; font-family:-apple-system, BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif; color:#333;">
@@ -26,15 +26,15 @@
                 <tr>
                   <td>
                     <h1 style="margin:0; font-size:20px; font-weight:700; color:#ffffff;">
-                      ANI Motors
+                      {{ settings('site_name') }}
                     </h1>
                     <div style="margin-top:6px; font-size:13px; color:#e8f3ff;">
-                      Your refund has been processed
+                      Booking cancelled
                     </div>
                   </td>
                   <td style="text-align:right; vertical-align:middle;">
                     <div style="width:48px; height:48px; border-radius:8px; background:rgba(255,255,255,0.14); display:inline-block; line-height:48px; text-align:center; font-size:20px;">
-                      💸
+                      ❌
                     </div>
                   </td>
                 </tr>
@@ -42,26 +42,24 @@
             </td>
           </tr>
 
-          <!-- BODY CONTENT -->
+          <!-- BODY -->
           <tr>
             <td style="padding:24px 28px 12px;">
 
               <p style="margin:0 0 14px; font-size:15px;">
-                Hello <strong>{{customer_name}}</strong>,
+                Hello <strong>{{ $booking->full_name }}</strong>,
               </p>
 
               <p style="margin:0 0 18px; font-size:15px;">
-                Your refund has been successfully processed.
+                Your booking <strong>{{ $booking->id }}</strong> has been cancelled.
               </p>
 
               <!-- Info Card -->
               <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:#f8f9fb; border-radius:10px; padding:16px; margin-bottom:20px;">
                 <tr>
                   <td style="padding:6px 8px; font-size:14px; color:#444;">
-                    <strong>Booking ID:</strong> {{booking_id}}<br>
-                    <strong>Refund amount:</strong> {{refund_amount}}<br>
-                    <strong>Reference:</strong> {{refund_reference}}
-                  </td>
+                    <strong>Reason:</strong> {{ $booking->cancellation_reason }}<br>
+                    <strong>Refund status:</strong> {{ $booking->refund_status }}                  </td>
                 </tr>
               </table>
 
@@ -74,11 +72,11 @@
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td>
-                    <div style="font-weight:600; color:#2b2f36;">ANI Motors</div>
-                    <div style="margin-top:6px;">Booking ID: {{booking_id}}</div>
+                    <div style="font-weight:600; color:#2b2f36;">{{ settings('site_name') }}</div>
+                    <div style="margin-top:6px;">Booking ID: {{ $booking->id }}</div>
                   </td>
                   <td style="text-align:right; color:#98a0aa; font-size:12px;">
-                    Refund Confirmation
+                    {{ isset($car->driver['cancellation']) ? $car->driver['cancellation'] : '' }}
                   </td>
                 </tr>
               </table>
@@ -87,11 +85,11 @@
 
         </table>
 
-        <!-- SMALL PRINT -->
+        <!-- Small print -->
         <table width="700" cellpadding="0" cellspacing="0" style="max-width:700px; width:100%; margin-top:10px;">
           <tr>
             <td style="text-align:center; font-size:12px; color:#9aa2ab; padding:6px 12px;">
-              Refund will reflect in your account based on your bank's processing time.
+              If you believe this was a mistake, please contact support.
             </td>
           </tr>
         </table>

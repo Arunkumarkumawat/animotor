@@ -1,6 +1,6 @@
 <!-- Preheader (hidden) -->
 <span style="display:none; font-size:1px; color:#ffffff; line-height:1px; max-height:0; max-width:0; opacity:0; overflow:hidden;">
-  Your trip is completed and your invoice is ready — Booking ID {{booking_id}}.
+  Your chauffeur is on the way — Booking ID {{ $booking->id }}.
 </span>
 
 <!doctype html>
@@ -8,12 +8,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Trip Completed – Invoice Available – {{booking_id}}</title>
+  <title>Your Chauffeur is On the Way – {{ $booking->id }}</title>
 </head>
 
-<body style="margin:0; padding:0; background:#f3f5f7; font-family:-apple-system, BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif; color:#333;">
+<body style="margin:0; padding:0; background-color:#f3f5f7; font-family:-apple-system, BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif; color:#333333;">
 
-  <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:#f3f5f7; padding:24px 12px;">
+  <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color:#f3f5f7; padding:24px 12px;">
     <tr>
       <td align="center">
 
@@ -21,20 +21,20 @@
 
           <!-- HEADER -->
           <tr>
-            <td style="padding:22px 28px; background:linear-gradient(90deg,#0b6efd 0%, #0b9efd 100%); color:#ffffff;">
+            <td style="padding:22px 28px; background:linear-gradient(90deg,#0b6efd 0%,#0b9efd 100%); color:#ffffff;">
               <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
                 <tr>
                   <td>
                     <h1 style="margin:0; font-size:20px; font-weight:700; color:#ffffff;">
-                      ANI Motors
+                      {{ settings('site_name') }}
                     </h1>
                     <div style="margin-top:6px; font-size:13px; color:#e8f3ff;">
-                      Trip completed – Invoice available
+                      Your chauffeur is on the way
                     </div>
                   </td>
-                  <td style="text-align:right;">
+                  <td style="text-align:right; vertical-align:middle;">
                     <div style="width:48px; height:48px; border-radius:8px; background:rgba(255,255,255,0.14); display:inline-block; line-height:48px; text-align:center; font-size:20px;">
-                      🧾
+                      🚗💨
                     </div>
                   </td>
                 </tr>
@@ -47,31 +47,20 @@
             <td style="padding:24px 28px 12px;">
 
               <p style="margin:0 0 14px; font-size:15px;">
-                Hello <strong>{{customer_name}}</strong>,
+                Hello <strong>{{ $booking->full_name }}</strong>,
               </p>
 
               <p style="margin:0 0 18px; font-size:15px;">
-                Your trip has been completed successfully. Your final invoice is now available.
+                Good news — your chauffeur is on the way and will reach you shortly.
               </p>
 
               <!-- Info card -->
               <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:#f8f9fb; border-radius:10px; padding:16px; margin-bottom:20px;">
                 <tr>
                   <td style="padding:6px 8px; font-size:14px; color:#444;">
-                    <strong>Booking ID:</strong> {{booking_id}}<br>
-                    <strong>Total:</strong> {{final_total}}<br>
-                    <strong>Invoice:</strong> <a href="{{invoice_link}}" style="color:#0b6efd; text-decoration:none;">View Invoice</a>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- CTA -->
-              <table cellpadding="0" cellspacing="0" role="presentation" style="width:100%; margin:14px 0 6px;">
-                <tr>
-                  <td align="center">
-                    <a href="{{invoice_link}}" style="display:inline-block; text-decoration:none; padding:12px 22px; border-radius:8px; font-weight:600; font-size:15px; background:#0b6efd; color:#ffffff;">
-                      View Invoice
-                    </a>
+                    <strong>Booking ID:</strong> {{ $booking->id }}<br>
+                    {{-- <strong>Estimated arrival:</strong> {{eta}}<br> --}}
+                    <strong>Pickup:</strong> {{ $booking->pickup_location }}
                   </td>
                 </tr>
               </table>
@@ -85,11 +74,11 @@
               <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
                 <tr>
                   <td>
-                    <div style="font-weight:600; color:#2b2f36;">Thank you,</div>
-                    <div style="margin-top:6px;">ANI Motors</div>
+                    <div style="font-weight:600; color:#2b2f36;">{{ settings('site_name') }}</div>
+                    <div style="margin-top:6px;">Chauffeur En Route</div>
                   </td>
                   <td style="text-align:right; color:#98a0aa; font-size:12px;">
-                    Booking ID: {{booking_id}}
+                    Booking ID: {{ $booking->id }}
                   </td>
                 </tr>
               </table>
@@ -102,7 +91,7 @@
         <table width="700" cellpadding="0" cellspacing="0" role="presentation" style="max-width:700px; width:100%; margin-top:10px;">
           <tr>
             <td style="text-align:center; font-size:12px; color:#9aa2ab; padding:6px 12px;">
-              If you have any questions about your invoice, please contact support.
+              If something looks incorrect, please contact support.
             </td>
           </tr>
         </table>

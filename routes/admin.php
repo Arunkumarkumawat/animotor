@@ -27,15 +27,17 @@ use App\Http\Controllers\Admin\DocumentController;
 use App\Http\Controllers\Admin\MenuItemController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\WorkshopController;
+use App\Http\Controllers\Admin\ChBookingController;
 use App\Http\Controllers\Admin\CountriesController;
 use App\Http\Controllers\Admin\DriverPcnController;
+use App\Http\Controllers\Admin\PhBookingController;
 use App\Http\Controllers\Admin\ComplaintsController;
 use App\Http\Controllers\Admin\DriverFormController;
 use App\Http\Controllers\Admin\FleetEventController;
+
+
 use App\Http\Controllers\Admin\OnboardingController;
 use App\Http\Controllers\Admin\MailTrackerController;
-
-
 use App\Http\Controllers\Admin\TripRequestController;
 use App\Http\Controllers\Admin\VehicleMakeController;
 use App\Http\Controllers\Admin\VehicleTypeController;
@@ -44,7 +46,6 @@ use App\Http\Controllers\Admin\VehicleModelController;
 use App\Http\Controllers\Admin\ReportIncidentController;
 use App\Http\Controllers\Admin\InsuranceCoverageController;
 use App\Http\Controllers\Admin\CancellationReasonController;
-use App\Http\Controllers\Admin\PhBookingController;
 use Modules\AdvanceRental\Http\Controllers\IncidentController;
 /*
 |--------------------------------------------------------------------------
@@ -108,7 +109,24 @@ Route::group(['middleware' => ['auth', 'role:admin|superadmin|owner|manager'], '
     Route::resource('documents', DocumentController::class);
 
     Route::resource('cars', CarController::class);
-    Route::get('car/{id}/extras', [CarController::class, 'extras'])->name('car.extras');
+    Route::post('car/update_policy_dropdown', [CarController::class, 'updatePolicyDropdown'])->name('cars.edit.update_policy_dropdown');
+    Route::post('car/{id}/update/{step}', [CarController::class,'updateStepData'])->name('cars.edit.update_step');
+    Route::post('car/{id}/add_dynamic_pricing', [CarController::class, 'addDynamicPricing'])->name('cars.edit.add_dynamic_pricing');
+    Route::post('car/{id}/delete_dynamic_pricing', [CarController::class, 'deleteDynamicPricing'])->name('cars.edit.delete_dynamic_pricing');
+    Route::post('car/{id}/add_extra', [CarController::class, 'addExtra'])->name('cars.edit.add_extra');
+    Route::post('car/{id}/delete_extra', [CarController::class, 'deleteExtra'])->name('cars.edit.delete_extra');
+    Route::post('car/{id}/add_insurance_coverage', [CarController::class, 'addInsuranceCoverage'])->name('cars.edit.add_insurance_coverage');
+    Route::post('car/{id}/delete_insurance_coverage', [CarController::class, 'deleteInsuranceCoverage'])->name('cars.edit.delete_insurance_coverage');
+    Route::post('car/{id}/add_document', [CarController::class, 'addDocument'])->name('cars.edit.add_document');
+    Route::post('car/{id}/delete_document', [CarController::class, 'deleteDocument'])->name('cars.edit.delete_document');
+    Route::post('car/{id}/add_availability', [CarController::class, 'addAvailability'])->name('cars.edit.add_availability');
+    Route::post('car/{id}/delete_availability', [CarController::class, 'deleteAvailability'])->name('cars.edit.delete_availability');
+    Route::post('car/{id}/add_blackout', [CarController::class, 'addBlackout'])->name('cars.edit.add_blackout');
+    Route::post('car/{id}/delete_blackout', [CarController::class, 'deleteBlackout'])->name('cars.edit.delete_blackout');
+    Route::post('car/{id}/add_mot', [CarController::class, 'addMot'])->name('cars.edit.add_mot');
+    Route::post('car/{id}/add_service', [CarController::class, 'addService'])->name('cars.edit.add_service');
+    Route::post('car/{id}/add_damage_history', [CarController::class, 'addDamageHistory'])->name('cars.edit.add_damage_history');
+    Route::post('car/{id}/add_repair', [CarController::class, 'addRepair'])->name('cars.edit.add_repair');
 
     Route::get('insurance-coverages', [InsuranceCoverageController::class, 'index'])->name('insurance-coverages.index');
     Route::get('insurance-coverages/create', [InsuranceCoverageController::class, 'create'])->name('insurance-coverages.create');
@@ -153,8 +171,12 @@ Route::group(['middleware' => ['auth', 'role:admin|superadmin|owner|manager'], '
     Route::post('bookings/update_status', [BookingController::class, 'updateStatus'])->name('bookings.update_status');
     Route::post('bookings/confirm/{id}', [BookingController::class, 'confirmBooking'])->name('bookings.confirm');
 
-    Route::get('ph_bookings', [PhBookingController::class, 'index'])->name('ph_booking.index');
-    Route::get('ph_bookings/show/{id}', [PhBookingController::class, 'show'])->name('ph_booking.show');
+    Route::get('ph_bookings', [PhBookingController::class, 'index'])->name('ph_bookings.index');
+    Route::get('ss/show/{id}', [PhBookingController::class, 'show'])->name('ph_bookings.show');
+
+    Route::get('ch_bookings', [ChBookingController::class, 'index'])->name('ch_bookings.index');
+    Route::get('ch_bookings/show/{id}', [ChBookingController::class, 'show'])->name('ch_bookings.show');
+    Route::get('ch_bookings/status/{id}/{status}', [ChBookingController::class, 'updateStatus'])->name('ch_bookings.status');
 
     Route::put('/api/toggle/{modelId}', [SettingsController::class, 'toggle']);
 
