@@ -80,7 +80,7 @@
         <div class="col-md-4 mb-3">
             <div class="form-group">
                 <label class="form-label" for="door">Door</label>
-                <input name="door" type="number" class="form-control form-control-xl" id="door"
+                <input name="door" type="text" class="form-control form-control-xl" id="door"
                     pattern="^[0-9]{0,2}$" oninput="this.value = this.value.slice(0, 2)" maxlength="2"
                     value="{{ $car->door }}" required />
             </div>
@@ -88,7 +88,7 @@
         <div class="col-md-4 mb-3">
             <div class="form-group">
                 <label class="form-label" for="seats">Seats</label>
-                <input name="seats" type="number" class="form-control form-control-xl" id="seats"
+                <input name="seats" type="text" class="form-control form-control-xl" id="seats"
                     pattern="^[0-9]{0,2}$" oninput="this.value = this.value.slice(0, 2)" maxlength="2"
                     value="{{ $car->seats }}" required />
             </div>
@@ -96,7 +96,7 @@
         <div class="col-md-4 mb-3">
             <div class="form-group">
                 <label class="form-label" for="bags">Bags Small</label>
-                <input name="bags" type="number" class="form-control form-control-xl" id="bags"
+                <input name="bags" type="text" class="form-control form-control-xl" id="bags"
                     pattern="^[0-9]{0,2}$" oninput="this.value = this.value.slice(0, 2)" maxlength="2"
                     value="{{ $car->bags }}" required />
             </div>
@@ -104,7 +104,7 @@
         <div class="col-md-4 mb-3">
             <div class="form-group">
                 <label class="form-label" for="bags_large">Bags Large</label>
-                <input name="bags_large" type="number" class="form-control form-control-xl" id="bags_large"
+                <input name="bags_large" type="text" class="form-control form-control-xl" id="bags_large"
                     pattern="^[0-9]{0,2}$" oninput="this.value = this.value.slice(0, 2)" maxlength="2"
                     value="{{ $car->bags_large }}" required />
             </div>
@@ -174,7 +174,7 @@
         <div class="col-md-4 mb-3">
             <div class="form-group">
                 <label class="form-label" for="year">Year</label>
-                <input name="year" min="2007" step="1" type="number"
+                <input name="year" min="2007" step="1" type="text"
                     class="form-control form-control-xl" id="year" pattern="^[0-9]{4}$" maxlength="4"
                     value="{{ $car->year }}" required />
             </div>
@@ -182,7 +182,7 @@
         <div class="col-md-4 mb-3">
             <div class="form-group">
                 <label class="form-label" for="deposit">Deposit {{ settings('currency_symbol', '$') }}</label>
-                <input name="deposit" type="number" class="form-control form-control-xl" id="deposit"
+                <input name="deposit" type="text" class="form-control form-control-xl" id="deposit"
                     step="0.01" value="{{ $car->deposit }}" required />
             </div>
         </div>

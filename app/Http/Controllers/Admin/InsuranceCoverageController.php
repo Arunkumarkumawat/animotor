@@ -10,29 +10,29 @@ class InsuranceCoverageController extends Controller
 {
     public function index()
     {
-        $user = auth()->user();
+        $company = getCompany();
         $isCompany = isOwner();
 
-        $totalPolicies = InsuranceCoverage::when($isCompany, function ($query) use ($user) {
-            return $query->where('company_id', $user->company_id);
+        $totalPolicies = InsuranceCoverage::when($isCompany, function ($query) use ($company) {
+            return $query->where('company_id', $company->id);
         })->count();
 
-        $activePolicies = InsuranceCoverage::when($isCompany, function ($query) use ($user) {
-            return $query->where('company_id', $user->company_id);
+        $activePolicies = InsuranceCoverage::when($isCompany, function ($query) use ($company) {
+            return $query->where('company_id', $company->id);
         })->where('policy_end_date', '>', now()->format('Y-m-d'))->where('status', 'active')->count();
 
-        $expiringSoonPolicies = InsuranceCoverage::when($isCompany, function ($query) use ($user) {
-            return $query->where('company_id', $user->company_id);
+        $expiringSoonPolicies = InsuranceCoverage::when($isCompany, function ($query) use ($company) {
+            return $query->where('company_id', $company->id);
         })->where('policy_end_date', now()->format('Y-m-d'))->where('status', 'active')->count();
 
-        $expiredPolicies = InsuranceCoverage::when($isCompany, function ($query) use ($user) {
-            return $query->where('company_id', $user->company_id);
+        $expiredPolicies = InsuranceCoverage::when($isCompany, function ($query) use ($company) {
+            return $query->where('company_id', $company->id);
         })->where('status', 'active')
             ->whereDate('policy_end_date', '<', now())
             ->count();
 
-        $policies = InsuranceCoverage::when($isCompany, function ($query) use ($user) {
-            return $query->where('company_id', $user->company_id);
+        $policies = InsuranceCoverage::when($isCompany, function ($query) use ($company) {
+            return $query->where('company_id', $company->id);
         })->get();
 
         return view('admin.insurance-coverages.index', compact('totalPolicies', 'activePolicies', 'expiringSoonPolicies', 'expiredPolicies', 'policies'));
@@ -41,7 +41,6 @@ class InsuranceCoverageController extends Controller
     public function create(Request $request)
     {
         $type = $request->type;
-        $companyId = auth()->user()->company_id;
 
         switch ($type) {
             case 'full_protection':
@@ -111,7 +110,7 @@ class InsuranceCoverageController extends Controller
         $policy->required_documents = json_encode($request->required_documents ?? []);
 
         $policy->status = $request->status;
-        $policy->company_id = auth()->user()->company_id ?? auth()->user()->id;
+        $policy->company_id = getCompany()->id;
         $policy->policy_type = $request->policy_type;
         $policy->save();
 

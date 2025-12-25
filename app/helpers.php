@@ -1,12 +1,42 @@
 <?php
 
-use App\Models\Menu;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Blade;
+use App\Models\Menu;
+use App\Models\Company;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\View;
-use Illuminate\Support\Str;
+
+if (!function_exists('getCompany')) {
+    function getCompany()
+    {
+        if(auth()->user()->hasRole('superadmin|admin')){
+            $ani_motor = Company::where('contact_name', 'animotor')->first();
+            
+            if (!$ani_motor) {
+                $admin = auth()->user();
+                
+                $ani_motor = Company::create([
+                    'name' => 'Animotor',
+                    'contact_name' => 'animotor',
+                    'contact_email' => $admin->email,
+                    'contact_phone' => '0' . rand(100000000, 999999999), // Random 10-digit number starting with 0
+                    'address' => null,
+                    'postal_code' => null,
+                    'city' => null,
+                    'state' => null,
+                    'country' => null,
+                    'tin' => null,
+                    'logo' => null,
+                ]);
+            }
+
+            return $ani_motor;
+        } else if(isOwner()) {
+            return auth()->user()->company;
+        }
+
+        return null;
+    }
+}
 
 if (!function_exists('convertRouteToPermission')) {
     function convertRouteToPermission($routeName): string

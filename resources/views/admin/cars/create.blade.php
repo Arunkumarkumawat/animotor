@@ -1,6 +1,6 @@
 @extends('admin.layout.app')
-@section('content')
 
+@section('content')
     <div class="nk-content ">
         <div class="container-fluid">
             <div class="nk-content-inner">
@@ -8,51 +8,324 @@
                     <div class="components-preview wide-md- mx-auto">
 
                         <div class="nk-block nk-block-lg">
-                            <div class="nk-block-between g-3">
-                                <div class="nk-block-head-content">
-                                    <h4 class="title nk-block-title">{{ 'Add car' }}</h4>
-                                </div>
+                            <div class="components-preview wide-md- mx-auto" id="form-container">
+                                <form action="{{ route('admin.cars.store') }}" method="POST" enctype="multipart/form-data">
+                                    @csrf
 
-                                <div class="nk-block-head-content">
-                                    <a href="{{ route('admin.cars.index') }}" wire:navigate class="btn btn-outline-light bg-white d-none d-sm-inline-flex"><em class="icon ni ni-arrow-left"></em><span>Back</span></a>
-                                    <a href="{{ route('admin.cars.index') }}" wire:navigate class="btn btn-icon btn-outline-light bg-white d-inline-flex d-sm-none"><em class="icon ni ni-arrow-left"></em></a>
-                                </div>
-                            </div>
-                            <div class="row g-gs">
+                                    <div class="row">
+                                        <div class="col-md-12 mb-3">
+                                            <h5>Car Details</h5>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <div class="form-group">
+                                                <label class="form-label" for="title">Title</label>
+                                                <input name="title" type="text" class="form-control form-control-xl"
+                                                    id="title" maxlength="30" value="{{ old('title') }}" required />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <div class="form-group">
+                                                <label class="form-label" for="title">Register for</label>
+                                                <select class="form-control form-control-xl" name="register_for">
+                                                    @foreach(['Standard','Private Hire','Chauffeur'] as $val)
+                                                        <option value="{{ $val }}" {{ $val == old('register_for') ? 'selected' : '' }}>
+                                                            {{ $val }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-group">
+                                                <label class="form-label" for="type">Car Type</label>
+                                                <select name="type" class="form-control form-control-xl" id="type"
+                                                    required>
+                                                    <option value="">Select Type</option>
+                                                    @foreach ($car_types as $car_type)
+                                                        <option value="{{ $car_type->name }}"
+                                                            {{ $car_type->name == old('type') ? 'selected' : '' }}>
+                                                            {{ $car_type->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-group">
+                                                <label class="form-label" for="make">Car Maker</label>
+                                                <select name="make" class="form-control form-control-xl" id="make"
+                                                    required onchange="loadModels(this.value)">
+                                                    <option value="">Select Maker</option>
+                                                    @foreach ($car_makes as $car_make)
+                                                        <option value="{{ $car_make->name }}"
+                                                            {{ $car_make->name == old('make') ? 'selected' : '' }}>
+                                                            {{ $car_make->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-group">
+                                                <label class="form-label" for="model">Car Model</label>
+                                                <select name="model" class="form-control form-control-xl" id="model"
+                                                    required>
+                                                    <option value="">Select Model</option>
+                                                    @foreach ($car_models as $car_model)
+                                                        <option value="{{ $car_model->name }}"
+                                                            {{ $car_model->name == old('model') ? 'selected' : '' }}>
+                                                            {{ $car_model->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-group">
+                                                <label class="form-label" for="gear">Gear Type</label>
+                                                <select name="gear" class="form-control form-control-xl" id="gear">
+                                                    <option value="">Select Gear Type</option>
+                                                    @foreach (['Automatic', 'Manual'] as $gear)
+                                                        <option value="{{ $gear }}"
+                                                            {{ $gear == old('gear') ? 'selected' : '' }}>
+                                                            {{ $gear }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-group">
+                                                <label class="form-label" for="color">Color</label>
+                                                <input name="color" type="text" class="form-control form-control-xl"
+                                                    id="color" pattern="^[A-Za-z\s]*$" maxlength="20"
+                                                    value="{{ old('color') }}" required />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-group">
+                                                <label class="form-label" for="door">Door</label>
+                                                <input name="door" type="number" class="form-control form-control-xl"
+                                                    id="door" pattern="^[0-9]{0,2}$"
+                                                    oninput="this.value = this.value.slice(0, 2)" maxlength="2"
+                                                    value="{{ old('door') }}" required />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-group">
+                                                <label class="form-label" for="seats">Seats</label>
+                                                <input name="seats" type="number" class="form-control form-control-xl"
+                                                    id="seats" pattern="^[0-9]{0,2}$"
+                                                    oninput="this.value = this.value.slice(0, 2)" maxlength="2"
+                                                    value="{{ old('seats') }}" required />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-group">
+                                                <label class="form-label" for="bags">Bags Small</label>
+                                                <input name="bags" type="number" class="form-control form-control-xl"
+                                                    id="bags" pattern="^[0-9]{0,2}$"
+                                                    oninput="this.value = this.value.slice(0, 2)" maxlength="2"
+                                                    value="{{ old('bags') }}" required />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-group">
+                                                <label class="form-label" for="bags_large">Bags Large</label>
+                                                <input name="bags_large" type="number"
+                                                    class="form-control form-control-xl" id="bags_large"
+                                                    pattern="^[0-9]{0,2}$" oninput="this.value = this.value.slice(0, 2)"
+                                                    maxlength="2" value="{{ old('bags_large') }}" required />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-group">
+                                                <label class="form-label" for="vehicle_features">Features</label>
+                                                <select class="form-control form-control-xl" name="vehicle_features[]"
+                                                    id="vehicle_features" multiple data-placeholder="Select Car Features">
+                                                    @foreach (['Air Conditioning', 'Bluetooth', 'GPS Navigation', 'Parking Sensors', 'Leather Seats', 'USB Ports', 'Premium Sound System', 'Keyless Entry', 'Cruise Control'] as $feature)
+                                                        <option value="{{ $feature }}"
+                                                            {{ in_array($feature, old('vehicle_features',[])) ? 'selected' : '' }}>
+                                                            {{ $feature }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-group">
+                                                <label class="form-label" for="youtube_link">Youtube ID <small>Make sure
+                                                        it is correct</small></label>
+                                                <input name="youtube_link" type="text"
+                                                    class="form-control form-control-xl mb-2" id="youtube_link"
+                                                    value="{{ old('youtube_link') }}" required />
+                                                <img src="{{ asset('admin/assets/images/yt.png') }}" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-group">
+                                                <label class="form-label" for="air_condition">Air Conditioning</label>
+                                                <select name="air_condition" class="form-control form-control-xl"
+                                                    id="air_condition">
+                                                    <option value="">Select Air Conditioning</option>
+                                                    @foreach (['1' => 'Yes', '0' => 'No'] as $key => $val)
+                                                        <option value="{{ $key }}"
+                                                            {{ $key == old('air_condition') ? 'selected' : '' }}>
+                                                            {{ $val }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
 
-                                <div class="col-lg-12">
-                                    <div class="card card-bordered h-100">
-                                        <div class="card-inner">
+                                        <div class="col-md-12 mb-3">
+                                            <h5>Registration Details</h5>
+                                        </div>
 
-                                            <form action="{{ route('admin.cars.store') }}" method="POST" enctype="multipart/form-data">
-                                                @csrf
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-group">
+                                                <label class="form-label" for="vehicle_no">Vehicle No</label>
+                                                <input name="vehicle_no" pattern="^[A-Za-z0-9]{4,20}$" type="text"
+                                                    class="form-control form-control-xl" id="vehicle_no" maxlength="20"
+                                                    value="{{ old('vehicle_no') }}" required />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-group">
+                                                <label class="form-label" for="license_no">License No</label>
+                                                <input name="license_no" pattern="^[A-Za-z0-9]{4,20}$" type="text"
+                                                    class="form-control form-control-xl" id="license_no" maxlength="20"
+                                                    value="{{ old('license_no') }}" required />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-group">
+                                                <label class="form-label" for="registration_number">Registration
+                                                    Number</label>
+                                                <input name="registration_number" pattern="^[A-Za-z0-9]{4,20}$"type="text"
+                                                    class="form-control form-control-xl" id="registration_number"
+                                                    maxlength="20" value="{{ old('registration_number') }}" required />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-group">
+                                                <label class="form-label" for="year">Year</label>
+                                                <input name="year" min="2007" step="1" type="number"
+                                                    class="form-control form-control-xl" id="year"
+                                                    pattern="^[0-9]{4}$" maxlength="4" value="{{ old('year') }}"
+                                                    required />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-group">
+                                                <label class="form-label" for="deposit">Deposit
+                                                    {{ settings('currency_symbol', '$') }}</label>
+                                                <input name="deposit" type="number" class="form-control form-control-xl"
+                                                    id="deposit" step="0.01" value="{{ old('deposit') }}"
+                                                    required />
+                                            </div>
+                                        </div>
 
-                                                @if ($errors->any())
-                                                    <div class="alert alert-danger">
-                                                        <ul>
-                                                            @foreach ($errors->all() as $error)
-                                                                <li>{{ $error }}</li>
-                                                            @endforeach
-                                                        </ul>
-                                                    </div>
+                                        <div class="col-md-12 mb-3">
+                                            <h5>Service Area</h5>
+                                        </div>
+
+                                        <div class="col-md-12 mb-3">
+                                            <div class="form-group">
+                                                <label class="form-label" for="region">Service Area</label>
+                                                <select name="region_id" class="form-control form-control-xl"
+                                                    id="region" required>
+                                                    <option value="">Select Region</option>
+                                                    @foreach ($regions as $region)
+                                                        <option value="{{ $region->id }}"
+                                                            {{ $region->id == old('region_id') ? 'selected' : '' }}>
+                                                            {{ $region->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <div id="pickup_container" class="mb-3">
+                                                @php $pickupIndex = 0; @endphp
+
+                                                @foreach (old('pickup', []) as $index => $pickup)
+                                                    @php $pickupIndex = $index; @endphp
+                                                    @include('admin.partials.form.text', [
+                                                        'attributes' => 'required',
+                                                        'id' => 'porigin' . $index,
+                                                        'colSize' => 'col-md-12',
+                                                        'fieldName' => 'pickup[' . $index . '][location]',
+                                                        'value' => old('pickup.' . $index . '.location', $pickup['location']),
+                                                        'title' => 'Pickup location',
+                                                    ])
+                                                    <input type="hidden" id="plat{{ $index }}"
+                                                        value="{{ old('pickup.' . $index . '.latitude', $pickup['latitude']) }}"
+                                                        name="pickup[{{ $index }}][latitude]" />
+                                                    <input type="hidden" id="plng{{ $index }}"
+                                                        value="{{ old('pickup.' . $index . '.longitude', $pickup['longitude']) }}"
+                                                        name="pickup[{{ $index }}][longitude]" />
+                                                @endforeach
+
+                                                @if (count(old('pickup', [])) == 0)
+                                                    @include('admin.partials.form.text', [
+                                                        'attributes' => 'required',
+                                                        'id' => 'porigin0',
+                                                        'colSize' => 'col-md-12',
+                                                        'fieldName' => 'pickup[0][location]',
+                                                        'value' => old('pickup.0.location', ''),
+                                                        'title' => 'Pickup location',
+                                                    ])
+                                                    <input type="hidden" id="plat0" value="{{ old('pickup.0.latitude', '') }}"
+                                                        name="pickup[0][latitude]" />
+                                                    <input type="hidden" id="plng0" value="{{ old('pickup.0.longitude', '') }}"
+                                                        name="pickup[0][longitude]" />
                                                 @endif
+                                            </div>
+                                            <button type="button" class="btn btn-success d-block"
+                                                onclick="addAutocompleteItem(true)">Add
+                                                More</button>
+                                        </div>
 
-                                                @if(session()->has('success'))
-                                                    <div class="alert alert-success">
-                                                        {{ session()->get('success') }}
-                                                    </div>
+                                        <div class="col-md-6">
+                                            <div id="dropup_container" class="mb-3">
+                                                @php $dropupIndex = 0; @endphp
+
+                                                @foreach (old('dropup', []) as $index => $dropup)
+                                                    @php $dropupIndex = $index; @endphp
+                                                    @include('admin.partials.form.text', [
+                                                        'attributes' => 'required',
+                                                        'id' => 'dorigin' . $index,
+                                                        'colSize' => 'col-md-12',
+                                                        'fieldName' => 'dropup[' . $index . '][location]',
+                                                        'value' => old('dropup.' . $index . '.location', $dropup['location']),
+                                                        'title' => 'Dropoff location',
+                                                    ])
+                                                    <input type="hidden" id="dlat{{ $index }}"
+                                                        value="{{ old('dropup.' . $index . '.latitude', $dropup['latitude']) }}"
+                                                        name="dropup[{{ $index }}][latitude]" />
+                                                    <input type="hidden" id="dlng{{ $index }}"
+                                                        value="{{ old('dropup.' . $index . '.longitude', $dropup['longitude']) }}"
+                                                        name="dropup[{{ $index }}][longitude]" />
+                                                @endforeach
+
+                                                @if (count(old('dropup', [])) == 0)
+                                                    @include('admin.partials.form.text', [
+                                                        'attributes' => 'required',
+                                                        'id' => 'dorigin0',
+                                                        'colSize' => 'col-md-12',
+                                                        'fieldName' => 'dropup[0][location]',
+                                                        'value' => old('dropup.0.location', ''),
+                                                        'title' => 'Dropoff location',
+                                                    ])
+                                                    <input type="hidden" id="dlat0" value="{{ old('dropup.0.latitude', '') }}"
+                                                        name="dropup[0][latitude]" />
+                                                    <input type="hidden" id="dlng0" value="{{ old('dropup.0.longitude', '') }}"
+                                                        name="dropup[0][longitude]" />
                                                 @endif
-
-                                                @include('admin.cars.form', ['car' => null, 'car_types' => $car_types, 'car_makes' => $car_makes])
-
-                                                <div class="form-group mt-3">
-                                                    <button type="submit" class="btn btn-lg btn-primary">Submit</button>
-                                                </div>
-                                            </form>
+                                            </div>
+                                            <button type="button" class="btn btn-success d-block"
+                                                onclick="addAutocompleteItem(false)">Add
+                                                More</button>
                                         </div>
                                     </div>
-                                </div>
+                                </form>
                             </div>
+                            <br>
+                            <button type="submit" class="btn btn-primary">Submit</button>
                         </div><!-- .nk-block -->
 
 
@@ -61,130 +334,125 @@
             </div>
         </div>
     </div>
-    
 @endsection
 
-
 @section('js')
+    <style>
+        .select2-container--default .select2-selection--multiple {
+            position: relative;
+            padding: 0.6rem;
+            padding-right: 36px;
+            min-height: 38px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .select2-container--default .select2-selection--multiple::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23333' stroke-width='1.5'><path d='M6 8l4 4 4-4' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+            background-repeat: no-repeat;
+            background-size: contain;
+            opacity: 0.8;
+        }
+
+        .select2-container--open .select2-selection--multiple::after {
+            transform: translateY(-50%) rotate(180deg);
+        }
+    </style>
     <script>
+        function initAutocomplete(element) {
+            const autocomplete = new google.maps.places.Autocomplete(element, {
+                types: ['geocode']
+            });
 
-
-        {{--function populateModels() {--}}
-        {{--    $('#make').on('change', function() {--}}
-        {{--        var makeId = $(this).val();--}}
-        {{--        if (makeId) {--}}
-        {{--            $.ajax({--}}
-        {{--                url: "{{ route('admin.api.get.models') }}?make_id=" + makeId,--}}
-        {{--                type: 'GET',--}}
-        {{--                dataType: 'json',--}}
-        {{--                success: function(data) {--}}
-        {{--                    $('#model').empty().append('<option value="">Select Model</option>');--}}
-        {{--                    if (data.data.length > 0) {--}}
-        {{--                        $.each(data.data, function(index, model) {--}}
-        {{--                            $('#model').append('<option value="' + model.name + '">' + model.name + '</option>');--}}
-        {{--                        });--}}
-        {{--                    }--}}
-        {{--                }--}}
-        {{--            });--}}
-        {{--        } else {--}}
-        {{--            $('#model').empty().append('<option value="">Select Model</option>');--}}
-        {{--        }--}}
-        {{--    });--}}
-        {{--}--}}
-        
-        function initAutocomplete(element){
-            const autocomplete = new google.maps.places.Autocomplete(element, { types: ['geocode'] });
-            
-            autocomplete.addListener('place_changed', function(){
+            autocomplete.addListener('place_changed', function() {
                 var place = autocomplete.getPlace();
-        
+
                 if (!place.geometry) {
                     return;
                 }
-                
+
                 var latitudeInput = document.getElementById(element.id.replace('origin', 'lat'));
                 var longitudeInput = document.getElementById(element.id.replace('origin', 'lng'));
-        
+
                 element.value = place.name;
                 latitudeInput.value = place.geometry.location.lat();
                 longitudeInput.value = place.geometry.location.lng();
             })
         }
 
-        function populateModels() {
-            var makeElement = document.getElementById('make');
-            var modelElement = document.getElementById('model');
+        var pickupIndex = {{ $pickupIndex }};
+        var dropupIndex = {{ $dropupIndex }};
 
-            makeElement.addEventListener('change', function () {
-                var makeId = this.value;
-                if (makeId) {
-                    var xhr = new XMLHttpRequest();
-                    xhr.open('GET', "{{ route('admin.api.get.models') }}?make_id=" + makeId, true);
-                    xhr.onreadystatechange = function () {
-                        if (xhr.readyState === 4 && xhr.status === 200) {
-                            var data = JSON.parse(xhr.responseText);
-                            modelElement.innerHTML = '<option value="">Select Model</option>';
-                            if (data.data.length > 0) {
-                                data.data.forEach(function (model) {
-                                    var option = document.createElement('option');
-                                    option.value = model.name;
-                                    option.text = model.name;
-                                    modelElement.appendChild(option);
-                                });
-                            }
-                        }
-                    };
-                    xhr.send();
-                } else {
-                    modelElement.innerHTML = '<option value="">Select Model</option>';
-                }
-            });
+        function addAutocompleteItem(p = true) {
+            if (p === true) {
+                pickupIndex++;
+
+                jQuery('#pickup_container').append(`<div class="input-group mt-3">
+                <input type="text" placeholder="Pickup location" required id="porigin${pickupIndex}" class="col-md-12 form-control" name="pickup[${pickupIndex}][location]">
+                <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()">Remove</button>
+                <input type="hidden" id="plat${pickupIndex}" value="" name="pickup[${pickupIndex}][latitude]" />
+                <input type="hidden" id="plng${pickupIndex}" value="" name="pickup[${pickupIndex}][longitude]" />
+            </div>`);
+
+                initAutocomplete(document.querySelector(`#porigin${pickupIndex}`));
+            } else {
+                dropupIndex++;
+
+                jQuery('#dropup_container').append(`<div class="input-group mt-3">
+                <input type="text" placeholder="Dropoff location" required id="dorigin${dropupIndex}" class="col-md-12 form-control" name="dropup[${dropupIndex}][location]">
+                <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()">Remove</button>
+                <input type="hidden" id="dlat${dropupIndex}" value="" name="dropup[${dropupIndex}][latitude]" />
+                <input type="hidden" id="dlng${dropupIndex}" value="" name="dropup[${dropupIndex}][longitude]" />
+            </div>`);
+
+                initAutocomplete(document.querySelector(`#dorigin${dropupIndex}`));
+            }
         }
 
-        // Call the function after the DOM is loaded
-        document.addEventListener('DOMContentLoaded', function () {
-            populateModels();
-            
-            $('[id^="porigin"], [id^="dorigin"]').each(function(index,elem){
-                initAutocomplete(elem);
-            })
-        });
+        function loadModels(makeId) {
+            var modelElement = document.getElementById('model');
 
-        document.addEventListener('livewire:navigated', function () {
-            // Call the function when livewire:navigated event is triggered
-            populateModels();
+            if (makeId) {
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', "{{ route('admin.api.get.models') }}?make_id=" + makeId, true);
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        var data = JSON.parse(xhr.responseText);
+                        modelElement.innerHTML = '<option value="">Select Model</option>';
+                        if (data.data.length > 0) {
+                            data.data.forEach(function(model) {
+                                var option = document.createElement('option');
+                                option.value = model.name;
+                                option.text = model.name;
+                                modelElement.appendChild(option);
+                            });
 
-            $('#make').on('select2:select', function (e) {
-                var makeElement = document.getElementById('make');
-                var modelElement = document.getElementById('model');
-            
-                var makeId = makeElement.value;
-                if (makeId) {
-                    var xhr = new XMLHttpRequest();
-                    xhr.open('GET', "{{ route('admin.api.get.models') }}?make_id=" + makeId, true);
-                    xhr.onreadystatechange = function () {
-                        if (xhr.readyState === 4 && xhr.status === 200) {
-                            var data = JSON.parse(xhr.responseText);
-                            modelElement.innerHTML = '<option value="">Select Model</option>';
-                            if (data.data.length > 0) {
-                                data.data.forEach(function (model) {
-                                    var option = document.createElement('option');
-                                    option.value = model.name;
-                                    option.text = model.name;
-                                    modelElement.appendChild(option);
-                                });
-                            }
+                            jQuery(modelElement).trigger('change')
                         }
-                    };
-                    xhr.send();
-                } else {
-                    modelElement.innerHTML = '<option value="">Select Model</option>';
-                }
-            })
-        });
+                    }
+                };
+                xhr.send();
+            } else {
+                modelElement.innerHTML = '<option value="">Select Model</option>';
+                jQuery(modelElement).trigger('change')
+            }
+        }
+
+        function triggerSubmit() {
+            jQuery('#submit_button').trigger('click')
+        }
+
+        jQuery('#type, #make, #model, #gear, #region, #vehicle_features').select2();
     </script>
-
-
-
-
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ env('MAP_API_KEY') }}&libraries=places" async defer>
+    </script>
 @endsection

@@ -1,4 +1,5 @@
 @extends('admin.layout.app')
+
 @push('styles')
 <style>
 .step-wizard {
@@ -140,6 +141,23 @@
 @endpush
 
 @section('content')
+    @php 
+        $stepsName = [
+            'Initial',
+            'Basic Info',
+            'Pricing',
+            'Exras',
+            'Documents',
+            'Availability',
+            'MOT + Service',
+            'Damage + Repair',
+            'Requirements',
+        ];
+
+        if($car->chauffeur){
+            $stepsName[3] = 'Driver';
+        }
+    @endphp
     <div class="nk-content ">
         <div class="container-fluid">
             <div class="nk-content-inner">
@@ -147,66 +165,28 @@
                     <div class="nk-block-head-content">
                         <div class="step-wizard">
                             <ul class="nav nav-pills nav-justified step-wizard-list">
+                                @foreach($stepsName as $key => $rStep)
                                 <li class="nav-item">
-                                    <a href="{{ route('admin.cars.edit', ['car' => $car->id]) }}?step=0" class="nav-link {{ $step == 0 ? 'active' : '' }}">
-                                        <span class="step-counter">0</span>
-                                        <span class="step-name">Initial</span>
+                                    <a href="{{ route('admin.cars.edit', ['car' => $car->id]) }}?step={{ $key }}" class="nav-link {{ $step == $key ? 'active' : '' }}">
+                                        <span class="step-counter">{{ $key }}</span>
+                                        <span class="step-name">{{ $rStep }}</span>
                                     </a>
                                 </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('admin.cars.edit', ['car' => $car->id]) }}?step=1" class="nav-link {{ $step == 1 ? 'active' : '' }}">
-                                        <span class="step-counter">1</span>
-                                        <span class="step-name">Basic Info</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('admin.cars.edit', ['car' => $car->id]) }}?step=2" class="nav-link {{ $step == 2 ? 'active' : '' }}">
-                                        <span class="step-counter">2</span>
-                                        <span class="step-name">Pricing</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('admin.cars.edit', ['car' => $car->id]) }}?step=3" class="nav-link {{ $step == 3 ? 'active' : '' }}">
-                                        <span class="step-counter">3</span>
-                                        <span class="step-name">Extras</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('admin.cars.edit', ['car' => $car->id]) }}?step=4" class="nav-link {{ $step == 4 ? 'active' : '' }}">
-                                        <span class="step-counter">4</span>
-                                        <span class="step-name">Documents</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('admin.cars.edit', ['car' => $car->id]) }}?step=5" class="nav-link {{ $step == 5 ? 'active' : '' }}">
-                                        <span class="step-counter">5</span>
-                                        <span class="step-name">Availability</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('admin.cars.edit', ['car' => $car->id]) }}?step=6" class="nav-link {{ $step == 6 ? 'active' : '' }}">
-                                        <span class="step-counter">6</span>
-                                        <span class="step-name">MOT + Service</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('admin.cars.edit', ['car' => $car->id]) }}?step=7" class="nav-link {{ $step == 7 ? 'active' : '' }}">
-                                        <span class="step-counter">7</span>
-                                        <span class="step-name">Damage + Repair</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('admin.cars.edit', ['car' => $car->id]) }}?step=8" class="nav-link {{ $step == 8 ? 'active' : '' }}">
-                                        <span class="step-counter">8</span>
-                                        <span class="step-name">Requirements</span>
-                                    </a>
-                                </li>
+                                @endforeach
                             </ul>
                         </div>
                     </div>
 
                     <div class="components-preview wide-md- mx-auto" id="form-container">
-                        @include('admin.cars.edit_steps.step' . $step, compact('car'))
+                        @if($step == 2 && $car->chauffeur)
+                            @include('admin.cars.edit_steps.chauffeur_step2', compact('car'))
+                        @elseif($step == 3 && $car->chauffeur)
+                            @include('admin.cars.edit_steps.chauffeur_step3', compact('car'))
+                        @elseif($step == 2 && $car->private_hire)
+                            @include('admin.cars.edit_steps.private_hire_step2', compact('car'))
+                        @else
+                            @include('admin.cars.edit_steps.step' . $step, compact('car'))
+                        @endif
                     </div>
 
                     <br>
@@ -316,7 +296,10 @@ function helper_attr_rev_init(){
                         to_enable = true;
                     }
                 } else if( relative.getAttribute('data-ha-resolver') && typeof window[ relative.getAttribute('data-ha-resolver') ] === 'function' ){
-                    to_enable = window[ relative.getAttribute('data-ha-resolver') ]( relative, elem_value );
+                    to_enable = window[ relative.getAttribute('data-ha-resolver') ]( relative, elem_value, elem );
+                    if(to_enable === null){
+                        return;
+                    }
                 }
 
                 callback && callback(elem, relative, to_enable); // select, div, bool

@@ -127,6 +127,8 @@ Route::group(['middleware' => ['auth', 'role:admin|superadmin|owner|manager'], '
     Route::post('car/{id}/add_service', [CarController::class, 'addService'])->name('cars.edit.add_service');
     Route::post('car/{id}/add_damage_history', [CarController::class, 'addDamageHistory'])->name('cars.edit.add_damage_history');
     Route::post('car/{id}/add_repair', [CarController::class, 'addRepair'])->name('cars.edit.add_repair');
+    Route::post('car/{id}/store_ch_data', [CarController::class, 'storeChaufferData'])->name('cars.edit.store_ch_data');
+    Route::post('car/{id}/store_ph_data', [CarController::class, 'storePrivateHireData'])->name('cars.edit.store_ph_data');
 
     Route::get('insurance-coverages', [InsuranceCoverageController::class, 'index'])->name('insurance-coverages.index');
     Route::get('insurance-coverages/create', [InsuranceCoverageController::class, 'create'])->name('insurance-coverages.create');
