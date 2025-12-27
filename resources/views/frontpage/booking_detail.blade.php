@@ -14,7 +14,6 @@
         @include('frontpage.partials.layout.header')
     @endif
 
-
     <!-- hotel list here -->
     <section class="flight__onewaysection pb__60 pt__60-" style="{{ !is_app() ? 'padding-top: 90px' : 'padding-top: 0px!important' }}">
 
@@ -97,7 +96,7 @@
                                     <div class="row">
                                         <div class="col-12">
                                             <div>
-                                                {{ $booking->car->title }}
+                                                {{ $booking->car?->title }}
                                                 <div class="dropdown" style="display:inline">
                                                     <button class="btn btn-link" style="text-decoration: none;" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                                         or similar car
@@ -112,38 +111,38 @@
 
                                         <div class="col-6 mt-2">
                                             <p><img src="/assets/img/icons/profile.png" />
-                                                {{ $booking->car->seats }} Seats </p>
+                                                {{ $booking->car?->seats }} Seats </p>
                                         </div>
 
                                         <div class="col-6 mt-2">
                                             <p><img src="/assets/img/icons/gear.png" />
-                                                {{ $booking->car->gear }}</p>
+                                                {{ $booking->car?->gear }}</p>
                                         </div>
 
                                         <div class="col-6 mt-2">
                                             <p><img src="/assets/img/icons/bag.png" />
-                                                {{ $booking->car->bags ?? '1 large' }} bag</p>
+                                                {{ $booking->car?->bags ?? '1 large' }} bag</p>
                                         </div>
 
                                         <div class="col-6 mt-2">
                                             <p class="mt-2">{{ $booking->car?->type }}</p>
                                         </div>
 
-                                        @if($booking->car->mileage_policy)
+                                        @if($booking->car?->mileage_policy)
                                         <div class="col-6 mt-3">
                                             <p>Mileage Policy</p>
-                                            <p class="mt-2 text-title">{{ $booking->car->mileage_policy == 'unlimited' ? '' : $booking->car->mileage_limit }}{{ ucwords(str_replace('_', ' ', $booking->car->mileage_policy)) }}</p>
+                                            <p class="mt-2 text-title">{{ $booking->car?->mileage_policy == 'unlimited' ? '' : $booking->car?->mileage_limit }}{{ ucwords(str_replace('_', ' ', $booking->car?->mileage_policy)) }}</p>
                                         </div>
                                         @endif
 
-                                        @if($booking->car->excess_mileage_rate)
+                                        @if($booking->car?->excess_mileage_rate)
                                         <div class="col-6 mt-3">
                                             <p>Excess Mileage Rate</p>
                                             <p class="mt-2 text-title">{{ $booking->car->excess_mileage_rate }} per mile</p>
                                         </div>
                                         @endif
 
-                                        @if($booking->car->cancellation_policy)
+                                        @if($booking->car?->cancellation_policy)
                                         <div class="col-6 mt-3">
                                             <p>Cancellation Policy</p>
                                             <p class="mt-2 text-title">{{ $booking->car->cancellation_policy == 0 ? 'No Cancellation' : $booking->car->cancellation_policy . ' hours before pick-up' }}</p>
@@ -166,7 +165,7 @@
                             </div>
                             <div class="mt-3">
 
-                                @foreach($booking->car->requirements() as $i)
+                                @foreach($booking->car?->requirements() ?? [] as $i)
                                     <p class="text-capitalize">
                                         {{ $i }}
                                     </p>

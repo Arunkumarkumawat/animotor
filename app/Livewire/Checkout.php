@@ -9,10 +9,14 @@ use App\Models\Booking;
 use App\Models\Country;
 use Livewire\Component;
 use App\Mail\EmailOtpMail;
+use App\Events\BookingConfirmed;
 use App\Models\InsuranceCoverage;
+use App\Mail\AdminBookingConfirmed;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use App\Mail\InsurerBookingConfirmed;
+use App\Mail\BookingConfirmed as BookingConfirmedMail;
 
 class Checkout extends Component
 {
@@ -179,6 +183,7 @@ class Checkout extends Component
         
         $total += $extra_fee;
         
+        $policy = false;
         $insurance_fee = 0;
         foreach ($this->car->insurance_coverage as $index => $coverage) {
             if(isset($params['insurance_id']) && $params['insurance_id'] == $index){
@@ -197,11 +202,12 @@ class Checkout extends Component
         $data['customer_id'] = $user->id;
         $data['region_id'] = $this->car->region_id;
         $data['car_id'] = $this->car->id;
+        $data['policy_id'] = $policy ? $policy->id : null;
 
-        $data['fee'] =  $total0;
-        $data['tax'] =  $tax;
-        $data['extras'] =  $extras;
-        $data['insurance_fee'] =  $insurance_fee;
+        $data['fee'] = $total0;
+        $data['tax'] = $tax;
+        $data['extras'] = $extras;
+        $data['insurance_fee'] = $insurance_fee;
         $data['grand_total'] =  $total;
         $data['booking_period'] = ($booking_day/$days_count) . ' ' . $booking_period;
         
@@ -231,6 +237,13 @@ class Checkout extends Component
 
         if($booking){
             $this->car->save();
+        }
+
+        Mail::to($booking->user->email)->send(new BookingConfirmedMail($booking));
+        Mail::to(settings('contact_email'))->send(new AdminBookingConfirmed($booking));
+
+        if($policy){
+            Mail::to($policy->claims_contact['email'])->send(new InsurerBookingConfirmed($booking));
         }
 
         return redirect()->route('booking_successful', ['id' => $booking->id])->with('success','Booking successfully submitted, please proceed to payment');

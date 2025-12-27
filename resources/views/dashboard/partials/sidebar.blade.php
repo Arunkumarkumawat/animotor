@@ -33,6 +33,26 @@
                      </span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a  wire:navigate href="{{ route('frontpage.private_hire.blist') }}" class="nav-link {{ request()->routeIs('frontpage.private_hire.blist') ? ' active' : '' }}">
+                     <span class="icon">
+                        <img src="/assets/img/svg/log.svg" alt="login">
+                     </span>
+                    <span>
+                        Private Hire Bookings
+                     </span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a  wire:navigate href="{{ route('frontpage.chauffeur.blist') }}" class="nav-link {{ request()->routeIs('frontpage.chauffeur.blist') ? ' active' : '' }}">
+                     <span class="icon">
+                        <img src="/assets/img/svg/log.svg" alt="login">
+                     </span>
+                    <span>
+                        Chauffeur Bookings
+                     </span>
+                </a>
+            </li>
             @endif
 
 {{--            <li class="nav-item">--}}

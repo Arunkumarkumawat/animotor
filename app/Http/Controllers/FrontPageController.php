@@ -154,11 +154,6 @@ class FrontPageController extends Controller
     public function booking($id)
     {
         $booking = Booking::findOrFail($id);
-
-        if (!$booking->car) {
-            return redirect()->back()->with('error', 'Invalid booking');
-        }
-
         return view('frontpage.booking_detail', compact('booking'));
     }
 
@@ -1119,5 +1114,15 @@ class FrontPageController extends Controller
         $car = Car::where('id', $cBooking->car_id)->first();
 
         return view('frontpage.chauffeur.confirmed', compact('cBooking', 'car'));
+    }
+
+    public function chauffeurBookingList(){
+        $bookings = CBooking::where('user_id', auth()->id())->latest()->paginate();
+        return view('frontpage.chauffeur.bookings', compact('bookings'));
+    }
+
+    public function privateHireBookingList(){
+        $bookings = PHBooking::where('user_id', auth()->id())->latest()->paginate();
+        return view('frontpage.private_hire.bookings', compact('bookings'));
     }
 }

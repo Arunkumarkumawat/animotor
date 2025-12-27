@@ -16,7 +16,7 @@
                         <div class="personal__info__box">
                             <div class="per__ittle d-flex align-items-center">
                                 <h5>
-                                    All Bookings
+                                    All Chauffeur Bookings
                                 </h5>
                             </div>
 
@@ -30,44 +30,28 @@
 {{--                                        <th>{{ __('admin.service_area') }}</th>--}}
                                         <th>{{ __('admin.car') }}</th>
                                         <th>{{ __('admin.booking_no') }}</th>
-                                        <th>{{ __('admin.reference') }}</th>
+                                        <th>{{ __('admin.trip_type') }}</th>
                                         <th>{{ __('admin.booking_date') }}</th>
-                                        <th>{{ __('admin.period') }}</th>
-
-
-                                        {{--                                <th>{{ __('admin.pickup_date') }}</th>--}}
                                         <th>{{ __('admin.booking_status') }}</th>
                                         <th>{{ __('admin.total_cost') }}</th>
                                         <th>{{ __('admin.payment_status') }}</th>
-                                        <th>{{ __('admin.payment_method') }}</th>
+                                        <th>{{ __('admin.transaction_id') }}</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     @foreach($bookings as $item)
                                         <tr>
                                             <td>{{ $loop->index + 1 }}</td>
-
-{{--                                            <td>{{ $item?->region?->name }}</td>--}}
-
                                             <td>{{ $item?->car?->title }}</td>
-                                            <td><a class="link" href="{{ route('booking', $item->id) }}">
-                                                    {{ $item->booking_number }}</a>
+                                            <td><a class="link" href="{{ route('frontpage.chauffeur.confirmation', $item->id) }}">
+                                                    {{ $item->id }}</a>
                                             </td>
-                                            <td>{{ $item->reference }}</td>
+                                            <td>{{ $item->trip_type }}</td>
                                             <td>{{ $item->created_at->format('Y-m-d H:i:s') }}</td>
-                                            <td>{{ $item->days }} {{ __('admin.booking_days') }}</td>
-
-
-                                            {{--    <td></td>--}}
                                             <td>{{ $item->status }}</td>
-
-                                            <td>{{ amt($item->grand_total) }}</td>
-                                            <td>{{ $item->payment_status }}</td>
-                                            <td>{{ $item->payment_method }}</td>
-                                            {{--    <td></td>--}}
-                                            {{--    <td></td>--}}
-
-
+                                            <td>{{ amt($item->total_amount) }}</td>
+                                            <td>{{ $item->pg_status }}</td>
+                                            <td>{{ $item->pg_tx_id }}</td>
                                         </tr>
                                     @endforeach
                                     </tbody>

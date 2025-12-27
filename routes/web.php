@@ -91,6 +91,7 @@ Route::get('/private-hire-list-alt', [FrontPageController::class, 'privateHireLi
 Route::get('/private-hire-single/{id}', [FrontPageController::class, 'privateHireSingle'])->name('private_hire_single');
 Route::get('/private-hire-extras/{id}', [FrontPageController::class, 'privateHireExtras'])->name('private_hire_extras');
 Route::match(['get','post'], '/private-hire-checkout/{id}', [FrontPageController::class, 'privateHireCheckout'])->name('private_hire_checkout');
+Route::get('/private-hire/bookings', [FrontPageController::class, 'privateHireBookingList'])->name('frontpage.private_hire.blist');
 
 Route::get('/chauffeur/search', [FrontPageController::class, 'chauffeurSearch'])->name('frontpage.chauffeur.search');
 Route::get('/chauffeur/list', [FrontPageController::class, 'chauffeurList'])->name('frontpage.chauffeur.list');
@@ -100,6 +101,7 @@ Route::match(['get','post'], '/chauffeur/details/{id}', [FrontPageController::cl
 Route::match(['get','post'], 'chauffeur/payment/{id}', [FrontPageController::class, 'chauffeurPayment'])->name('frontpage.chauffeur.payment');
 Route::get('/chauffeur/confirmation/{id}', [FrontPageController::class, 'chauffeurBookingConfirmed'])->name('frontpage.chauffeur.confirmation');
 Route::get('/chauffeur/invoice/{id}', [FrontPageController::class, 'chauffeurInvoice'])->name('frontpage.chauffeur.invoice');
+Route::get('/chauffeur/bookings', [FrontPageController::class, 'chauffeurBookingList'])->name('frontpage.chauffeur.blist');
 
 Route::get('test/email', function () {
     return view('emails.account_notify');

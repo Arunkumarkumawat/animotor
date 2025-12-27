@@ -61,6 +61,7 @@ trait FillableTraits
         'company_id',
 
         'extras',
+        'policy_id',
         'booking_period',
         'billing_details',
     ];
