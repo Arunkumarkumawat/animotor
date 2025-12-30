@@ -239,19 +239,14 @@
                                         </div>
 
                                         <div class="col-md-6">
+                                            <label>Pickup</label>
                                             <div id="pickup_container" class="mb-3">
                                                 @php $pickupIndex = 0; @endphp
 
                                                 @foreach (old('pickup', []) as $index => $pickup)
                                                     @php $pickupIndex = $index; @endphp
-                                                    @include('admin.partials.form.text', [
-                                                        'attributes' => 'required',
-                                                        'id' => 'porigin' . $index,
-                                                        'colSize' => 'col-md-12',
-                                                        'fieldName' => 'pickup[' . $index . '][location]',
-                                                        'value' => old('pickup.' . $index . '.location', $pickup['location']),
-                                                        'title' => 'Pickup location',
-                                                    ])
+                                                    <input type="text" id="porigin{{ $index }}" value="{{ old('pickup.' . $index . '.location', $pickup['location']) }}"
+                                                        name="pickup[{{ $index }}][location]" required />
                                                     <input type="hidden" id="plat{{ $index }}"
                                                         value="{{ old('pickup.' . $index . '.latitude', $pickup['latitude']) }}"
                                                         name="pickup[{{ $index }}][latitude]" />
@@ -261,14 +256,8 @@
                                                 @endforeach
 
                                                 @if (count(old('pickup', [])) == 0)
-                                                    @include('admin.partials.form.text', [
-                                                        'attributes' => 'required',
-                                                        'id' => 'porigin0',
-                                                        'colSize' => 'col-md-12',
-                                                        'fieldName' => 'pickup[0][location]',
-                                                        'value' => old('pickup.0.location', ''),
-                                                        'title' => 'Pickup location',
-                                                    ])
+                                                    <input type="text" id="porigin0" class="form-control" value="{{ old('pickup.0.location', '') }}"
+                                                        name="pickup[0][location]" required />
                                                     <input type="hidden" id="plat0" value="{{ old('pickup.0.latitude', '') }}"
                                                         name="pickup[0][latitude]" />
                                                     <input type="hidden" id="plng0" value="{{ old('pickup.0.longitude', '') }}"
@@ -281,19 +270,14 @@
                                         </div>
 
                                         <div class="col-md-6">
+                                            <label>Dropup</label>
                                             <div id="dropup_container" class="mb-3">
                                                 @php $dropupIndex = 0; @endphp
 
                                                 @foreach (old('dropup', []) as $index => $dropup)
                                                     @php $dropupIndex = $index; @endphp
-                                                    @include('admin.partials.form.text', [
-                                                        'attributes' => 'required',
-                                                        'id' => 'dorigin' . $index,
-                                                        'colSize' => 'col-md-12',
-                                                        'fieldName' => 'dropup[' . $index . '][location]',
-                                                        'value' => old('dropup.' . $index . '.location', $dropup['location']),
-                                                        'title' => 'Dropoff location',
-                                                    ])
+                                                    <input type="text" id="dorigin{{ $index }}" value="{{ old('dropup.' . $index . '.location', $dropup['location']) }}"
+                                                        name="dropup[{{ $index }}][location]" required />
                                                     <input type="hidden" id="dlat{{ $index }}"
                                                         value="{{ old('dropup.' . $index . '.latitude', $dropup['latitude']) }}"
                                                         name="dropup[{{ $index }}][latitude]" />
@@ -303,14 +287,8 @@
                                                 @endforeach
 
                                                 @if (count(old('dropup', [])) == 0)
-                                                    @include('admin.partials.form.text', [
-                                                        'attributes' => 'required',
-                                                        'id' => 'dorigin0',
-                                                        'colSize' => 'col-md-12',
-                                                        'fieldName' => 'dropup[0][location]',
-                                                        'value' => old('dropup.0.location', ''),
-                                                        'title' => 'Dropoff location',
-                                                    ])
+                                                    <input type="text" id="dorigin0" class="form-control" value="{{ old('dropup.0.location', '') }}"
+                                                        name="dropup[0][location]" required />
                                                     <input type="hidden" id="dlat0" value="{{ old('dropup.0.latitude', '') }}"
                                                         name="dropup[0][latitude]" />
                                                     <input type="hidden" id="dlng0" value="{{ old('dropup.0.longitude', '') }}"
@@ -451,8 +429,13 @@
             jQuery('#submit_button').trigger('click')
         }
 
-        jQuery('#type, #make, #model, #gear, #region, #vehicle_features').select2();
+        function loadInitial() {
+            initAutocomplete(document.querySelector(`#porigin0`));
+            initAutocomplete(document.querySelector(`#dorigin0`));
+        }
+
+        jQuery('#type, #make, #model, #gear, #region, #vehicle_features').select2();        
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key={{ env('MAP_API_KEY') }}&libraries=places" async defer>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ env('MAP_API_KEY') }}&libraries=places&callback=loadInitial" async defer>
     </script>
 @endsection
